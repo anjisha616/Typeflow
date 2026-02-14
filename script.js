@@ -1,15 +1,12 @@
-const textSamples = [
-    "Design is not just what it looks like and feels like. Design is how it works when people use it every day.",
-    "Focused practice builds lasting skill. Small improvements, repeated consistently, compound into remarkable results.",
-    "A clear mind types with rhythm. Read ahead, stay relaxed, and let accuracy guide your speed.",
-    "Product teams ship faster when they communicate well, test assumptions, and iterate with purpose.",
-    "Typing is a craft of precision and flow. Keep your eyes on the text and trust your hands to follow.",
-    "Great software feels effortless because someone cared about every detail, from performance to typography.",
-    "Momentum is built by simple habits: warm up, stay steady, and finish with intention.",
-    "Quality work comes from patience, clarity, and the courage to refine until the experience feels right.",
-    "Speed is a byproduct of accuracy. Reduce errors first, then your pace will rise naturally.",
-    "Consistency turns short sessions into mastery. Show up, measure progress, and celebrate each gain."
+const baseWords = [
+    "design", "typing", "focus", "rhythm", "steady", "clarity", "flow", "precision", "practice", "balance",
+    "signal", "detail", "craft", "gentle", "future", "method", "energy", "motion", "signal", "value",
+    "quality", "simple", "quiet", "progress", "intent", "context", "pattern", "tempo", "memory", "logic",
+    "system", "layout", "screen", "signal", "accent", "measure", "stable", "vision", "reason", "result",
+    "focus", "steady", "build", "learn", "trust", "align", "repeat", "refine", "polish", "deliver"
 ];
+
+const symbols = ["!", "@", "#", "$", "%", "&", "*", "+", "-", "?"];
 
 let currentText = "";
 let currentPosition = 0;
@@ -31,6 +28,9 @@ const accuracyDisplay = document.getElementById("accuracy");
 const timerDisplay = document.getElementById("timer");
 const timerBtns = document.querySelectorAll(".timer-btn");
 const themeToggle = document.getElementById("theme-toggle");
+const capsToggle = document.getElementById("toggle-caps");
+const numbersToggle = document.getElementById("toggle-numbers");
+const symbolsToggle = document.getElementById("toggle-symbols");
 
 const resultsOverlay = document.getElementById("results");
 const resultWpm = document.getElementById("result-wpm");
@@ -54,6 +54,9 @@ typingInput.addEventListener("input", handleTyping);
 typingInput.addEventListener("paste", e => e.preventDefault());
 textDisplay.addEventListener("click", () => typingInput.focus());
 themeToggle.addEventListener("click", toggleTheme);
+capsToggle.addEventListener("change", handleOptionChange);
+numbersToggle.addEventListener("change", handleOptionChange);
+symbolsToggle.addEventListener("change", handleOptionChange);
 
 document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
@@ -72,6 +75,17 @@ function handleTimerChange(e) {
     timeLeft = nextLimit;
     setActiveTimerButton(nextLimit);
     updateTimerDisplay();
+}
+
+function handleOptionChange() {
+    if (isTestActive) {
+        capsToggle.checked = capsToggle.dataset.locked === "true";
+        numbersToggle.checked = numbersToggle.dataset.locked === "true";
+        symbolsToggle.checked = symbolsToggle.dataset.locked === "true";
+        return;
+    }
+
+    loadRandomText();
 }
 
 function getInitialTheme() {
@@ -108,10 +122,47 @@ function setActiveTimerButton(limit) {
 }
 
 function loadRandomText() {
-    const next = textSamples[Math.floor(Math.random() * textSamples.length)];
-    currentText = next;
+    currentText = generateText();
     currentPosition = 0;
     displayText();
+}
+
+function generateText() {
+    const includeCaps = capsToggle.checked;
+    const includeNumbers = numbersToggle.checked;
+    const includeSymbols = symbolsToggle.checked;
+    const wordCount = randomBetween(26, 40);
+    const words = [];
+
+    for (let i = 0; i < wordCount; i += 1) {
+        let word = baseWords[Math.floor(Math.random() * baseWords.length)];
+
+        if (includeCaps && Math.random() < 0.18) {
+            word = capitalize(word);
+        }
+
+        if (includeNumbers && Math.random() < 0.14) {
+            word += randomBetween(0, 99).toString();
+        }
+
+        if (includeSymbols && Math.random() < 0.1) {
+            word += symbols[Math.floor(Math.random() * symbols.length)];
+        }
+
+        words.push(word);
+    }
+
+    const sentence = words.join(" ");
+    return `${sentence}.`;
+}
+
+function randomBetween(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function capitalize(word) {
+    if (!word.length) return word;
+    return `${word[0].toUpperCase()}${word.slice(1)}`;
 }
 
 function displayText() {
@@ -166,6 +217,7 @@ function startTest() {
 
     startBtn.disabled = true;
     timerBtns.forEach(btn => (btn.disabled = true));
+    setOptionLock(true);
 
     updateStats(true);
     displayText();
@@ -243,6 +295,7 @@ function endTest() {
     typingInput.disabled = true;
     startBtn.disabled = false;
     timerBtns.forEach(btn => (btn.disabled = false));
+    setOptionLock(false);
 
     updateStats();
     showResults();
@@ -263,6 +316,7 @@ function resetTest({ newText }) {
 
     startBtn.disabled = false;
     timerBtns.forEach(btn => (btn.disabled = false));
+    setOptionLock(false);
 
     updateStats(true);
     updateTimerDisplay();
@@ -272,6 +326,13 @@ function resetTest({ newText }) {
     } else {
         displayText();
     }
+}
+
+function setOptionLock(isLocked) {
+    [capsToggle, numbersToggle, symbolsToggle].forEach(toggle => {
+        toggle.disabled = isLocked;
+        toggle.dataset.locked = String(toggle.checked);
+    });
 }
 
 function showResults() {

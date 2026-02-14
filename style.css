@@ -129,6 +129,36 @@ body::before {
     flex-wrap: wrap;
 }
 
+.options-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: var(--surface-elev);
+    border: 1px solid rgba(31, 41, 51, 0.08);
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.toggle input {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+}
+
+.toggle span {
+    color: var(--ink);
+    font-weight: 600;
+}
+
 .timer-group {
     display: flex;
     gap: 10px;
