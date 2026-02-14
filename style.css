@@ -202,6 +202,8 @@ body::before {
     line-height: 2;
     color: var(--ink);
     user-select: none;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .char {

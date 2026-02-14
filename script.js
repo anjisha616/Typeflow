@@ -134,7 +134,7 @@ function displayText() {
 }
 
 function formatChar(char) {
-    if (char === " ") return "&nbsp;";
+    if (char === " ") return " ";
     return escapeHtml(char);
 }
 
