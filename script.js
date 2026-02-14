@@ -21,7 +21,6 @@ let timeLeft = 15;
 const textDisplay = document.getElementById("text-display");
 const typingInput = document.getElementById("typing-input");
 const startBtn = document.getElementById("start-btn");
-const restartBtn = document.getElementById("restart-btn");
 const newTextBtn = document.getElementById("new-text-btn");
 const wpmDisplay = document.getElementById("wpm");
 const accuracyDisplay = document.getElementById("accuracy");
@@ -43,10 +42,14 @@ const resultsNewText = document.getElementById("results-new-text");
 loadRandomText();
 updateTimerDisplay();
 applyTheme(getInitialTheme());
+typingInput.disabled = false;
+typingInput.placeholder = "Start typing...";
 
 timerBtns.forEach(btn => btn.addEventListener("click", handleTimerChange));
-startBtn.addEventListener("click", () => startTest({ preserveInput: false }));
-restartBtn.addEventListener("click", () => resetTest({ newText: false }));
+startBtn.addEventListener("click", () => {
+    resetTest({ newText: false });
+    startTest({ preserveInput: false });
+});
 newTextBtn.addEventListener("click", () => resetTest({ newText: true }));
 resultsRestart.addEventListener("click", () => restartFromResults(false));
 resultsNewText.addEventListener("click", () => restartFromResults(true));
