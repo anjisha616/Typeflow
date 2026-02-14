@@ -3,56 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typing Speed Test</title>
+    <title>Typeflow | Typing Speed Test</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <h1>⚡ Typing Speed Test</h1>
-        <p class="subtitle">Test your typing speed and accuracy!</p>
+    <div class="app">
+        <header class="hero">
+            <div class="brand">Typeflow</div>
+            <p class="tagline">Precision typing, real-time feedback, clean results.</p>
+        </header>
 
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-label">WPM</div>
-                <div class="stat-value" id="wpm">0</div>
+        <section class="panel">
+            <div class="controls-row">
+                <div class="timer-group" role="group" aria-label="Timer options">
+                    <button class="timer-btn active" data-time="15">15s</button>
+                    <button class="timer-btn" data-time="30">30s</button>
+                    <button class="timer-btn" data-time="60">60s</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <span class="stat-label">WPM</span>
+                        <span class="stat-value" id="wpm">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Accuracy</span>
+                        <span class="stat-value" id="accuracy">100%</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Time</span>
+                        <span class="stat-value" id="timer">15</span>
+                    </div>
+                </div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">Accuracy</div>
-                <div class="stat-value" id="accuracy">100%</div>
+
+            <div class="text-card" aria-live="polite">
+                <div class="text-display" id="text-display"></div>
             </div>
-            <div class="stat-box">
-                <div class="stat-label">Time</div>
-                <div class="stat-value" id="timer">60</div>
+
+            <div class="input-card">
+                <input
+                    type="text"
+                    id="typing-input"
+                    placeholder="Press Start to begin..."
+                    autocomplete="off"
+                    spellcheck="false"
+                    disabled
+                >
+                <p class="hint">Tip: Keep a steady rhythm. Press Esc to restart.</p>
             </div>
-        </div>
 
-        <div class="difficulty-selector">
-            <button class="difficulty-btn active" data-difficulty="easy">Easy</button>
-            <button class="difficulty-btn" data-difficulty="medium">Medium</button>
-            <button class="difficulty-btn" data-difficulty="hard">Hard</button>
-        </div>
+            <div class="actions">
+                <button class="btn primary" id="start-btn">Start</button>
+                <button class="btn ghost" id="restart-btn">Restart</button>
+                <button class="btn ghost" id="new-text-btn">New Text</button>
+            </div>
+        </section>
+    </div>
 
-        <div class="text-display" id="text-display"></div>
-
-        <div class="input-area">
-            <input 
-                type="text" 
-                id="typing-input" 
-                placeholder="Click 'Start Test' to begin typing..."
-                disabled
-            >
-        </div>
-
-        <div class="controls">
-            <button class="btn btn-primary" id="start-btn">Start Test</button>
-            <button class="btn btn-secondary" id="reset-btn">Reset</button>
-        </div>
-
-        <div class="high-scores">
-            <h3>🏆 High Scores</h3>
-            <ul class="score-list" id="score-list">
-                <li class="score-item">No scores yet. Be the first!</li>
-            </ul>
+    <div class="results hidden" id="results" role="dialog" aria-modal="true">
+        <div class="results-card">
+            <h2>Results</h2>
+            <div class="results-grid">
+                <div class="result-item">
+                    <span class="result-label">WPM</span>
+                    <span class="result-value" id="result-wpm">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Accuracy</span>
+                    <span class="result-value" id="result-accuracy">100%</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Correct</span>
+                    <span class="result-value" id="result-correct">0</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Mistakes</span>
+                    <span class="result-value" id="result-incorrect">0</span>
+                </div>
+            </div>
+            <div class="results-actions">
+                <button class="btn primary" id="results-restart">Restart</button>
+                <button class="btn ghost" id="results-new-text">New Text</button>
+            </div>
         </div>
     </div>
 
