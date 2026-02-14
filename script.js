@@ -75,6 +75,7 @@ function handleTimerChange(e) {
     timeLeft = nextLimit;
     setActiveTimerButton(nextLimit);
     updateTimerDisplay();
+    loadRandomText();
 }
 
 function handleOptionChange() {
@@ -131,7 +132,7 @@ function generateText() {
     const includeCaps = capsToggle.checked;
     const includeNumbers = numbersToggle.checked;
     const includeSymbols = symbolsToggle.checked;
-    const wordCount = randomBetween(26, 40);
+    const wordCount = getWordCountForTime(timeLimit);
     const words = [];
 
     for (let i = 0; i < wordCount; i += 1) {
@@ -154,6 +155,12 @@ function generateText() {
 
     const sentence = words.join(" ");
     return `${sentence}.`;
+}
+
+function getWordCountForTime(seconds) {
+    const baseWpm = 45;
+    const baseWords = Math.max(Math.round((seconds / 60) * baseWpm), 12);
+    return randomBetween(baseWords + 6, baseWords + 14);
 }
 
 function randomBetween(min, max) {
