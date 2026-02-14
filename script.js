@@ -30,6 +30,7 @@ const wpmDisplay = document.getElementById("wpm");
 const accuracyDisplay = document.getElementById("accuracy");
 const timerDisplay = document.getElementById("timer");
 const timerBtns = document.querySelectorAll(".timer-btn");
+const themeToggle = document.getElementById("theme-toggle");
 
 const resultsOverlay = document.getElementById("results");
 const resultWpm = document.getElementById("result-wpm");
@@ -41,6 +42,7 @@ const resultsNewText = document.getElementById("results-new-text");
 
 loadRandomText();
 updateTimerDisplay();
+applyTheme(getInitialTheme());
 
 timerBtns.forEach(btn => btn.addEventListener("click", handleTimerChange));
 startBtn.addEventListener("click", startTest);
@@ -51,6 +53,7 @@ resultsNewText.addEventListener("click", () => restartFromResults(true));
 typingInput.addEventListener("input", handleTyping);
 typingInput.addEventListener("paste", e => e.preventDefault());
 textDisplay.addEventListener("click", () => typingInput.focus());
+themeToggle.addEventListener("click", toggleTheme);
 
 document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
@@ -69,6 +72,32 @@ function handleTimerChange(e) {
     timeLeft = nextLimit;
     setActiveTimerButton(nextLimit);
     updateTimerDisplay();
+}
+
+function getInitialTheme() {
+    const stored = localStorage.getItem("typeflow-theme");
+    if (stored === "light" || stored === "dark") return stored;
+
+    const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return prefersDark ? "dark" : "light";
+}
+
+function applyTheme(theme) {
+    document.body.setAttribute("data-theme", theme);
+    localStorage.setItem("typeflow-theme", theme);
+    updateThemeToggle(theme);
+}
+
+function toggleTheme() {
+    const current = document.body.getAttribute("data-theme") || "light";
+    const next = current === "dark" ? "light" : "dark";
+    applyTheme(next);
+}
+
+function updateThemeToggle(theme) {
+    const isDark = theme === "dark";
+    themeToggle.textContent = isDark ? "Light mode" : "Dark mode";
+    themeToggle.setAttribute("aria-pressed", String(isDark));
 }
 
 function setActiveTimerButton(limit) {
