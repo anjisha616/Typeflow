@@ -45,7 +45,7 @@ updateTimerDisplay();
 applyTheme(getInitialTheme());
 
 timerBtns.forEach(btn => btn.addEventListener("click", handleTimerChange));
-startBtn.addEventListener("click", startTest);
+startBtn.addEventListener("click", () => startTest({ preserveInput: false }));
 restartBtn.addEventListener("click", () => resetTest({ newText: false }));
 newTextBtn.addEventListener("click", () => resetTest({ newText: true }));
 resultsRestart.addEventListener("click", () => restartFromResults(false));
@@ -209,6 +209,10 @@ function escapeHtml(char) {
 }
 
 function startTest() {
+    startTest({ preserveInput: false });
+}
+
+function startTest({ preserveInput }) {
     closeResults();
     isTestActive = true;
     currentPosition = 0;
@@ -217,7 +221,9 @@ function startTest() {
     startTime = Date.now();
     timeLeft = timeLimit;
 
-    typingInput.value = "";
+    if (!preserveInput) {
+        typingInput.value = "";
+    }
     typingInput.disabled = false;
     typingInput.focus();
     typingInput.placeholder = "Start typing...";
@@ -226,7 +232,13 @@ function startTest() {
     timerBtns.forEach(btn => (btn.disabled = true));
     setOptionLock(true);
 
-    updateStats(true);
+    if (preserveInput) {
+        recalculateFromInput();
+        updateStats();
+    } else {
+        updateStats(true);
+    }
+
     displayText();
     startTimer();
 }
@@ -250,7 +262,12 @@ function updateTimerDisplay() {
 }
 
 function handleTyping() {
-    if (!isTestActive) return;
+    if (!isTestActive) {
+        if (typingInput.value.length > 0) {
+            startTest({ preserveInput: true });
+        }
+        return;
+    }
 
     const typedText = typingInput.value;
     currentPosition = typedText.length;
@@ -260,6 +277,16 @@ function handleTyping() {
         return;
     }
 
+    recalculateFromInput();
+
+    updateStats();
+    displayText();
+    typingInput.setSelectionRange(typedText.length, typedText.length);
+}
+
+function recalculateFromInput() {
+    const typedText = typingInput.value;
+    currentPosition = typedText.length;
     correctChars = 0;
     incorrectChars = 0;
 
@@ -270,10 +297,6 @@ function handleTyping() {
             incorrectChars += 1;
         }
     }
-
-    updateStats();
-    displayText();
-    typingInput.setSelectionRange(typedText.length, typedText.length);
 }
 
 function updateStats(reset = false) {
@@ -318,8 +341,8 @@ function resetTest({ newText }) {
     timeLeft = timeLimit;
 
     typingInput.value = "";
-    typingInput.disabled = true;
-    typingInput.placeholder = "Press Start to begin...";
+    typingInput.disabled = false;
+    typingInput.placeholder = "Start typing...";
 
     startBtn.disabled = false;
     timerBtns.forEach(btn => (btn.disabled = false));
