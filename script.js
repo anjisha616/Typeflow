@@ -44,6 +44,7 @@ updateTimerDisplay();
 applyTheme(getInitialTheme());
 typingInput.disabled = false;
 typingInput.placeholder = "Start typing...";
+typingInput.focus();
 
 timerBtns.forEach(btn => btn.addEventListener("click", handleTimerChange));
 startBtn.addEventListener("click", () => {
