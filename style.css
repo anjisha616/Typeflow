@@ -246,7 +246,14 @@ body[data-theme="dark"] .result-item {
 
 .char.correct { color: var(--success); }
 .char.incorrect { color: var(--danger); }
-.char.gone { display: none; }
+.char {
+    transition: opacity 220ms ease, filter 220ms ease;
+}
+
+.char.gone {
+    opacity: 0;
+    filter: blur(1.5px);
+}
 
 .input-card {
     border-radius: var(--radius-md);
