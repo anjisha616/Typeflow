@@ -298,3 +298,112 @@ body[data-theme="dark"] .result-item {
 .hidden {
     display: none;
 }
+/* =============================
+   RESULTS MODAL (PREMIUM)
+============================= */
+
+.results {
+    position: fixed;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(0,0,0,0.45);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 50;
+}
+
+.results.hidden {
+    display: none;
+}
+
+/* card */
+.results-card {
+    width: min(560px, 95%);
+    padding: 32px;
+    border-radius: 24px;
+
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(0,0,0,0.06);
+
+    box-shadow: 0 30px 90px rgba(0,0,0,0.25);
+    animation: popIn 0.25s ease;
+}
+
+body[data-theme="dark"] .results-card {
+    background: rgba(17,24,39,0.92);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+@keyframes popIn {
+    from { transform: scale(.96); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.results-card h2 {
+    margin-bottom: 22px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* grid */
+.results-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+/* HERO */
+.result-main {
+    grid-column: span 2;
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    color: white;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.result-main span {
+    font-size: 14px;
+    opacity: 0.85;
+}
+
+.result-main strong {
+    font-size: 46px;
+    margin-top: 8px;
+    letter-spacing: 0.5px;
+}
+
+/* smaller stats */
+.result-side {
+    padding: 18px;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.04);
+    display: flex;
+    flex-direction: column;
+}
+
+body[data-theme="dark"] .result-side {
+    background: rgba(255,255,255,0.06);
+}
+
+.result-side span {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.result-side strong {
+    font-size: 22px;
+    margin-top: 6px;
+}
+
+/* buttons */
+.results-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
