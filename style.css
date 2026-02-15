@@ -46,7 +46,7 @@ body[data-theme="dark"] {
 }
 
 body {
-    font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    font-family: "Poppins", sans-serif;
     color: var(--ink);
     min-height: 100vh;
     background: radial-gradient(circle at top left, var(--bg-grad-1) 0%, var(--bg-grad-2) 45%, var(--bg-grad-3) 100%);
@@ -54,6 +54,13 @@ body {
     align-items: center;
     justify-content: center;
     padding: 28px;
+}
+
+button,
+input,
+select,
+textarea {
+    font: inherit;
 }
 
 /* stronger cinematic glow */
@@ -230,7 +237,7 @@ body[data-theme="dark"] .result-item {
 }
 
 .text-display {
-    font-family: "Courier New", monospace;
+    font-family: inherit;
     font-size: clamp(1.1rem, 2.2vw, 1.6rem);
     line-height: 2;
     user-select: none;
@@ -239,6 +246,7 @@ body[data-theme="dark"] .result-item {
 
 .char.correct { color: var(--success); }
 .char.incorrect { color: var(--danger); }
+.char.gone { display: none; }
 
 .input-card {
     border-radius: var(--radius-md);

@@ -177,6 +177,7 @@ function capitalize(word) {
 
 function displayText() {
     const typedText = typingInput.value;
+    const hideUntil = getHideUntilIndex(typedText, currentPosition);
     const html = currentText
         .split("")
         .map((char, index) => {
@@ -187,11 +188,21 @@ function displayText() {
                 className += " current";
             }
 
+            if (index < hideUntil) {
+                className += " gone";
+            }
+
             return `<span class="${className}">${formatChar(char)}</span>`;
         })
         .join("");
 
     textDisplay.innerHTML = html;
+}
+
+function getHideUntilIndex(typedText, position) {
+    const lastSpace = typedText.lastIndexOf(" ");
+    if (lastSpace === -1) return 0;
+    return Math.min(lastSpace + 1, position);
 }
 
 function formatChar(char) {
