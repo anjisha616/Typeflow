@@ -246,6 +246,21 @@ body[data-theme="dark"] .result-item {
 
 .char.correct { color: var(--success); }
 .char.incorrect { color: var(--danger); }
+.char.current {
+    position: relative;
+}
+
+.char.current::before {
+    content: "";
+    position: absolute;
+    left: -2px;
+    top: 0.15em;
+    bottom: 0.15em;
+    width: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+    animation: caretBlink 1s step-end infinite;
+}
 .char {
     transition: opacity 420ms ease, filter 420ms ease;
 }
@@ -253,6 +268,11 @@ body[data-theme="dark"] .result-item {
 .char.gone {
     opacity: 0.18;
     filter: blur(0.6px);
+}
+
+@keyframes caretBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
 .input-card {
