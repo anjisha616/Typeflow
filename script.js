@@ -39,8 +39,7 @@ const resultIncorrect = document.getElementById("result-incorrect");
 const resultsRestart = document.getElementById("results-restart");
 const resultsNewText = document.getElementById("results-new-text");
 
-loadRandomText();
-updateTimerDisplay();
+resetTest({ newText: true });
 applyTheme(getInitialTheme());
 typingInput.disabled = false;
 typingInput.placeholder = "Start typing...";
