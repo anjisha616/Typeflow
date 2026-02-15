@@ -247,12 +247,12 @@ body[data-theme="dark"] .result-item {
 .char.correct { color: var(--success); }
 .char.incorrect { color: var(--danger); }
 .char {
-    transition: opacity 220ms ease, filter 220ms ease;
+    transition: opacity 420ms ease, filter 420ms ease;
 }
 
 .char.gone {
-    opacity: 0;
-    filter: blur(1.5px);
+    opacity: 0.18;
+    filter: blur(0.6px);
 }
 
 .input-card {
