@@ -41,12 +41,13 @@
     box-shadow: 0 2px 12px 0 rgba(224, 122, 95, 0.12);
     padding-left: 32px !important;
     padding-right: 32px !important;
-    padding-top: 1px !important;
-    padding-bottom: 1px !important;
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     min-width: 80px;
-    min-height: 10px;
+    min-height: 44px;
 }
 .options-row {
     gap: 14px !important;
@@ -287,11 +288,21 @@ body[data-theme="dark"] .result-item {
     color: var(--muted);
 }
 
+/* =============================
+   TIMER GROUP - HORIZONTAL PILL
+============================= */
 .timer-group {
-    display: flex;
-    gap: 10px;
+    display: inline-flex; /* Changed from flex to inline-flex */
+    flex-direction: row; /* Explicitly set to row (horizontal) */
+    align-items: center;
+    gap: 8px;
     padding: 6px;
     border-radius: 999px;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+body[data-theme="dark"] .timer-group {
+    background: rgba(255, 255, 255, 0.06);
 }
 
 .timer-btn {
@@ -301,21 +312,29 @@ body[data-theme="dark"] .result-item {
     padding: 10px 18px;
     border-radius: 999px;
     cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: center;
+}
+
+.timer-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--ink);
+}
+
+body[data-theme="dark"] .timer-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
 }
 
 .timer-btn.active {
     background: var(--accent);
     color: #fff;
     border-radius: 999px;
-    box-shadow: 0 2px 12px 0 rgba(224, 122, 95, 0.12);
-    padding-left: 32px;
-    padding-right: 32px;
-    padding-top: 1px;
-    padding-bottom: 1px;
-    display: inline-flex;
-    align-items: center;
-    min-width: 80px;
-    min-height: 10px;
+    box-shadow: 0 4px 12px 0 rgba(224, 122, 95, 0.25);
+    padding-left: 24px;
+    padding-right: 24px;
+    font-weight: 600;
 }
 
 .stats {
@@ -556,4 +575,19 @@ body[data-theme="dark"] .result-side {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+}
+
+/* =============================
+   RESPONSIVE
+============================= */
+@media (max-width: 640px) {
+    .timer-group {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .timer-btn {
+        flex: 1;
+        min-width: auto;
+    }
 }
