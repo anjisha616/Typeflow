@@ -375,8 +375,8 @@ function setOptionLock(isLocked) {
 
 
     // No modal to close
-}
+// }
 
-    resetTest({ newText: useNewText });
-    startTest();
-}
+//     resetTest({ newText: useNewText });
+//     startTest();
+// }
