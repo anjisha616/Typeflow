@@ -7,15 +7,18 @@
     align-items: flex-start;
     gap: 4px;
     z-index: 1000;
+    background: #222c !important;
+    border: 2px solid #ff0 !important;
+    padding: 8px 18px;
 }
 
 .logo-header .brand, .logo-header .tagline {
-    color: #fff;
+    color: #fff !important;
 }
 
 body:not([data-theme="dark"]) .logo-header .brand,
 body:not([data-theme="dark"]) .logo-header .tagline {
-    color: #1f2933;
+    color: #1f2933 !important;
 }
 
 .logo-header .brand {
