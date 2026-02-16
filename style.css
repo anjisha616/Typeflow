@@ -1,57 +1,57 @@
-/* === 1.5x SCALE OVERRIDES === */
+/* === 1.25x SCALE OVERRIDES === */
 .app {
-    width: min(1650px, 100%) !important;
+    width: min(1375px, 100%) !important;
 }
 .panel {
-    padding: clamp(30px, 4.5vw, 54px) !important;
+    padding: clamp(25px, 3.75vw, 45px) !important;
 }
 .text-card {
-    padding: clamp(27px, 4.5vw, 42px) !important;
-    min-height: 270px !important;
+    padding: clamp(22px, 3.75vw, 35px) !important;
+    min-height: 225px !important;
 }
 .input-card {
-    padding: 27px !important;
-    gap: 15px !important;
+    padding: 22px !important;
+    gap: 12px !important;
 }
 #typing-input {
-    padding: 21px 24px !important;
-    font-size: 1.5rem !important;
+    padding: 17px 19px !important;
+    font-size: 1.25rem !important;
 }
 .btn {
-    padding: 18px 33px !important;
-    font-size: 1.425rem !important;
+    padding: 15px 26px !important;
+    font-size: 1.19rem !important;
 }
 .stat-card {
-    padding: 24px 27px !important;
-    gap: 9px !important;
+    padding: 19px 21px !important;
+    gap: 7px !important;
 }
 .stat-label {
-    font-size: 1.275rem !important;
+    font-size: 1.06rem !important;
 }
 .stat-value {
-    font-size: 2.7rem !important;
+    font-size: 2.25rem !important;
 }
 .timer-btn {
-    padding: 15px 27px !important;
+    padding: 12px 21px !important;
 }
 .timer-btn.active {
-    font-size: 1.5em !important;
+    font-size: 1.25em !important;
 }
 .options-row {
-    gap: 18px !important;
+    gap: 14px !important;
 }
 .toggle {
-    gap: 15px !important;
-    padding: 12px 21px !important;
-    font-size: 1.275rem !important;
+    gap: 12px !important;
+    padding: 10px 17px !important;
+    font-size: 1.06rem !important;
 }
 .theme-toggle {
-    padding: 12px 24px !important;
-    font-size: 1.275rem !important;
+    padding: 10px 19px !important;
+    font-size: 1.06rem !important;
 }
 .text-display {
-    font-size: clamp(1.65rem, 3.3vw, 2.4rem) !important;
-    line-height: 2.2 !important;
+    font-size: clamp(1.35rem, 2.75vw, 1.9rem) !important;
+    line-height: 2 !important;
 }
 .mode-switch-header {
     position: absolute;
