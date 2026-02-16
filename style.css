@@ -1,3 +1,17 @@
+/* === Layout Fixes After Scaling === */
+.panel {
+    max-width: 1100px !important;
+    margin: 0 auto !important;
+    box-sizing: border-box !important;
+}
+.logo-header {
+    top: 40px !important;
+    left: 60px !important;
+}
+.mode-switch-header {
+    top: 40px !important;
+    right: 60px !important;
+}
 /* === 1.5x SCALE OVERRIDES === */
 .app {
     width: min(1650px, 100%) !important;
