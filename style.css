@@ -1,56 +1,56 @@
-/* === 1.25x SCALE OVERRIDES === */
+/* === 1x SCALE OVERRIDES === */
 .app {
-    width: min(1375px, 100%) !important;
+    width: min(1100px, 100%) !important;
 }
 .panel {
-    padding: clamp(25px, 3.75vw, 45px) !important;
+    padding: clamp(20px, 3vw, 36px) !important;
 }
 .text-card {
-    padding: clamp(22px, 3.75vw, 35px) !important;
-    min-height: 225px !important;
+    padding: clamp(18px, 3vw, 28px) !important;
+    min-height: 180px !important;
 }
 .input-card {
-    padding: 22px !important;
-    gap: 12px !important;
+    padding: 18px !important;
+    gap: 10px !important;
 }
 #typing-input {
-    padding: 17px 19px !important;
-    font-size: 1.25rem !important;
+    padding: 14px 16px !important;
+    font-size: 1rem !important;
 }
 .btn {
-    padding: 15px 26px !important;
-    font-size: 1.19rem !important;
+    padding: 12px 22px !important;
+    font-size: 0.95rem !important;
 }
 .stat-card {
-    padding: 19px 21px !important;
-    gap: 7px !important;
+    padding: 16px 18px !important;
+    gap: 6px !important;
 }
 .stat-label {
-    font-size: 1.06rem !important;
+    font-size: 0.85rem !important;
 }
 .stat-value {
-    font-size: 2.25rem !important;
+    font-size: 1.8rem !important;
 }
 .timer-btn {
-    padding: 12px 21px !important;
+    padding: 10px 18px !important;
 }
 .timer-btn.active {
-    font-size: 1.25em !important;
+    font-size: 1em !important;
 }
 .options-row {
-    gap: 14px !important;
+    gap: 12px !important;
 }
 .toggle {
-    gap: 12px !important;
-    padding: 10px 17px !important;
-    font-size: 1.06rem !important;
+    gap: 10px !important;
+    padding: 8px 14px !important;
+    font-size: 0.85rem !important;
 }
 .theme-toggle {
-    padding: 10px 19px !important;
-    font-size: 1.06rem !important;
+    padding: 8px 16px !important;
+    font-size: 0.85rem !important;
 }
 .text-display {
-    font-size: clamp(1.35rem, 2.75vw, 1.9rem) !important;
+    font-size: clamp(1.1rem, 2.2vw, 1.6rem) !important;
     line-height: 2 !important;
 }
 .mode-switch-header {
