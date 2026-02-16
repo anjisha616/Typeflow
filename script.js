@@ -31,13 +31,7 @@ const capsToggle = document.getElementById("toggle-caps");
 const numbersToggle = document.getElementById("toggle-numbers");
 const symbolsToggle = document.getElementById("toggle-symbols");
 
-const resultsOverlay = document.getElementById("results");
-const resultWpm = document.getElementById("result-wpm");
-const resultAccuracy = document.getElementById("result-accuracy");
-const resultCorrect = document.getElementById("result-correct");
-const resultIncorrect = document.getElementById("result-incorrect");
-const resultsRestart = document.getElementById("results-restart");
-const resultsNewText = document.getElementById("results-new-text");
+
 
 resetTest({ newText: true });
 applyTheme(getInitialTheme());
@@ -51,8 +45,7 @@ startBtn.addEventListener("click", () => {
     startTest({ preserveInput: false });
 });
 newTextBtn.addEventListener("click", () => resetTest({ newText: true }));
-resultsRestart.addEventListener("click", () => restartFromResults(false));
-resultsNewText.addEventListener("click", () => restartFromResults(true));
+
 typingInput.addEventListener("input", handleTyping);
 typingInput.addEventListener("paste", e => e.preventDefault());
 textDisplay.addEventListener("click", () => typingInput.focus());
@@ -379,23 +372,11 @@ function setOptionLock(isLocked) {
     });
 }
 
-function showResults() {
-    const finalWpm = wpmDisplay.textContent;
-    const finalAccuracy = accuracyDisplay.textContent;
 
-    resultWpm.textContent = finalWpm;
-    resultAccuracy.textContent = finalAccuracy;
-    resultCorrect.textContent = `${correctChars}`;
-    resultIncorrect.textContent = `${incorrectChars}`;
-    resultsOverlay.classList.remove("hidden");
+
+    // No modal to close
 }
 
-function closeResults() {
-    resultsOverlay.classList.add("hidden");
-}
-
-function restartFromResults(useNewText) {
-    closeResults();
     resetTest({ newText: useNewText });
     startTest();
 }
