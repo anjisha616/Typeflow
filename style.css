@@ -1,3 +1,24 @@
+.logo-header {
+    position: absolute;
+    top: 32px;
+    left: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    z-index: 10;
+}
+
+.logo-header .brand {
+    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.logo-header .tagline {
+    color: var(--muted);
+    font-size: 1rem;
+}
 body.dark-mode, body[data-theme="dark"] {
     background: #121629 !important;
 }
@@ -86,15 +107,10 @@ body::before {
 }
 
 .hero {
-    position: absolute;
-    top: 32px;
-    left: 48px;
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
     gap: 8px;
-    margin-bottom: 0;
-    z-index: 10;
+    margin-bottom: 28px;
 }
 
 .hero-top {
@@ -105,14 +121,13 @@ body::before {
 }
 
 .brand {
-    font-size: clamp(2rem, 3vw, 2.8rem);
-    font-weight: 700;
-    letter-spacing: 0.02em;
+    /* ...existing code... */
+    display: none;
 }
 
 .tagline {
-    color: var(--muted);
-    font-size: 1rem;
+    /* ...existing code... */
+    display: none;
 }
 
 .theme-toggle {
