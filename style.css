@@ -61,8 +61,8 @@
 }
 .logo-header {
     position: absolute;
-    top: 32px;
-    left: 48px;
+    top: 12px;
+    left: 18px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -83,14 +83,14 @@ body:not([data-theme="dark"]) .logo-header .tagline {
 }
 
 .logo-header .brand {
-    font-size: clamp(2rem, 3vw, 2.8rem);
+    font-size: clamp(1.2rem, 2vw, 1.6rem);
     font-weight: 700;
     letter-spacing: 0.02em;
 }
 
 .logo-header .tagline {
     color: var(--muted);
-    font-size: 1rem;
+    font-size: 0.75rem;
 }
 body.dark-mode, body[data-theme="dark"] {
     background: #121629 !important;
