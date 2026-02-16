@@ -86,10 +86,15 @@ body::before {
 }
 
 .hero {
+    position: absolute;
+    top: 32px;
+    left: 48px;
     display: flex;
     flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
-    margin-bottom: 28px;
+    margin-bottom: 0;
+    z-index: 10;
 }
 
 .hero-top {
