@@ -134,12 +134,10 @@ body::before {
 
 .brand {
     /* ...existing code... */
-    display: none;
 }
 
 .tagline {
     /* ...existing code... */
-    display: none;
 }
 
 .theme-toggle {
