@@ -35,7 +35,18 @@
     padding: 12px 21px !important;
 }
 .timer-btn.active {
-    font-size: 1.25em !important;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 999px;
+    box-shadow: 0 2px 12px 0 rgba(224, 122, 95, 0.12);
+    padding-left: 32px !important;
+    padding-right: 32px !important;
+    padding-top: 1px !important;
+    padding-bottom: 1px !important;
+    display: inline-flex;
+    align-items: center;
+    min-width: 80px;
+    min-height: 10px;
 }
 .options-row {
     gap: 14px !important;
