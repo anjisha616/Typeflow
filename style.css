@@ -425,11 +425,9 @@ body[data-theme="dark"] .timer-btn:hover {
 
 .actions {
     display: flex;
-    gap: 10px;
-    padding: 6px;
-    border-radius: 999px;
-    background: none !important;
-    box-shadow: none !important;
+    gap: 12px;
+    flex-wrap: wrap;
+}
 
 .btn {
     border: none;
@@ -579,4 +577,4 @@ body[data-theme="dark"] .result-side {
         flex: 1;
         min-width: auto;
     }
-}}
+}
