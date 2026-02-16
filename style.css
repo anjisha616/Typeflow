@@ -7,9 +7,9 @@
     align-items: flex-start;
     gap: 4px;
     z-index: 1000;
-    background: #222c !important;
-    border: 2px solid #ff0 !important;
-    padding: 8px 18px;
+    background: none;
+    border: none;
+    padding: 0;
 }
 
 .logo-header .brand, .logo-header .tagline {
