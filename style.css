@@ -295,6 +295,16 @@ body[data-theme="dark"] .result-item {
 .timer-btn.active {
     background: var(--accent);
     color: #fff;
+    border-radius: 999px;
+    box-shadow: 0 2px 12px 0 rgba(224, 122, 95, 0.12);
+    padding-left: 32px;
+    padding-right: 32px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    display: inline-flex;
+    align-items: center;
+    min-width: 80px;
+    min-height: 44px;
 }
 
 .stats {
