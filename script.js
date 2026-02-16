@@ -1,3 +1,24 @@
+// Show results in the existing results section
+function showResults() {
+    const results = document.getElementById("results");
+    if (!results) return;
+    results.classList.remove("hidden");
+    // Update results values if IDs exist
+    const wpmResult = document.getElementById("result-wpm");
+    const accuracyResult = document.getElementById("result-accuracy");
+    const correctResult = document.getElementById("result-correct");
+    const incorrectResult = document.getElementById("result-incorrect");
+    if (wpmResult) wpmResult.textContent = wpmDisplay.textContent + " WPM";
+    if (accuracyResult) accuracyResult.textContent = accuracyDisplay.textContent;
+    if (correctResult) correctResult.textContent = correctChars;
+    if (incorrectResult) incorrectResult.textContent = incorrectChars;
+}
+
+function closeResults() {
+    const results = document.getElementById("results");
+    if (!results) return;
+    results.classList.add("hidden");
+}
 const baseWords = [
     "design", "typing", "focus", "rhythm", "steady", "clarity", "flow", "precision", "practice", "balance",
     "signal", "detail", "craft", "gentle", "future", "method", "energy", "motion", "signal", "value",
