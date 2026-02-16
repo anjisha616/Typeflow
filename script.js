@@ -1,3 +1,21 @@
+// Wire up results modal buttons
+document.addEventListener("DOMContentLoaded", () => {
+    const resultsRestart = document.getElementById("results-restart");
+    const resultsNewText = document.getElementById("results-new-text");
+    if (resultsRestart) {
+        resultsRestart.addEventListener("click", () => {
+            closeResults();
+            resetTest({ newText: false });
+            startTest({ preserveInput: false });
+        });
+    }
+    if (resultsNewText) {
+        resultsNewText.addEventListener("click", () => {
+            closeResults();
+            resetTest({ newText: true });
+        });
+    }
+});
 // Show results in the existing results section
 function showResults() {
     const results = document.getElementById("results");
