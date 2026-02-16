@@ -1,3 +1,6 @@
+body.dark-mode, body[data-theme="dark"] {
+    background: #121629 !important;
+}
 * {
     margin: 0;
     padding: 0;
