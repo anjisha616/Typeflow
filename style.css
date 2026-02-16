@@ -452,16 +452,6 @@ body[data-theme="dark"] .timer-btn:hover {
 }
 
 /* results already had blur, keeping it */
-.results {
-    position: fixed;
-    inset: 0;
-    display: grid;
-    place-items: center;
-    background: rgba(31, 41, 51, 0.55);
-    backdrop-filter: blur(6px);
-    z-index: 10;
-    padding: 20px;
-}
 
 .hidden {
     display: none;
