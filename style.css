@@ -30,7 +30,7 @@ body[data-theme="dark"] {
     --bg: #10141a;
     --bg-grad-1: #111827;
     --bg-grad-2: #0f172a;
-    --bg-grad-3: #0b1220;
+        background: #121629;
     --surface: #141b24;
     --surface-elev: #182231;
     --ink: #e6edf3;
