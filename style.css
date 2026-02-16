@@ -6,7 +6,16 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
-    z-index: 10;
+    z-index: 1000;
+}
+
+.logo-header .brand, .logo-header .tagline {
+    color: #fff;
+}
+
+body:not([data-theme="dark"]) .logo-header .brand,
+body:not([data-theme="dark"]) .logo-header .tagline {
+    color: #1f2933;
 }
 
 .logo-header .brand {
