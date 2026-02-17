@@ -1480,6 +1480,14 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("practice-restart").addEventListener("click", () => {
         practiceEngine.start();
     });
+    // Finger training mode
+    document.getElementById("start-finger-drill").addEventListener("click", () => {
+        fingerTrainingEngine.startDrill();
+    });
+
+    document.getElementById("random-key-practice").addEventListener("click", () => {
+        fingerTrainingEngine.nextRandomKey();
+    });
 
     // Keyboard shortcuts
     document.addEventListener("keydown", (e) => {
