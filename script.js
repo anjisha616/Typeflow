@@ -1338,6 +1338,8 @@ function switchMode(mode) {
         practiceEngine.start();
     } else if (mode === "dashboard") {
         renderDashboard();
+    } else if (mode === "finger-training") {
+        fingerTrainingEngine.reset();
     }
 }
 
