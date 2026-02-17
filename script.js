@@ -1151,6 +1151,26 @@ let lessonEngine;
 let practiceEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
+
+        // Start test on any keypress in test mode
+        document.addEventListener("keydown", (e) => {
+            const testSection = document.getElementById("test-mode");
+            if (!testSection.classList.contains("active")) return;
+            // Ignore if results modal is open
+            if (!document.getElementById("results").classList.contains("hidden")) return;
+            // Only trigger for visible test input
+            const input = document.getElementById("typing-input");
+            if (document.activeElement !== input) {
+                // Don't trigger for modifier keys
+                if (e.key.length === 1 || e.key === "Backspace" || e.key === "Spacebar" || e.key === " ") {
+                    input.focus();
+                }
+            }
+            // If test not active and input is empty, start test
+            if (!testEngine.isActive && input.value.length === 0) {
+                testEngine.start(false);
+            }
+        });
     // Initialize managers
     progressManager = new ProgressManager();
     testEngine = new TestEngine();
