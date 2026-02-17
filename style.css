@@ -1240,21 +1240,7 @@ body[data-theme="dark"] .finger-item {
     background: rgba(255, 255, 255, 0.06);
 }
 
-.finger-item.pinky {
-    border-left: 4px solid #ec4899;
-}
 
-.finger-item.ring {
-    border-left: 4px solid #8b5cf6;
-}
-
-.finger-item.middle {
-    border-left: 4px solid #3b82f6;
-}
-
-.finger-item.index {
-    border-left: 4px solid #10b981;
-}
 
 .finger-emoji {
     font-size: 1.5rem;
@@ -1279,7 +1265,7 @@ body[data-theme="dark"] .finger-item {
     padding: 16px;
     background: rgba(0, 0, 0, 0.04);
     border-radius: 8px;
-    border-left: 4px solid #f59e0b;
+    
 }
 
 body[data-theme="dark"] .thumb-guide {
