@@ -382,13 +382,13 @@ class TestEngine {
         this.correctChars = 0;
         this.incorrectChars = 0;
         this.mistakesByChar = {};
-        this.startTime = Date.now();
+        this.startTime = null; // Will be set on first input
         this.timeLeft = this.timeLimit;
 
         if (!preserveInput) {
             this.input.value = "";
         }
-        
+
         this.input.disabled = false;
         this.input.focus();
 
@@ -400,7 +400,9 @@ class TestEngine {
         }
 
         this.displayText();
-        this.startTimer();
+        clearInterval(this.timerInterval); // Don't start timer yet
+        this.updateTimerDisplay();
+        this.waitingForFirstInput = true;
     }
 
     startTimer() {
@@ -427,6 +429,13 @@ class TestEngine {
                 this.start(true);
             }
             return;
+        }
+
+        // Start timer and set startTime on first input after (re)start
+        if (this.waitingForFirstInput && this.input.value.length > 0) {
+            this.startTime = Date.now();
+            this.startTimer();
+            this.waitingForFirstInput = false;
         }
 
         // Prevent editing before the lock index
