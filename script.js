@@ -1404,6 +1404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     testEngine = new TestEngine();
     lessonEngine = new LessonEngine();
     practiceEngine = new PracticeEngine();
+    fingerTrainingEngine = new FingerTrainingEngine();
 
     // Apply theme
     applyTheme(getInitialTheme());
