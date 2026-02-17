@@ -725,14 +725,16 @@ body[data-theme="dark"] .focus-keys span {
 
 /* === WEAK KEYS DISPLAY === */
 .weak-keys-display {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+    max-height: 260px;
+    overflow-y: auto;
 }
 
 .weak-keys-card {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     border-radius: var(--radius-md);
-    padding: 24px;
+    padding: 12px 14px;
 }
 
 body[data-theme="dark"] .weak-keys-card {
@@ -748,7 +750,10 @@ body[data-theme="dark"] .weak-keys-card {
 .weak-keys-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px;
+    font-size: 1rem;
+    max-height: 120px;
+    overflow-y: auto;
 }
 
 .weak-key-item {
@@ -790,7 +795,7 @@ body[data-theme="dark"] .weak-key-item {
 
 /* === DASHBOARD === */
 .dashboard-header {
-    margin-bottom: 24px;
+    margin-bottom: 10px;
 }
 
 /* Level Card */
@@ -930,8 +935,8 @@ body[data-theme="dark"] .metric-streak {
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 18px;
-    margin-bottom: 24px;
+    gap: 14px;
+    margin-bottom: 10px;
 }
 
 .dashboard-card {
@@ -965,7 +970,10 @@ body[data-theme="dark"] .dashboard-card {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
     border-radius: var(--radius-md);
-    padding: 24px;
+    padding: 12px 14px;
+    margin-top: 10px;
+    max-height: 180px;
+    overflow-y: auto;
 }
 
 body[data-theme="dark"] .dashboard-weak-keys {
@@ -981,7 +989,10 @@ body[data-theme="dark"] .dashboard-weak-keys {
 .weak-keys-chart {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px;
+    font-size: 1rem;
+    max-height: 120px;
+    overflow-y: auto;
 }
 
 /* === RESULTS MODAL === */
