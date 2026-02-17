@@ -1376,6 +1376,7 @@ let progressManager;
 let testEngine;
 let lessonEngine;
 let practiceEngine;
+let fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
 
