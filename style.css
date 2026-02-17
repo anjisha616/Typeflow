@@ -1,6 +1,9 @@
 /* === EXISTING 1.25x SCALE OVERRIDES === */
 .app {
-    width: min(1375px, 100%) !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    overflow: hidden !important;
 }
 .panel {
     padding: clamp(25px, 3.75vw, 45px) !important;
