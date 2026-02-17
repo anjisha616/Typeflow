@@ -243,6 +243,76 @@ const homeRowWords = ["as", "sad", "dad", "lad", "fad", "ask", "flask", "sass", 
 const topRowWords = ["we", "were", "where", "quiet", "quit", "quote", "rope", "tire", "wire", "power", "tower", "your", "pure"];
 const bottomRowWords = ["can", "van", "ban", "man", "cab", "nab", "venom", "cabin", "cannot", "banana"];
 
+// ============ FINGER TRAINING DATA ============
+
+const FINGER_MAP = {
+    // Left hand - Pinky
+    'a': 'left-pinky', 'q': 'left-pinky', 'z': 'left-pinky', '1': 'left-pinky',
+    '`': 'left-pinky', '~': 'left-pinky', '!': 'left-pinky',
+    
+    // Left hand - Ring
+    's': 'left-ring', 'w': 'left-ring', 'x': 'left-ring', '2': 'left-ring',
+    '@': 'left-ring',
+    
+    // Left hand - Middle
+    'd': 'left-middle', 'e': 'left-middle', 'c': 'left-middle', '3': 'left-middle',
+    '#': 'left-middle',
+    
+    // Left hand - Index
+    'f': 'left-index', 'r': 'left-index', 'v': 'left-index', 't': 'left-index',
+    'g': 'left-index', 'b': 'left-index', '4': 'left-index', '5': 'left-index',
+    '$': 'left-index', '%': 'left-index',
+    
+    // Right hand - Index
+    'j': 'right-index', 'u': 'right-index', 'm': 'right-index', 'y': 'right-index',
+    'h': 'right-index', 'n': 'right-index', '6': 'right-index', '7': 'right-index',
+    '^': 'right-index', '&': 'right-index',
+    
+    // Right hand - Middle
+    'k': 'right-middle', 'i': 'right-middle', ',': 'right-middle', '8': 'right-middle',
+    '*': 'right-middle', '<': 'right-middle',
+    
+    // Right hand - Ring
+    'l': 'right-ring', 'o': 'right-ring', '.': 'right-ring', '9': 'right-ring',
+    '(': 'right-ring', '>': 'right-ring',
+    
+    // Right hand - Pinky
+    ';': 'right-pinky', 'p': 'right-pinky', '/': 'right-pinky', '0': 'right-pinky',
+    '-': 'right-pinky', '=': 'right-pinky', '[': 'right-pinky', ']': 'right-pinky',
+    '\\': 'right-pinky', '\'': 'right-pinky', ':': 'right-pinky', '?': 'right-pinky',
+    ')': 'right-pinky', '_': 'right-pinky', '+': 'right-pinky', '{': 'right-pinky',
+    '}': 'right-pinky', '|': 'right-pinky', '"': 'right-pinky',
+    
+    // Spacebar
+    ' ': 'thumb'
+};
+
+const FINGER_NAMES = {
+    'left-pinky': 'Left Pinky',
+    'left-ring': 'Left Ring',
+    'left-middle': 'Left Middle',
+    'left-index': 'Left Index',
+    'right-index': 'Right Index',
+    'right-middle': 'Right Middle',
+    'right-ring': 'Right Ring',
+    'right-pinky': 'Right Pinky',
+    'thumb': 'Thumb'
+};
+
+const FINGER_EMOJIS = {
+    'left-pinky': '🤙',
+    'left-ring': '💍',
+    'left-middle': '🖕',
+    'left-index': '☝️',
+    'right-index': '☝️',
+    'right-middle': '🖕',
+    'right-ring': '💍',
+    'right-pinky': '🤙',
+    'thumb': '👍'
+};
+
+const PRACTICE_KEYS = Object.keys(FINGER_MAP).filter(k => k.length === 1 && k !== ' ');
+
 // ============ TEST ENGINE (Original Functionality) ============
 
 class TestEngine {
