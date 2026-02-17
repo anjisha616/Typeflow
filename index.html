@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Typeflow | Typing Speed Test</title>
+    <title>Typeflow | Master Touch Typing</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Header -->
     <div class="logo-header">
         <div class="brand">Typeflow</div>
     </div>
@@ -18,100 +19,346 @@
             Dark mode
         </button>
     </div>
-    <div class="app">
-        <header class="hero">
-            <div class="hero-top">
 
-        <section class="panel">
-            <div class="controls-row">
-                <div class="timer-group" role="group" aria-label="Timer options">
-                    <button class="timer-btn active" data-time="15">15s</button>
-                    <button class="timer-btn" data-time="30">30s</button>
-                    <button class="timer-btn" data-time="60">60s</button>
+    <!-- Main App Container -->
+    <div class="app">
+        <!-- Navigation Tabs -->
+        <nav class="mode-nav" role="tablist" aria-label="Application modes">
+            <button class="mode-tab active" data-mode="test" role="tab" aria-selected="true">
+                <span class="tab-icon">⚡</span>
+                <span class="tab-label">Test</span>
+            </button>
+            <button class="mode-tab" data-mode="lessons" role="tab" aria-selected="false">
+                <span class="tab-icon">📚</span>
+                <span class="tab-label">Lessons</span>
+            </button>
+            <button class="mode-tab" data-mode="practice" role="tab" aria-selected="false">
+                <span class="tab-icon">🎯</span>
+                <span class="tab-label">Weak Keys</span>
+            </button>
+            <button class="mode-tab" data-mode="dashboard" role="tab" aria-selected="false">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Dashboard</span>
+            </button>
+        </nav>
+
+        <!-- Test Mode (Original Functionality) -->
+        <section class="mode-section active" id="test-mode" role="tabpanel">
+            <div class="panel">
+                <div class="controls-row">
+                    <div class="timer-group" role="group" aria-label="Timer options">
+                        <button class="timer-btn active" data-time="15">15s</button>
+                        <button class="timer-btn" data-time="30">30s</button>
+                        <button class="timer-btn" data-time="60">60s</button>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-card">
+                            <span class="stat-label">WPM</span>
+                            <span class="stat-value" id="wpm">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Accuracy</span>
+                            <span class="stat-value" id="accuracy">100%</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Time</span>
+                            <span class="stat-value" id="timer">15</span>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="stats">
+                <div class="options-row" role="group" aria-label="Text options">
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-caps">
+                        <span>Include capitals</span>
+                    </label>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-numbers">
+                        <span>Include numbers</span>
+                    </label>
+                    <label class="toggle">
+                        <input type="checkbox" id="toggle-symbols">
+                        <span>Include symbols</span>
+                    </label>
+                </div>
+
+                <div class="text-card" aria-live="polite">
+                    <div class="text-display" id="text-display"></div>
+                </div>
+
+                <div class="input-card">
+                    <input
+                        type="text"
+                        id="typing-input"
+                        placeholder="Start typing..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <p class="hint">Tip: Keep a steady rhythm. Press Esc to restart.</p>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" id="start-btn">Restart</button>
+                    <button class="btn ghost" id="new-text-btn">New Text</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lessons Mode -->
+        <section class="mode-section" id="lessons-mode" role="tabpanel" hidden>
+            <div class="panel">
+                <div class="lesson-header">
+                    <h2 class="section-title">Progressive Lessons</h2>
+                    <p class="section-subtitle">Master touch typing step by step</p>
+                </div>
+
+                <div class="lessons-grid" id="lessons-grid">
+                    <!-- Lessons will be dynamically generated -->
+                </div>
+            </div>
+
+            <!-- Lesson Practice View (Hidden by default) -->
+            <div class="panel lesson-practice hidden" id="lesson-practice">
+                <button class="back-btn" id="back-to-lessons">← Back to Lessons</button>
+                
+                <div class="lesson-info">
+                    <h3 class="lesson-title" id="lesson-title">Lesson Title</h3>
+                    <p class="lesson-description" id="lesson-description">Description</p>
+                    <div class="focus-keys" id="focus-keys">Focus: <span></span></div>
+                </div>
+
+                <div class="lesson-stats">
                     <div class="stat-card">
                         <span class="stat-label">WPM</span>
-                        <span class="stat-value" id="wpm">0</span>
+                        <span class="stat-value" id="lesson-wpm">0</span>
                     </div>
                     <div class="stat-card">
                         <span class="stat-label">Accuracy</span>
-                        <span class="stat-value" id="accuracy">100%</span>
+                        <span class="stat-value" id="lesson-accuracy">100%</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Time</span>
-                        <span class="stat-value" id="timer">15</span>
+                        <span class="stat-label">Progress</span>
+                        <span class="stat-value" id="lesson-progress">0%</span>
                     </div>
                 </div>
-            </div>
 
-            <div class="options-row" role="group" aria-label="Text options">
-                <label class="toggle">
-                    <input type="checkbox" id="toggle-caps">
-                    <span>Include capitals</span>
-                </label>
-                <label class="toggle">
-                    <input type="checkbox" id="toggle-numbers">
-                    <span>Include numbers</span>
-                </label>
-                <label class="toggle">
-                    <input type="checkbox" id="toggle-symbols">
-                    <span>Include symbols</span>
-                </label>
-            </div>
+                <div class="text-card" aria-live="polite">
+                    <div class="text-display" id="lesson-text-display"></div>
+                </div>
 
-            <div class="text-card" aria-live="polite">
-                <div class="text-display" id="text-display"></div>
-            </div>
+                <div class="input-card">
+                    <input
+                        type="text"
+                        id="lesson-input"
+                        placeholder="Start typing..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <p class="hint">Complete with 90%+ accuracy to unlock next lesson</p>
+                </div>
 
-            <div class="input-card">
-                <input
-                    type="text"
-                    id="typing-input"
-                    placeholder="Press Start to begin..."
-                    autocomplete="off"
-                    spellcheck="false"
-                    disabled
-                >
-                <p class="hint">Tip: Keep a steady rhythm. Press Esc to restart.</p>
+                <div class="actions">
+                    <button class="btn primary" id="lesson-restart">Restart Lesson</button>
+                </div>
             </div>
+        </section>
 
-            <div class="actions">
-                <button class="btn primary" id="start-btn">Restart</button>
-                <button class="btn ghost" id="new-text-btn">New Text</button>
+        <!-- Weak Keys Practice Mode -->
+        <section class="mode-section" id="practice-mode" role="tabpanel" hidden>
+            <div class="panel">
+                <div class="practice-header">
+                    <h2 class="section-title">Weak Key Practice</h2>
+                    <p class="section-subtitle">Focus on your most challenging keys</p>
+                </div>
+
+                <div class="weak-keys-display" id="weak-keys-display">
+                    <div class="weak-keys-card">
+                        <h3>Your Weakest Keys</h3>
+                        <div class="weak-keys-list" id="weak-keys-list">
+                            <p class="empty-state">Complete some typing tests to identify weak keys</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="practice-stats">
+                    <div class="stat-card">
+                        <span class="stat-label">WPM</span>
+                        <span class="stat-value" id="practice-wpm">0</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Accuracy</span>
+                        <span class="stat-value" id="practice-accuracy">100%</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Errors</span>
+                        <span class="stat-value" id="practice-errors">0</span>
+                    </div>
+                </div>
+
+                <div class="text-card" aria-live="polite">
+                    <div class="text-display" id="practice-text-display"></div>
+                </div>
+
+                <div class="input-card">
+                    <input
+                        type="text"
+                        id="practice-input"
+                        placeholder="Start typing..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <p class="hint">Practice makes perfect - focus on accuracy first</p>
+                </div>
+
+                <div class="actions">
+                    <button class="btn primary" id="practice-restart">New Practice</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Mode -->
+        <section class="mode-section" id="dashboard-mode" role="tabpanel" hidden>
+            <div class="panel">
+                <div class="dashboard-header">
+                    <h2 class="section-title">Your Progress</h2>
+                    <p class="section-subtitle">Track your typing journey</p>
+                </div>
+
+                <!-- XP and Level Section -->
+                <div class="level-card">
+                    <div class="level-info">
+                        <div class="level-badge" id="level-badge">Beginner</div>
+                        <div class="xp-info">
+                            <span class="xp-label">Experience Points</span>
+                            <span class="xp-value" id="xp-value">0 XP</span>
+                        </div>
+                    </div>
+                    <div class="xp-bar">
+                        <div class="xp-progress" id="xp-progress" style="width: 0%"></div>
+                    </div>
+                    <p class="xp-next" id="xp-next">500 XP to next level</p>
+                </div>
+
+                <!-- Hero Metric -->
+                <div class="hero-metric">
+                    <div class="metric-main">
+                        <span class="metric-label">Best Typing Speed</span>
+                        <span class="metric-value" id="best-wpm-display">0</span>
+                        <span class="metric-unit">WPM</span>
+                    </div>
+                    <div class="metric-streak">
+                        <span class="streak-icon">🔥</span>
+                        <span class="streak-value" id="streak-value">0</span>
+                        <span class="streak-label">day streak</span>
+                    </div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Average Accuracy</span>
+                        <span class="dashboard-value" id="avg-accuracy">0%</span>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Total Practice Time</span>
+                        <span class="dashboard-value" id="total-time">0m</span>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Lessons Completed</span>
+                        <span class="dashboard-value" id="completed-lessons">0/6</span>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Tests Taken</span>
+                        <span class="dashboard-value" id="tests-taken">0</span>
+                    </div>
+                </div>
+
+                <!-- Weak Keys Summary -->
+                <div class="dashboard-weak-keys">
+                    <h3>Keys to Improve</h3>
+                    <div class="weak-keys-chart" id="dashboard-weak-keys">
+                        <p class="empty-state">No data yet - start practicing!</p>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
 
-   <div class="results hidden" id="results" role="dialog" aria-modal="true">
-  <div class="results-card">
-    <h2>Test Complete</h2>
-    <div class="results-grid">
-      <div class="result-main">
-        <span>Typing Speed</span>
-        <strong id="result-wpm">0 WPM</strong>
-      </div>
-      <div class="result-side">
-        <span>Accuracy</span>
-        <strong id="result-accuracy">100%</strong>
-      </div>
-      <div class="result-side">
-        <span>Correct</span>
-        <strong id="result-correct">0</strong>
-      </div>
-      <div class="result-side">
-        <span>Mistakes</span>
-        <strong id="result-incorrect">0</strong>
-      </div>
-    </div>
-    <div class="results-actions">
-      <button class="btn primary" id="results-restart">Restart</button>
-      <button class="btn ghost" id="results-new-text">New Text</button>
-    </div>
-  </div>
-</div>
+    <!-- Results Modal -->
+    <div class="results hidden" id="results" role="dialog" aria-modal="true">
+        <div class="results-card">
+            <h2>Test Complete</h2>
+            
+            <!-- Performance Rating -->
+            <div class="performance-rating" id="performance-rating">
+                <span class="rating-label">Performance</span>
+                <span class="rating-badge" id="rating-badge">Excellent</span>
+            </div>
 
+            <div class="results-grid">
+                <div class="result-main">
+                    <span>Typing Speed</span>
+                    <strong id="result-wpm">0 WPM</strong>
+                </div>
+                <div class="result-side">
+                    <span>Accuracy</span>
+                    <strong id="result-accuracy">100%</strong>
+                </div>
+                <div class="result-side">
+                    <span>Correct</span>
+                    <strong id="result-correct">0</strong>
+                </div>
+                <div class="result-side">
+                    <span>Mistakes</span>
+                    <strong id="result-incorrect">0</strong>
+                </div>
+            </div>
+
+            <!-- XP Gained -->
+            <div class="xp-gained" id="xp-gained">
+                <span class="xp-icon">✨</span>
+                <span class="xp-text">+<span id="xp-amount">0</span> XP</span>
+            </div>
+
+            <div class="results-actions">
+                <button class="btn primary" id="results-restart">Restart</button>
+                <button class="btn ghost" id="results-new-text">New Text</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lesson Complete Modal -->
+    <div class="results hidden" id="lesson-complete-modal" role="dialog" aria-modal="true">
+        <div class="results-card">
+            <h2>🎉 Lesson Complete!</h2>
+            
+            <div class="results-grid">
+                <div class="result-main">
+                    <span>Final Speed</span>
+                    <strong id="lesson-result-wpm">0 WPM</strong>
+                </div>
+                <div class="result-side">
+                    <span>Accuracy</span>
+                    <strong id="lesson-result-accuracy">100%</strong>
+                </div>
+                <div class="result-side">
+                    <span>Time Taken</span>
+                    <strong id="lesson-result-time">0s</strong>
+                </div>
+            </div>
+
+            <div class="xp-gained">
+                <span class="xp-icon">✨</span>
+                <span class="xp-text">+<span id="lesson-xp-amount">0</span> XP</span>
+            </div>
+
+            <div class="results-actions">
+                <button class="btn primary" id="next-lesson-btn">Next Lesson</button>
+                <button class="btn ghost" id="back-to-lessons-modal">Back to Lessons</button>
+            </div>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
