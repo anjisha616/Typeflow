@@ -1,9 +1,6 @@
 /* === EXISTING 1.25x SCALE OVERRIDES === */
 .app {
-    width: 100vw !important;
-    height: 100vh !important;
-    max-height: 100vh !important;
-    overflow: hidden !important;
+    width: min(1375px, 100%) !important;
 }
 .panel {
     padding: clamp(25px, 3.75vw, 45px) !important;
@@ -309,13 +306,10 @@ body[data-theme="dark"] .mode-tab.active {
     -webkit-backdrop-filter: blur(14px);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
-    padding: clamp(8px, 1vw, 14px);
+    padding: clamp(20px, 3vw, 36px);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    height: 100%;
-    max-height: 100vh;
-    overflow-y: auto;
+    gap: 22px;
 }
 
 body[data-theme="dark"] .panel {
