@@ -1174,6 +1174,496 @@ body[data-theme="dark"] .xp-gained {
 .hidden {
     display: none !important;
 }
+/* === FINGER TRAINING MODE === */
+.finger-header {
+    margin-bottom: 16px;
+}
+
+.finger-guide-card {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+body[data-theme="dark"] .finger-guide-card {
+    background: rgba(24, 34, 49, 0.65);
+}
+
+.finger-guide-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.hand-positions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 20px;
+}
+
+.hand-position {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hand-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--accent);
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--accent);
+}
+
+.finger-mapping {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.finger-item {
+    background: rgba(0, 0, 0, 0.04);
+    padding: 12px;
+    border-radius: 8px;
+    display: grid;
+    grid-template-columns: 40px 80px 1fr;
+    gap: 12px;
+    align-items: center;
+}
+
+body[data-theme="dark"] .finger-item {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.finger-item.pinky {
+    border-left: 4px solid #ec4899;
+}
+
+.finger-item.ring {
+    border-left: 4px solid #8b5cf6;
+}
+
+.finger-item.middle {
+    border-left: 4px solid #3b82f6;
+}
+
+.finger-item.index {
+    border-left: 4px solid #10b981;
+}
+
+.finger-emoji {
+    font-size: 1.5rem;
+}
+
+.finger-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.finger-keys {
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.thumb-guide {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.04);
+    border-radius: 8px;
+    border-left: 4px solid #f59e0b;
+}
+
+body[data-theme="dark"] .thumb-guide {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.thumb-emoji {
+    font-size: 1.8rem;
+}
+
+.thumb-text {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Keyboard Visualization */
+.keyboard-container {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+body[data-theme="dark"] .keyboard-container {
+    background: rgba(24, 34, 49, 0.65);
+}
+
+.keyboard-visual {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.keyboard-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+
+.key {
+    min-width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    text-align: center;
+    line-height: 1.2;
+}
+
+body[data-theme="dark"] .key {
+    background: rgba(40, 50, 70, 0.9);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+.key:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.key.active {
+    transform: translateY(2px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) inset;
+}
+
+.key.highlight {
+    animation: keyPulse 0.5s ease;
+    box-shadow: 0 0 20px currentColor;
+}
+
+@keyframes keyPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Finger color coding */
+.key[data-finger="left-pinky"] {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border-color: #ec4899;
+}
+
+.key[data-finger="left-ring"] {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    border-color: #8b5cf6;
+}
+
+.key[data-finger="left-middle"] {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #3b82f6;
+}
+
+.key[data-finger="left-index"] {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #10b981;
+}
+
+.key[data-finger="right-index"] {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #10b981;
+}
+
+.key[data-finger="right-middle"] {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #3b82f6;
+}
+
+.key[data-finger="right-ring"] {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    border-color: #8b5cf6;
+}
+
+.key[data-finger="right-pinky"] {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border-color: #ec4899;
+}
+
+.key[data-finger="thumb"] {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-color: #f59e0b;
+}
+
+body[data-theme="dark"] .key[data-finger="left-pinky"],
+body[data-theme="dark"] .key[data-finger="right-pinky"] {
+    background: linear-gradient(135deg, #831843, #9d174d);
+}
+
+body[data-theme="dark"] .key[data-finger="left-ring"],
+body[data-theme="dark"] .key[data-finger="right-ring"] {
+    background: linear-gradient(135deg, #5b21b6, #6d28d9);
+}
+
+body[data-theme="dark"] .key[data-finger="left-middle"],
+body[data-theme="dark"] .key[data-finger="right-middle"] {
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+}
+
+body[data-theme="dark"] .key[data-finger="left-index"],
+body[data-theme="dark"] .key[data-finger="right-index"] {
+    background: linear-gradient(135deg, #047857, #059669);
+}
+
+body[data-theme="dark"] .key[data-finger="thumb"] {
+    background: linear-gradient(135deg, #b45309, #d97706);
+}
+
+.key.home-key {
+    font-weight: 700;
+    border-width: 3px;
+}
+
+.key.home-key::after {
+    content: "";
+    position: absolute;
+    bottom: 6px;
+    width: 20px;
+    height: 3px;
+    background: currentColor;
+    border-radius: 2px;
+    opacity: 0.5;
+}
+
+.spacebar {
+    min-width: 300px;
+}
+
+/* Keyboard Legend */
+.keyboard-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 8px;
+}
+
+body[data-theme="dark"] .keyboard-legend {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+.legend-box {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 2px solid;
+}
+
+.legend-box.home-key {
+    background: rgba(0, 0, 0, 0.1);
+    border-color: var(--ink);
+}
+
+.legend-box.left-pinky,
+.legend-box.right-pinky {
+    background: linear-gradient(135deg, #fce7f3, #fbcfe8);
+    border-color: #ec4899;
+}
+
+.legend-box.left-ring,
+.legend-box.right-ring {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    border-color: #8b5cf6;
+}
+
+.legend-box.left-middle,
+.legend-box.right-middle {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-color: #3b82f6;
+}
+
+.legend-box.left-index,
+.legend-box.right-index {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    border-color: #10b981;
+}
+
+body[data-theme="dark"] .legend-box.left-pinky,
+body[data-theme="dark"] .legend-box.right-pinky {
+    background: linear-gradient(135deg, #831843, #9d174d);
+}
+
+body[data-theme="dark"] .legend-box.left-ring,
+body[data-theme="dark"] .legend-box.right-ring {
+    background: linear-gradient(135deg, #5b21b6, #6d28d9);
+}
+
+body[data-theme="dark"] .legend-box.left-middle,
+body[data-theme="dark"] .legend-box.right-middle {
+    background: linear-gradient(135deg, #1e40af, #2563eb);
+}
+
+body[data-theme="dark"] .legend-box.left-index,
+body[data-theme="dark"] .legend-box.right-index {
+    background: linear-gradient(135deg, #047857, #059669);
+}
+
+/* Interactive Practice Section */
+.finger-practice-section {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-md);
+    padding: 24px;
+}
+
+body[data-theme="dark"] .finger-practice-section {
+    background: rgba(24, 34, 49, 0.65);
+}
+
+.finger-practice-section h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.practice-instruction {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 20px;
+    font-size: 1rem;
+}
+
+.current-key-display {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 24px;
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: 12px;
+}
+
+body[data-theme="dark"] .current-key-display {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.key-to-press,
+.finger-to-use {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.key-char {
+    font-size: 4rem;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.key-label,
+.finger-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.finger-icon {
+    font-size: 4rem;
+}
+
+.finger-label {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.practice-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.finger-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 20px;
+}
+
+/* Responsive for Finger Training */
+@media (max-width: 768px) {
+    .hand-positions {
+        grid-template-columns: 1fr;
+    }
+
+    .keyboard-row {
+        gap: 3px;
+    }
+
+    .key {
+        min-width: 35px;
+        height: 35px;
+        font-size: 0.75rem;
+    }
+
+    .spacebar {
+        min-width: 200px;
+    }
+
+    .current-key-display {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .finger-item {
+        grid-template-columns: 30px 60px 1fr;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .keyboard-legend {
+        gap: 8px;
+    }
+
+    .legend-item {
+        font-size: 0.75rem;
+    }
+
+    .legend-box {
+        width: 20px;
+        height: 20px;
+    }
+}
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
