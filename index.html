@@ -221,6 +221,228 @@
             </div>
         </section>
 
+
+        <!-- Finger Training Mode -->
+        <section class="mode-section" id="finger-training-mode" role="tabpanel" hidden>
+            <div class="panel">
+                <div class="finger-header">
+                    <h2 class="section-title">Finger Placement Training</h2>
+                    <p class="section-subtitle">Learn proper finger positioning with visual guidance</p>
+                </div>
+
+                <!-- Finger Position Guide -->
+                <div class="finger-guide-card">
+                    <h3>Hand Position Guide</h3>
+                    <div class="hand-positions">
+                        <div class="hand-position left">
+                            <div class="hand-label">Left Hand</div>
+                            <div class="finger-mapping">
+                                <div class="finger-item pinky">
+                                    <span class="finger-emoji">🤙</span>
+                                    <span class="finger-name">Pinky</span>
+                                    <span class="finger-keys">A Q Z 1 ` Tab Shift</span>
+                                </div>
+                                <div class="finger-item ring">
+                                    <span class="finger-emoji">💍</span>
+                                    <span class="finger-name">Ring</span>
+                                    <span class="finger-keys">S W X 2</span>
+                                </div>
+                                <div class="finger-item middle">
+                                    <span class="finger-emoji">🖕</span>
+                                    <span class="finger-name">Middle</span>
+                                    <span class="finger-keys">D E C 3</span>
+                                </div>
+                                <div class="finger-item index">
+                                    <span class="finger-emoji">☝️</span>
+                                    <span class="finger-name">Index</span>
+                                    <span class="finger-keys">F R V T G B 4 5</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="hand-position right">
+                            <div class="hand-label">Right Hand</div>
+                            <div class="finger-mapping">
+                                <div class="finger-item index">
+                                    <span class="finger-emoji">☝️</span>
+                                    <span class="finger-name">Index</span>
+                                    <span class="finger-keys">J U M Y H N 6 7</span>
+                                </div>
+                                <div class="finger-item middle">
+                                    <span class="finger-emoji">🖕</span>
+                                    <span class="finger-name">Middle</span>
+                                    <span class="finger-keys">K I , 8</span>
+                                </div>
+                                <div class="finger-item ring">
+                                    <span class="finger-emoji">💍</span>
+                                    <span class="finger-name">Ring</span>
+                                    <span class="finger-keys">L O . 9</span>
+                                </div>
+                                <div class="finger-item pinky">
+                                    <span class="finger-emoji">🤙</span>
+                                    <span class="finger-name">Pinky</span>
+                                    <span class="finger-keys">; P / 0 ' [ ] \ Enter Shift</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="thumb-guide">
+                        <span class="thumb-emoji">👍</span>
+                        <span class="thumb-text">Both Thumbs: Spacebar</span>
+                    </div>
+                </div>
+
+                <!-- Visual Keyboard -->
+                <div class="keyboard-container">
+                    <div class="keyboard-visual" id="keyboard-visual">
+                        <!-- Number Row -->
+                        <div class="keyboard-row">
+                            <div class="key" data-key="`" data-finger="left-pinky">~<br>`</div>
+                            <div class="key" data-key="1" data-finger="left-pinky">!<br>1</div>
+                            <div class="key" data-key="2" data-finger="left-ring">@<br>2</div>
+                            <div class="key" data-key="3" data-finger="left-middle">#<br>3</div>
+                            <div class="key" data-key="4" data-finger="left-index">$<br>4</div>
+                            <div class="key" data-key="5" data-finger="left-index">%<br>5</div>
+                            <div class="key" data-key="6" data-finger="right-index">^<br>6</div>
+                            <div class="key" data-key="7" data-finger="right-index">&<br>7</div>
+                            <div class="key" data-key="8" data-finger="right-middle">*<br>8</div>
+                            <div class="key" data-key="9" data-finger="right-ring">(<br>9</div>
+                            <div class="key" data-key="0" data-finger="right-pinky">)<br>0</div>
+                            <div class="key" data-key="-" data-finger="right-pinky">_<br>-</div>
+                            <div class="key" data-key="=" data-finger="right-pinky">+<br>=</div>
+                        </div>
+
+                        <!-- Top Row (QWERTY) -->
+                        <div class="keyboard-row">
+                            <div class="key" data-key="q" data-finger="left-pinky">Q</div>
+                            <div class="key" data-key="w" data-finger="left-ring">W</div>
+                            <div class="key" data-key="e" data-finger="left-middle">E</div>
+                            <div class="key" data-key="r" data-finger="left-index">R</div>
+                            <div class="key" data-key="t" data-finger="left-index">T</div>
+                            <div class="key" data-key="y" data-finger="right-index">Y</div>
+                            <div class="key" data-key="u" data-finger="right-index">U</div>
+                            <div class="key" data-key="i" data-finger="right-middle">I</div>
+                            <div class="key" data-key="o" data-finger="right-ring">O</div>
+                            <div class="key" data-key="p" data-finger="right-pinky">P</div>
+                            <div class="key" data-key="[" data-finger="right-pinky">{<br>[</div>
+                            <div class="key" data-key="]" data-finger="right-pinky">}<br>]</div>
+                            <div class="key" data-key="\\" data-finger="right-pinky">|<br>\</div>
+                        </div>
+
+                        <!-- Home Row (ASDF) -->
+                        <div class="keyboard-row">
+                            <div class="key home-key" data-key="a" data-finger="left-pinky">A</div>
+                            <div class="key home-key" data-key="s" data-finger="left-ring">S</div>
+                            <div class="key home-key" data-key="d" data-finger="left-middle">D</div>
+                            <div class="key home-key" data-key="f" data-finger="left-index">F</div>
+                            <div class="key" data-key="g" data-finger="left-index">G</div>
+                            <div class="key" data-key="h" data-finger="right-index">H</div>
+                            <div class="key home-key" data-key="j" data-finger="right-index">J</div>
+                            <div class="key home-key" data-key="k" data-finger="right-middle">K</div>
+                            <div class="key home-key" data-key="l" data-finger="right-ring">L</div>
+                            <div class="key home-key" data-key=";" data-finger="right-pinky">:<br>;</div>
+                            <div class="key" data-key="'" data-finger="right-pinky">"<br>'</div>
+                        </div>
+
+                        <!-- Bottom Row (ZXCV) -->
+                        <div class="keyboard-row">
+                            <div class="key" data-key="z" data-finger="left-pinky">Z</div>
+                            <div class="key" data-key="x" data-finger="left-ring">X</div>
+                            <div class="key" data-key="c" data-finger="left-middle">C</div>
+                            <div class="key" data-key="v" data-finger="left-index">V</div>
+                            <div class="key" data-key="b" data-finger="left-index">B</div>
+                            <div class="key" data-key="n" data-finger="right-index">N</div>
+                            <div class="key" data-key="m" data-finger="right-index">M</div>
+                            <div class="key" data-key="," data-finger="right-middle"><&lt;<br>,</div>
+                            <div class="key" data-key="." data-finger="right-ring">&gt;<br>.</div>
+                            <div class="key" data-key="/" data-finger="right-pinky">?<br>/</div>
+                        </div>
+
+                        <!-- Spacebar -->
+                        <div class="keyboard-row">
+                            <div class="key spacebar" data-key=" " data-finger="thumb">Space</div>
+                        </div>
+                    </div>
+
+                    <div class="keyboard-legend">
+                        <div class="legend-item">
+                            <div class="legend-box home-key"></div>
+                            <span>Home Row Keys</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box left-pinky"></div>
+                            <span>Left Pinky</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box left-ring"></div>
+                            <span>Left Ring</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box left-middle"></div>
+                            <span>Left Middle</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box left-index"></div>
+                            <span>Left Index</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box right-index"></div>
+                            <span>Right Index</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box right-middle"></div>
+                            <span>Right Middle</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box right-ring"></div>
+                            <span>Right Ring</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box right-pinky"></div>
+                            <span>Right Pinky</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Practice -->
+                <div class="finger-practice-section">
+                    <h3>Interactive Practice</h3>
+                    <p class="practice-instruction" id="finger-instruction">Press any key to see which finger to use!</p>
+                    
+                    <div class="current-key-display" id="current-key-display">
+                        <div class="key-to-press">
+                            <span class="key-char" id="target-key-char">-</span>
+                            <span class="key-label">Press this key</span>
+                        </div>
+                        <div class="finger-to-use">
+                            <span class="finger-icon" id="target-finger-icon">👆</span>
+                            <span class="finger-label" id="target-finger-name">Waiting...</span>
+                        </div>
+                    </div>
+
+                    <div class="practice-controls">
+                        <button class="btn primary" id="start-finger-drill">Start Finger Drill</button>
+                        <button class="btn ghost" id="random-key-practice">Random Key</button>
+                    </div>
+
+                    <div class="finger-stats" id="finger-drill-stats" style="display: none;">
+                        <div class="stat-card">
+                            <span class="stat-label">Correct</span>
+                            <span class="stat-value" id="finger-correct">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Wrong</span>
+                            <span class="stat-value" id="finger-wrong">0</span>
+                        </div>
+                        <div class="stat-card">
+                            <span class="stat-label">Accuracy</span>
+                            <span class="stat-value" id="finger-accuracy">100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Mode -->
         <!-- Dashboard Mode -->
         <section class="mode-section" id="dashboard-mode" role="tabpanel" hidden>
             <div class="panel">
