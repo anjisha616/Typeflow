@@ -1035,7 +1035,155 @@ class PracticeEngine {
         this.start(); // Auto restart
     }
 }
+// ============ FINGER TRAINING ENGINE ============
 
+class FingerTrainingEngine {
+    constructor() {
+        this.currentKey = null;
+        this.drillActive = false;
+        this.correctCount = 0;
+        this.wrongCount = 0;
+        
+        this.keyboardKeys = document.querySelectorAll('.key');
+        this.targetKeyChar = document.getElementById('target-key-char');
+        this.targetFingerIcon = document.getElementById('target-finger-icon');
+        this.targetFingerName = document.getElementById('target-finger-name');
+        this.fingerCorrect = document.getElementById('finger-correct');
+        this.fingerWrong = document.getElementById('finger-wrong');
+        this.fingerAccuracy = document.getElementById('finger-accuracy');
+        this.fingerDrillStats = document.getElementById('finger-drill-stats');
+        
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Keyboard visualization - click to show finger
+        this.keyboardKeys.forEach(key => {
+            key.addEventListener('click', () => {
+                const keyChar = key.dataset.key;
+                this.showKeyInfo(keyChar);
+            });
+        });
+
+        // Listen for keypresses when in finger training mode
+        document.addEventListener('keydown', (e) => {
+            const section = document.getElementById('finger-training-mode');
+            if (!section || !section.classList.contains('active')) return;
+            
+            this.handleKeyPress(e);
+        });
+    }
+
+    showKeyInfo(keyChar) {
+        const finger = FINGER_MAP[keyChar.toLowerCase()];
+        if (!finger) return;
+
+        this.currentKey = keyChar.toLowerCase();
+        
+        // Update display
+        this.targetKeyChar.textContent = keyChar.toUpperCase();
+        this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
+        this.targetFingerName.textContent = FINGER_NAMES[finger];
+
+        // Highlight keyboard key
+        this.highlightKey(keyChar.toLowerCase());
+    }
+
+    highlightKey(keyChar) {
+        // Remove previous highlights
+        this.keyboardKeys.forEach(k => k.classList.remove('highlight'));
+        
+        // Add highlight to current key
+        this.keyboardKeys.forEach(key => {
+            if (key.dataset.key === keyChar) {
+                key.classList.add('highlight');
+                setTimeout(() => key.classList.remove('highlight'), 500);
+            }
+        });
+    }
+
+    handleKeyPress(e) {
+        // Prevent default for special keys
+        if (e.key === 'Tab' || e.key === 'Enter') {
+            e.preventDefault();
+        }
+
+        // Get the pressed key
+        let pressedKey = e.key.toLowerCase();
+        
+        // Show info for any key press
+        if (FINGER_MAP[pressedKey]) {
+            this.showKeyInfo(pressedKey);
+        }
+
+        // If drill is active, check if correct
+        if (this.drillActive && this.currentKey) {
+            if (pressedKey === this.currentKey) {
+                this.correctCount++;
+                this.updateStats();
+                this.nextRandomKey();
+            } else if (FINGER_MAP[pressedKey]) {
+                // Only count as wrong if it's a valid typing key
+                this.wrongCount++;
+                this.updateStats();
+                // Flash the keyboard to show wrong key
+                this.flashWrongKey(pressedKey);
+            }
+        }
+    }
+
+    flashWrongKey(keyChar) {
+        this.keyboardKeys.forEach(key => {
+            if (key.dataset.key === keyChar) {
+                key.style.background = 'rgba(220, 38, 38, 0.3)';
+                setTimeout(() => {
+                    key.style.background = '';
+                }, 300);
+            }
+        });
+    }
+
+    startDrill() {
+        this.drillActive = true;
+        this.correctCount = 0;
+        this.wrongCount = 0;
+        this.fingerDrillStats.style.display = 'grid';
+        this.updateStats();
+        this.nextRandomKey();
+        
+        document.getElementById('finger-instruction').textContent = 
+            'Press the highlighted key with the correct finger!';
+    }
+
+    nextRandomKey() {
+        const randomKey = PRACTICE_KEYS[Math.floor(Math.random() * PRACTICE_KEYS.length)];
+        this.showKeyInfo(randomKey);
+    }
+
+    updateStats() {
+        this.fingerCorrect.textContent = this.correctCount;
+        this.fingerWrong.textContent = this.wrongCount;
+        
+        const total = this.correctCount + this.wrongCount;
+        const accuracy = total > 0 ? Math.round((this.correctCount / total) * 100) : 100;
+        this.fingerAccuracy.textContent = `${accuracy}%`;
+    }
+
+    reset() {
+        this.drillActive = false;
+        this.currentKey = null;
+        this.correctCount = 0;
+        this.wrongCount = 0;
+        this.fingerDrillStats.style.display = 'none';
+        
+        this.targetKeyChar.textContent = '-';
+        this.targetFingerIcon.textContent = '👆';
+        this.targetFingerName.textContent = 'Waiting...';
+        
+        document.getElementById('finger-instruction').textContent = 
+            'Press any key to see which finger to use!';
+    }
+}
 // ============ UI RENDERING ============
 
 function renderLessons() {
