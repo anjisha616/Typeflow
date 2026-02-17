@@ -268,9 +268,17 @@ class TestEngine {
     }
 
     setupEventListeners() {
-        this.input.addEventListener("input", () => this.handleTyping());
-        this.input.addEventListener("paste", e => e.preventDefault());
-        this.textDisplay.addEventListener("click", () => this.input.focus());
+            this.input.addEventListener("input", (e) => this.handleTyping(e));
+            this.input.addEventListener("keydown", (e) => this.handleKeydown(e));
+            this.input.addEventListener("paste", e => e.preventDefault());
+            this.textDisplay.addEventListener("click", () => this.input.focus());
+        }
+
+        getLockIndex() {
+            // Lock all characters before the last completed word (space)
+            const typedText = this.input.value;
+            const lastSpace = typedText.lastIndexOf(" ");
+            return lastSpace + 1;
     }
 
     generateText() {
@@ -413,7 +421,7 @@ class TestEngine {
         this.timerDisplay.textContent = Math.max(this.timeLeft, 0);
     }
 
-    handleTyping() {
+    handleTyping(e) {
         if (!this.isActive) {
             if (this.input.value.length > 0) {
                 this.start(true);
@@ -421,7 +429,20 @@ class TestEngine {
             return;
         }
 
+        // Prevent editing before the lock index
         const typedText = this.input.value;
+        const lockIndex = this.getLockIndex();
+        if (this.input.selectionStart < lockIndex) {
+            // Move cursor to lockIndex
+            this.input.setSelectionRange(lockIndex, lockIndex);
+        }
+
+        // If user deleted or changed before lockIndex, revert
+        if (typedText.length < lockIndex) {
+            this.input.value = typedText.slice(0, lockIndex);
+            this.input.setSelectionRange(lockIndex, lockIndex);
+        }
+
         this.currentPosition = typedText.length;
 
         if (this.currentPosition >= this.currentText.length) {
@@ -432,7 +453,26 @@ class TestEngine {
         this.recalculateFromInput();
         this.updateStats();
         this.displayText();
-        this.input.setSelectionRange(typedText.length, typedText.length);
+        this.input.setSelectionRange(this.input.value.length, this.input.value.length);
+    }
+
+    handleKeydown(e) {
+        // Prevent backspace and left arrow before lock index
+        const lockIndex = this.getLockIndex();
+        const cursor = this.input.selectionStart;
+        if ((e.key === "Backspace" && cursor <= lockIndex) ||
+            (e.key === "ArrowLeft" && cursor <= lockIndex)) {
+            e.preventDefault();
+            this.input.setSelectionRange(lockIndex, lockIndex);
+        }
+        // Prevent selecting text before lockIndex
+        if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "Home" || e.key === "PageUp") {
+            setTimeout(() => {
+                if (this.input.selectionStart < lockIndex) {
+                    this.input.setSelectionRange(lockIndex, lockIndex);
+                }
+            }, 0);
+        }
     }
 
     recalculateFromInput() {
