@@ -306,10 +306,13 @@ body[data-theme="dark"] .mode-tab.active {
     -webkit-backdrop-filter: blur(14px);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow);
-    padding: clamp(20px, 3vw, 36px);
+    padding: clamp(8px, 1vw, 14px);
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 10px;
+    height: 100%;
+    max-height: 100vh;
+    overflow-y: auto;
 }
 
 body[data-theme="dark"] .panel {
