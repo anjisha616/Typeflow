@@ -25,28 +25,28 @@
         <!-- Navigation Tabs -->
         <nav class="mode-nav" role="tablist" aria-label="Application modes">
             <button class="mode-tab active" data-mode="test" role="tab" aria-selected="true">
-                <span class="tab-icon"></span>
+                <span class="tab-icon">⌨️</span>
                 <span class="tab-label">Test</span>
             </button>
             <button class="mode-tab" data-mode="lessons" role="tab" aria-selected="false">
-                <span class="tab-icon"></span>
+                <span class="tab-icon">📚</span>
                 <span class="tab-label">Lessons</span>
             </button>
             <button class="mode-tab" data-mode="practice" role="tab" aria-selected="false">
-                <span class="tab-icon"></span>
+                <span class="tab-icon">🎯</span>
                 <span class="tab-label">Weak Keys</span>
             </button>
             <button class="mode-tab" data-mode="dashboard" role="tab" aria-selected="false">
-                <span class="tab-icon"></span>
+                <span class="tab-icon">📊</span>
                 <span class="tab-label">Dashboard</span>
             </button>
             <button class="mode-tab" data-mode="finger-training" role="tab" aria-selected="false">
-                <span class="tab-icon"></span>
+                <span class="tab-icon">🖐️</span>
                 <span class="tab-label">Finger Training</span>
             </button>
         </nav>
 
-        <!-- Test Mode (Original Functionality) -->
+        <!-- Test Mode -->
         <section class="mode-section active" id="test-mode" role="tabpanel">
             <div class="panel">
                 <div class="controls-row">
@@ -221,7 +221,6 @@
             </div>
         </section>
 
-
         <!-- Finger Training Mode -->
         <section class="mode-section" id="finger-training-mode" role="tabpanel" hidden>
             <div class="panel">
@@ -303,7 +302,7 @@
                             <div class="key" data-key="4" data-finger="left-index">$<br>4</div>
                             <div class="key" data-key="5" data-finger="left-index">%<br>5</div>
                             <div class="key" data-key="6" data-finger="right-index">^<br>6</div>
-                            <div class="key" data-key="7" data-finger="right-index">&<br>7</div>
+                            <div class="key" data-key="7" data-finger="right-index">&amp;<br>7</div>
                             <div class="key" data-key="8" data-finger="right-middle">*<br>8</div>
                             <div class="key" data-key="9" data-finger="right-ring">(<br>9</div>
                             <div class="key" data-key="0" data-finger="right-pinky">)<br>0</div>
@@ -352,7 +351,7 @@
                             <div class="key" data-key="b" data-finger="left-index">B</div>
                             <div class="key" data-key="n" data-finger="right-index">N</div>
                             <div class="key" data-key="m" data-finger="right-index">M</div>
-                            <div class="key" data-key="," data-finger="right-middle"><&lt;<br>,</div>
+                            <div class="key" data-key="," data-finger="right-middle">&lt;<br>,</div>
                             <div class="key" data-key="." data-finger="right-ring">&gt;<br>.</div>
                             <div class="key" data-key="/" data-finger="right-pinky">?<br>/</div>
                         </div>
@@ -364,42 +363,15 @@
                     </div>
 
                     <div class="keyboard-legend">
-                        <div class="legend-item">
-                            <div class="legend-box home-key"></div>
-                            <span>Home Row Keys</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box left-pinky"></div>
-                            <span>Left Pinky</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box left-ring"></div>
-                            <span>Left Ring</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box left-middle"></div>
-                            <span>Left Middle</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box left-index"></div>
-                            <span>Left Index</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box right-index"></div>
-                            <span>Right Index</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box right-middle"></div>
-                            <span>Right Middle</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box right-ring"></div>
-                            <span>Right Ring</span>
-                        </div>
-                        <div class="legend-item">
-                            <div class="legend-box right-pinky"></div>
-                            <span>Right Pinky</span>
-                        </div>
+                        <div class="legend-item"><div class="legend-box home-key"></div><span>Home Row Keys</span></div>
+                        <div class="legend-item"><div class="legend-box left-pinky"></div><span>Left Pinky</span></div>
+                        <div class="legend-item"><div class="legend-box left-ring"></div><span>Left Ring</span></div>
+                        <div class="legend-item"><div class="legend-box left-middle"></div><span>Left Middle</span></div>
+                        <div class="legend-item"><div class="legend-box left-index"></div><span>Left Index</span></div>
+                        <div class="legend-item"><div class="legend-box right-index"></div><span>Right Index</span></div>
+                        <div class="legend-item"><div class="legend-box right-middle"></div><span>Right Middle</span></div>
+                        <div class="legend-item"><div class="legend-box right-ring"></div><span>Right Ring</span></div>
+                        <div class="legend-item"><div class="legend-box right-pinky"></div><span>Right Pinky</span></div>
                     </div>
                 </div>
 
@@ -443,7 +415,6 @@
         </section>
 
         <!-- Dashboard Mode -->
-        <!-- Dashboard Mode -->
         <section class="mode-section" id="dashboard-mode" role="tabpanel" hidden>
             <div class="panel">
                 <div class="dashboard-header">
@@ -451,7 +422,6 @@
                     <p class="section-subtitle">Track your typing journey</p>
                 </div>
 
-                <!-- XP and Level Section -->
                 <div class="level-card">
                     <div class="level-info">
                         <div class="level-badge" id="level-badge">Beginner</div>
@@ -466,7 +436,6 @@
                     <p class="xp-next" id="xp-next">500 XP to next level</p>
                 </div>
 
-                <!-- Hero Metric -->
                 <div class="hero-metric">
                     <div class="metric-main">
                         <span class="metric-label">Best Typing Speed</span>
@@ -480,7 +449,6 @@
                     </div>
                 </div>
 
-                <!-- Stats Grid -->
                 <div class="dashboard-grid">
                     <div class="dashboard-card">
                         <span class="dashboard-label">Average Accuracy</span>
@@ -500,7 +468,6 @@
                     </div>
                 </div>
 
-                <!-- Weak Keys Summary -->
                 <div class="dashboard-weak-keys">
                     <h3>Keys to Improve</h3>
                     <div class="weak-keys-chart" id="dashboard-weak-keys">
@@ -516,7 +483,6 @@
         <div class="results-card">
             <h2>Test Complete</h2>
             
-            <!-- Performance Rating -->
             <div class="performance-rating" id="performance-rating">
                 <span class="rating-label">Performance</span>
                 <span class="rating-badge" id="rating-badge">Excellent</span>
@@ -541,7 +507,6 @@
                 </div>
             </div>
 
-            <!-- XP Gained -->
             <div class="xp-gained" id="xp-gained">
                 <span class="xp-icon">✨</span>
                 <span class="xp-text">+<span id="xp-amount">0</span> XP</span>
@@ -585,6 +550,7 @@
             </div>
         </div>
     </div>
+
     <script src="script.js"></script>
 </body>
 </html>
