@@ -432,10 +432,7 @@ body[data-theme="dark"] .toggle:hover {
     backdrop-filter: blur(8px);
 }
 
-body[data-theme="dark"] .timer-group {
-    background: rgba(24, 34, 49, 0.5);
-    border-color: rgba(255,255,255,0.08);
-}
+
 
 .timer-btn {
     border: none;
