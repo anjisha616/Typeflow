@@ -471,8 +471,7 @@ body[data-theme="dark"] .timer-btn:hover {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    
-    
+        
 }
 
 .stat-label {
