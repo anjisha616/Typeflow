@@ -1068,8 +1068,7 @@ class FingerTrainingEngine {
         // Listen for keypresses when in finger training mode
         document.addEventListener('keydown', (e) => {
             const section = document.getElementById('finger-training-mode');
-            if (!section || !section.classList.contains('active')) return;
-            
+            if (!section || section.hasAttribute('hidden')) return;
             this.handleKeyPress(e);
         });
     }
