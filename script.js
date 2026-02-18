@@ -1110,7 +1110,7 @@ class FingerTrainingEngine {
 
         // Get the pressed key
         let pressedKey = e.key.toLowerCase();
-        
+
         // Show info for any key press
         if (FINGER_MAP[pressedKey]) {
             this.showKeyInfo(pressedKey);
@@ -1122,12 +1122,14 @@ class FingerTrainingEngine {
                 this.correctCount++;
                 this.updateStats();
                 this.nextRandomKey();
-            } else if (FINGER_MAP[pressedKey]) {
-                // Only count as wrong if it's a valid typing key
+            } else {
+                // Count any wrong key press as incorrect
                 this.wrongCount++;
                 this.updateStats();
-                // Flash the keyboard to show wrong key
-                this.flashWrongKey(pressedKey);
+                // Flash the keyboard to show wrong key if it's a valid typing key
+                if (FINGER_MAP[pressedKey]) {
+                    this.flashWrongKey(pressedKey);
+                }
             }
         }
     }
