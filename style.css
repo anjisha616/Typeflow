@@ -472,7 +472,7 @@ body[data-theme="dark"] .timer-btn:hover {
     flex-direction: column;
     gap: 6px;
     /* IMPROVEMENT: subtle left accent border */
-    border-left: 3px solid var(--accent) !important;
+    
 }
 
 .stat-label {
