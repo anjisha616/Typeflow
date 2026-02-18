@@ -1110,8 +1110,8 @@ class FingerTrainingEngine {
         // Get the pressed key
         let pressedKey = e.key.toLowerCase();
 
-        // Show info for any key press
-        if (FINGER_MAP[pressedKey]) {
+        // Show info for any key press, but do NOT update currentKey during drill
+        if (FINGER_MAP[pressedKey] && !this.drillActive) {
             this.showKeyInfo(pressedKey);
         }
 
