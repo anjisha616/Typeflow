@@ -1154,9 +1154,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".timer-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const time = parseInt(e.target.dataset.time, 10);
-            console.log('Timer button pressed:', time);
             testEngine.timeLimit = time;
             testEngine.timeLeft = time;
+            testEngine.reset(false);
+            testEngine.loadNewText();
             testEngine.updateTimerDisplay();
             document.querySelectorAll(".timer-btn").forEach(b => b.classList.remove("active"));
             e.target.classList.add("active");
