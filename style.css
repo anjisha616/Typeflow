@@ -1,15 +1,3 @@
-/* Prevent scrolling in the test section and its panel */
-#test-mode {
-    overflow: hidden !important;
-    max-height: 100vh;
-    height: 100vh;
-    position: relative;
-}
-#test-mode > .panel {
-    overflow: hidden !important;
-    max-height: 100vh;
-    height: 100vh;
-}
 /* === EXISTING 1.25x SCALE OVERRIDES === */
 .app {
     width: min(1375px, 100%) !important;
