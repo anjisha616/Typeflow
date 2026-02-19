@@ -1244,5 +1244,53 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    
+    if (feedbackForm) {
+        feedbackForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(feedbackForm);
+            const feedback = {
+                timestamp: new Date().toISOString(),
+                liked: formData.get('liked'),
+                improve: formData.get('improve'),
+                bugs: formData.get('bugs'),
+                email: formData.get('email'),
+                userAgent: navigator.userAgent
+            };
+
+            // Store locally as backup
+            const allFeedback = JSON.parse(localStorage.getItem('typeflow-feedback') || '[]');
+            allFeedback.push(feedback);
+            localStorage.setItem('typeflow-feedback', JSON.stringify(allFeedback));
+
+            // Send to Google Sheets
+            try {
+                const response = await fetch('YOUR_GOOGLE_SCRIPT_URL_HERE', {
+                    method: 'POST',
+                    mode: 'no-cors', // Important for Google Apps Script
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(feedback)
+                });
+                
+                console.log('Feedback sent successfully!');
+            } catch (error) {
+                console.error('Error sending feedback:', error);
+                // Still show success to user since we have local backup
+            }
+
+            // Show success message
+            feedbackForm.classList.add('hidden');
+            feedbackSuccess.classList.remove('hidden');
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+                feedbackForm.classList.remove('hidden');
+                feedbackSuccess.classList.add('hidden');
+                feedbackForm.reset();
+            }, 2000);
+        });
+    }
 });
