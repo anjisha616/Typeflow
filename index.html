@@ -550,6 +550,48 @@
             </div>
         </div>
     </div>
+    <!-- Feedback Button (Fixed Position) -->
+<button class="feedback-button" id="feedback-btn" aria-label="Give Feedback">
+    💬 Feedback
+</button>
+
+<!-- Feedback Modal -->
+<div class="feedback-modal hidden" id="feedback-modal">
+    <div class="feedback-card">
+        <button class="close-modal" id="close-feedback">✕</button>
+        <h2>Help Us Improve! 🚀</h2>
+        <p>Your feedback helps make Typeflow better for everyone.</p>
+        
+        <form id="feedback-form">
+            <div class="form-group">
+                <label>What did you like? ⭐</label>
+                <textarea name="liked" rows="3" placeholder="e.g., The finger training mode was really helpful..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>What needs improvement? 🔧</label>
+                <textarea name="improve" rows="3" placeholder="e.g., It would be great if..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Any bugs or issues? 🐛</label>
+                <textarea name="bugs" rows="2" placeholder="e.g., The timer didn't work when..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label>Your email (optional)</label>
+                <input type="email" name="email" placeholder="student@university.edu">
+            </div>
+            
+            <button type="submit" class="btn primary">Submit Feedback</button>
+        </form>
+        
+        <div class="feedback-success hidden" id="feedback-success">
+            <span class="success-icon">✅</span>
+            <p>Thank you! Your feedback has been recorded.</p>
+        </div>
+    </div>
+</div>
 
     <script src="script.js"></script>
 </body>
