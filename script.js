@@ -1153,7 +1153,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // Timer buttons
     document.querySelectorAll(".timer-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
-            if (testEngine.isActive) return; // Only allow timer change if test is not active
+            // Allow timer reset if test is not running
+            if (testEngine.isActive && testEngine.timeLeft > 0) return;
             const time = parseInt(e.target.dataset.time, 10);
             testEngine.timeLimit = time;
             testEngine.timeLeft = time;
