@@ -1134,8 +1134,15 @@ document.addEventListener("DOMContentLoaded", () => {
     testEngine.loadNewText();
     testEngine.start(false);
 
+    // Prevent test input focus/typing when feedback modal is open
+    function isFeedbackModalOpen() {
+        const modal = document.getElementById('feedback-modal');
+        return modal && !modal.classList.contains('hidden');
+    }
+
     // Auto-focus input when typing in test mode
     document.addEventListener("keydown", (e) => {
+        if (isFeedbackModalOpen()) return;
         const testSection = document.getElementById("test-mode");
         if (!testSection.classList.contains("active")) return;
         if (!document.getElementById("results").classList.contains("hidden")) return;
