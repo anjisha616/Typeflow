@@ -1692,7 +1692,143 @@ body[data-theme="dark"] .current-key-display {
     margin-top: 20px;
 }
 
+/* === FEEDBACK SYSTEM === */
+.feedback-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 14px 24px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(224, 122, 95, 0.4);
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
 
+.feedback-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(224, 122, 95, 0.5);
+}
+
+.feedback-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    z-index: 2000;
+}
+
+.feedback-modal.hidden {
+    display: none;
+}
+
+.feedback-card {
+    background: var(--surface-elev);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    max-width: 500px;
+    width: 100%;
+    position: relative;
+    box-shadow: var(--shadow);
+    animation: popIn 0.3s ease;
+}
+
+.close-modal {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--muted);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-modal:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: var(--ink);
+}
+
+body[data-theme="dark"] .close-modal:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.feedback-card h2 {
+    margin-bottom: 8px;
+    font-size: 1.5rem;
+}
+
+.feedback-card > p {
+    color: var(--muted);
+    margin-bottom: 24px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.form-group textarea,
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--radius-sm);
+    font-family: inherit;
+    font-size: 0.95rem;
+    background: var(--surface);
+    color: var(--ink);
+    resize: vertical;
+    transition: border-color 0.2s ease;
+}
+
+body[data-theme="dark"] .form-group textarea,
+body[data-theme="dark"] .form-group input {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.form-group textarea:focus,
+.form-group input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.feedback-success {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.success-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 16px;
+}
+
+.feedback-success p {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
 
 /* === RESPONSIVE === */
 @media (max-width: 768px) {
