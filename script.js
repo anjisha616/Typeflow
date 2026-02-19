@@ -1219,4 +1219,64 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!testEngine.isActive) testEngine.loadNewText();
         });
     });
+    // Feedback system
+    const feedbackBtn = document.getElementById('feedback-btn');
+    const feedbackModal = document.getElementById('feedback-modal');
+    const closeFeedback = document.getElementById('close-feedback');
+    const feedbackForm = document.getElementById('feedback-form');
+    const feedbackSuccess = document.getElementById('feedback-success');
+
+    if (feedbackBtn) {
+        feedbackBtn.addEventListener('click', () => {
+            feedbackModal.classList.remove('hidden');
+        });
+    }
+
+    if (closeFeedback) {
+        closeFeedback.addEventListener('click', () => {
+            feedbackModal.classList.add('hidden');
+        });
+    }
+
+    feedbackModal?.addEventListener('click', (e) => {
+        if (e.target === feedbackModal) {
+            feedbackModal.classList.add('hidden');
+        }
+    });
+
+    if (feedbackForm) {
+        feedbackForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(feedbackForm);
+            const feedback = {
+                liked: formData.get('liked'),
+                improve: formData.get('improve'),
+                bugs: formData.get('bugs'),
+                email: formData.get('email'),
+                timestamp: new Date().toISOString(),
+                userAgent: navigator.userAgent
+            };
+
+            // Store locally first
+            const allFeedback = JSON.parse(localStorage.getItem('typeflow-feedback') || '[]');
+            allFeedback.push(feedback);
+            localStorage.setItem('typeflow-feedback', JSON.stringify(allFeedback));
+
+            // Show success
+            feedbackForm.classList.add('hidden');
+            feedbackSuccess.classList.remove('hidden');
+
+            // Reset after 2 seconds
+            setTimeout(() => {
+                feedbackModal.classList.add('hidden');
+                feedbackForm.classList.remove('hidden');
+                feedbackSuccess.classList.add('hidden');
+                feedbackForm.reset();
+            }, 2000);
+
+            // Optional: Send to Google Forms or your email
+            // See Step 3 below for implementation
+        });
+    }
 });
