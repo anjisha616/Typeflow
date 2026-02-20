@@ -762,6 +762,9 @@ body[data-theme="dark"] .lesson-card {
 .lesson-card.locked {
     opacity: 0.55;
     cursor: not-allowed;
+    pointer-events: auto;
+    z-index: 1001;
+    overflow: visible;
 }
 
 .lesson-card.locked:hover {
@@ -1036,7 +1039,7 @@ body[data-theme="dark"] .level-card {
     background: rgba(255, 255, 255, 0.2);
     height: 12px;
     border-radius: 999px;
-    overflow: hidden;
+    overflow: visible;
     margin-bottom: 8px;
 }
 
