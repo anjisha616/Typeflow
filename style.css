@@ -28,10 +28,15 @@
 }
 /* Finger highlight for interactive keyboard */
 .finger-highlight {
-    background: linear-gradient(90deg, #f9d29d 0%, #ffd6e0 100%);
-    border-radius: 8px;
-    box-shadow: 0 0 8px 2px #e07a5f44;
-    transition: background 0.2s, box-shadow 0.2s;
+    background: linear-gradient(90deg, #ffe0b2 0%, #ffb6b9 100%);
+    border-radius: 12px;
+    box-shadow: 0 0 0 4px #e07a5faa, 0 2px 16px 0 #e07a5f33;
+    color: #222 !important;
+    font-weight: bold;
+    outline: 2px solid #e07a5f;
+    outline-offset: 2px;
+    transition: background 0.18s, box-shadow 0.18s, outline 0.18s;
+    z-index: 2;
 }
 /* Dashboard Chart and Heatmap */
 .dashboard-chart-section, .dashboard-heatmap-section {
