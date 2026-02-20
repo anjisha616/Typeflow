@@ -1,4 +1,5 @@
 /* Tooltip for locked lessons */
+/* Improved tooltip for locked lessons */
 .lesson-tooltip {
     display: none;
     position: absolute;
@@ -7,14 +8,26 @@
     transform: translateX(-50%);
     background: #222;
     color: #fff;
-    padding: 8px 14px;
-    border-radius: 8px;
-    font-size: 0.95rem;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-size: 1.05rem;
     white-space: pre-line;
-    z-index: 10;
-    margin-top: 8px;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    z-index: 1002;
+    margin-top: 12px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.22);
     pointer-events: none;
+    opacity: 0.97;
+}
+.lesson-tooltip::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 8px 8px 8px;
+    border-style: solid;
+    border-color: transparent transparent #222 transparent;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.18));
 }
 .lesson-card.locked:hover .lesson-tooltip,
 .lesson-card.locked:focus .lesson-tooltip {
