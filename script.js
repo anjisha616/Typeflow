@@ -643,6 +643,12 @@ class LessonEngine {
 
         this.currentPosition = this.input.value.length;
 
+        // Save progress for progress bar
+        if (this.currentLesson && !progressManager.data.completedLessons.includes(this.currentLesson.id)) {
+            const percent = Math.round((this.currentPosition / this.currentText.length) * 100);
+            localStorage.setItem(`lesson-progress-${this.currentLesson.id}`, percent);
+        }
+
         if (this.currentPosition >= this.currentText.length) {
             this.completeLesson();
             return;
@@ -688,6 +694,11 @@ class LessonEngine {
         const wpm      = parseInt(this.wpmDisplay.textContent);
         const accuracy = parseInt(this.accuracyDisplay.textContent);
         const duration = Math.floor((Date.now() - this.startTime) / 1000);
+
+        // Clear progress bar on completion
+        if (this.currentLesson) {
+            localStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
+        }
 
         if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
             progressManager.completeLesson(this.currentLesson.id);
@@ -988,24 +999,45 @@ function renderLessons() {
     const grid = document.getElementById("lessons-grid");
     grid.innerHTML = "";
 
-    LESSON_DATA.forEach(lesson => {
+    LESSON_DATA.forEach((lesson, idx) => {
         const isCompleted = progressManager.data.completedLessons.includes(lesson.id);
         const isLocked    = !lesson.unlocked && !isCompleted;
         const card = document.createElement("div");
         card.className = `lesson-card ${isLocked ? "locked" : ""} ${isCompleted ? "completed" : ""}`;
 
         if (isLocked) {
+            // Tooltip with required score for next lesson
+            let prevLesson = LESSON_DATA[idx - 1];
+            let tooltip = prevLesson
+                ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM`
+                : "Complete previous lesson to unlock";
             card.innerHTML = `
                 <div class="lesson-lock-icon">🔒</div>
                 <div class="lesson-number">Lesson ${lesson.id}</div>
                 <h3 class="lesson-card-title">${lesson.title}</h3>
-                <p class="lesson-card-desc">Complete previous lesson to unlock</p>`;
+                <p class="lesson-card-desc">Complete previous lesson to unlock</p>
+                <div class="lesson-tooltip">${tooltip}</div>`;
+            card.setAttribute("tabindex", "0");
         } else {
+            // Progress indicator for unlocked lessons
+            let progress = 0;
+            if (!isCompleted) {
+                // Estimate progress by last attempt (if available)
+                const progressKey = `lesson-progress-${lesson.id}`;
+                const lastProgress = localStorage.getItem(progressKey);
+                progress = lastProgress ? parseInt(lastProgress) : 0;
+            } else {
+                progress = 100;
+            }
             card.innerHTML = `
                 <div class="lesson-number">Lesson ${lesson.id}</div>
                 <h3 class="lesson-card-title">${lesson.title}</h3>
                 <p class="lesson-card-desc">${lesson.description}</p>
-                <div class="lesson-keys">Keys: ${lesson.focusKeys}</div>`;
+                <div class="lesson-keys">Keys: ${lesson.focusKeys}</div>
+                <div class="lesson-progress-bar-container">
+                    <div class="lesson-progress-bar" style="width:${progress}%;"></div>
+                    <span class="lesson-progress-label">${progress}%</span>
+                </div>`;
             card.addEventListener("click", () => showLessonPractice(lesson));
         }
         grid.appendChild(card);
