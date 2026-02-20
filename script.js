@@ -20,6 +20,7 @@ function showToast(message, type = '', duration = 3000) {
         toast.style.transform = 'translateX(-50%) translateY(16px)';
         setTimeout(() => toast.remove(), 400);
     }, duration);
+}
 
 // ============ DATA STRUCTURES ============
 
@@ -1093,13 +1094,6 @@ function renderDashboard() {
         `${data.completedLessons.length}/${LESSON_DATA.length}`;
     document.getElementById("tests-taken").textContent = data.testsTaken || 0;
 
-    // WPM Over Time Chart
-    renderWPMLineChart();
-
-    // Key Heatmap
-    renderKeyHeatmap();
-
-    // Weak Keys (existing)
     const weakKeysChart = document.getElementById("dashboard-weak-keys");
     const weakKeys      = progressManager.getTopWeakKeys(8);
     if (weakKeys.length === 0) {
@@ -1113,103 +1107,6 @@ function renderDashboard() {
             weakKeysChart.appendChild(item);
         });
     }
-}
-
-// --- WPM Line Chart ---
-function renderWPMLineChart() {
-    const canvas = document.getElementById("wpm-line-chart");
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Get WPM history from localStorage (dummy if not present)
-    let wpmHistory = JSON.parse(localStorage.getItem("typeflow-wpm-history") || "null");
-    if (!wpmHistory || !Array.isArray(wpmHistory)) {
-        wpmHistory = [22, 25, 28, 30, 32, 35, 37, 40, 38, 41, 43, 45, 44, 47, 50];
-    }
-    // Draw axes
-    const padding = 36, h = canvas.height, w = canvas.width;
-    ctx.strokeStyle = "#bbb";
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(padding, h - padding);
-    ctx.lineTo(padding, padding);
-    ctx.lineTo(w - padding, padding);
-    ctx.stroke();
-
-    // Draw line
-    const maxWPM = Math.max(...wpmHistory, 50);
-    const minWPM = Math.min(...wpmHistory, 0);
-    const yRange = maxWPM - minWPM || 1;
-    ctx.strokeStyle = "#e07a5f";
-    ctx.lineWidth = 2.5;
-    ctx.beginPath();
-    wpmHistory.forEach((wpm, i) => {
-        const x = padding + (i * (w - 2 * padding) / (wpmHistory.length - 1));
-        const y = h - padding - ((wpm - minWPM) / yRange) * (h - 2 * padding);
-        if (i === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-    });
-    ctx.stroke();
-
-    // Draw points
-    ctx.fillStyle = "#e07a5f";
-    wpmHistory.forEach((wpm, i) => {
-        const x = padding + (i * (w - 2 * padding) / (wpmHistory.length - 1));
-        const y = h - padding - ((wpm - minWPM) / yRange) * (h - 2 * padding);
-        ctx.beginPath();
-        ctx.arc(x, y, 3.5, 0, 2 * Math.PI);
-        ctx.fill();
-    });
-
-    // Draw Y axis labels
-    ctx.fillStyle = "#888";
-    ctx.font = "13px Poppins, sans-serif";
-    ctx.textAlign = "right";
-    ctx.fillText(`${maxWPM} WPM`, padding - 6, padding + 6);
-    ctx.fillText(`${minWPM} WPM`, padding - 6, h - padding + 4);
-    // Draw X axis labels (first/last)
-    ctx.textAlign = "center";
-    ctx.fillText("Start", padding, h - padding + 22);
-    ctx.fillText("Latest", w - padding, h - padding + 22);
-}
-
-// --- Key Heatmap ---
-function renderKeyHeatmap() {
-    const container = document.getElementById("key-heatmap");
-    if (!container) return;
-    // Dummy QWERTY layout (row-major)
-    const layout = [
-        "1234567890-=", // row 1
-        "qwertyuiop[]", // row 2
-        "asdfghjkl;'",  // row 3
-        "zxcvbnm,./  "   // row 4 (space at end for grid)
-    ];
-    // Get key stats from localStorage (dummy if not present)
-    let keyStats = JSON.parse(localStorage.getItem("typeflow-key-heatmap") || "null");
-    if (!keyStats || typeof keyStats !== "object") {
-        keyStats = { a: 120, s: 90, d: 80, f: 60, j: 110, k: 70, l: 50, ';': 30, e: 40, t: 35, n: 100, m: 95 };
-    }
-    // Find max for coloring
-    const max = Math.max(...Object.values(keyStats), 1);
-    container.innerHTML = "";
-    layout.forEach(row => {
-        for (let i = 0; i < row.length; i++) {
-            const key = row[i];
-            const val = keyStats[key] || 0;
-            let level = "";
-            if (val === 0) level = "";
-            else if (val < max * 0.25) level = "low";
-            else if (val < max * 0.6) level = "mid";
-            else if (val < max * 0.9) level = "high";
-            else level = "weak";
-            const div = document.createElement("div");
-            div.className = `heatmap-key${level ? " " + level : ""}`;
-            div.textContent = key === " " ? "␣" : key;
-            container.appendChild(div);
-        }
-    });
-}
 }
 
 // ============ MODE SWITCHING ============
