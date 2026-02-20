@@ -420,63 +420,51 @@
                 <div class="dashboard-header">
                     <h2 class="section-title">Your Progress</h2>
                     <p class="section-subtitle">Track your typing journey</p>
-                <div class="panel">
-                    <div class="dashboard-header">
-                        <h2 class="section-title">Your Dashboard</h2>
-                        <p class="section-subtitle">Track your progress and stats</p>
-                    </div>
+                </div>
 
-                    <div class="hero-metric">
-                        <div class="metric-main">
-                            <span class="metric-label">Best WPM</span>
-                            <span class="metric-value" id="best-wpm-display">0</span>
-                            <span class="metric-unit">WPM</span>
-                        </div>
-                        <div class="metric-streak">
-                            <span class="streak-icon">🔥</span>
-                            <span class="streak-value" id="streak-value">0</span>
-                            <span class="streak-label">Day Streak</span>
+                <div class="level-card">
+                    <div class="level-info">
+                        <div class="level-badge" id="level-badge">Beginner</div>
+                        <div class="xp-info">
+                            <span class="xp-label">Experience Points</span>
+                            <span class="xp-value" id="xp-value">0 XP</span>
                         </div>
                     </div>
-
-                    <!-- WPM Over Time Chart -->
-                    <div class="dashboard-card dashboard-chart-card">
-                        <h3 class="dashboard-label">WPM Over Time</h3>
-                        <canvas id="wpm-line-chart" height="120"></canvas>
+                    <div class="xp-bar">
+                        <div class="xp-progress" id="xp-progress" style="width: 0%"></div>
                     </div>
+                    <p class="xp-next" id="xp-next">500 XP to next level</p>
+                </div>
 
-                    <div class="dashboard-grid">
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Average Accuracy</span>
-                            <span class="dashboard-value" id="avg-accuracy">0%</span>
-                        </div>
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Total Practice Time</span>
-                            <span class="dashboard-value" id="total-time">0m</span>
-                        </div>
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Lessons Completed</span>
-                            <span class="dashboard-value" id="completed-lessons">0/6</span>
-                        </div>
-                        <div class="dashboard-card">
-                            <span class="dashboard-label">Tests Taken</span>
-                            <span class="dashboard-value" id="tests-taken">0</span>
-                        </div>
+                <div class="hero-metric">
+                    <div class="metric-main">
+                        <span class="metric-label">Best Typing Speed</span>
+                        <span class="metric-value" id="best-wpm-display">0</span>
+                        <span class="metric-unit">WPM</span>
                     </div>
-
-                    <!-- Key Frequency/Accuracy Heatmap -->
-                    <div class="dashboard-card dashboard-heatmap-card">
-                        <h3 class="dashboard-label">Key Frequency & Accuracy</h3>
-                        <div id="key-heatmap"></div>
-                    </div>
-
-                    <div class="dashboard-weak-keys">
-                        <h3 class="dashboard-label">Key Weaknesses</h3>
-                        <div class="weak-keys-chart" id="dashboard-weak-keys">
-                            <!-- Weak keys will be rendered here -->
-                        </div>
+                    <div class="metric-streak">
+                        <span class="streak-icon">🔥</span>
+                        <span class="streak-value" id="streak-value">0</span>
+                        <span class="streak-label">day streak</span>
                     </div>
                 </div>
+
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Average Accuracy</span>
+                        <span class="dashboard-value" id="avg-accuracy">0%</span>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Total Practice Time</span>
+                        <span class="dashboard-value" id="total-time">0m</span>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Lessons Completed</span>
+                        <span class="dashboard-value" id="completed-lessons">0/6</span>
+                    </div>
+                    <div class="dashboard-card">
+                        <span class="dashboard-label">Tests Taken</span>
+                        <span class="dashboard-value" id="tests-taken">0</span>
                     </div>
                 </div>
 
