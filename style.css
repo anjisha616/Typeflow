@@ -1,3 +1,88 @@
+/* Dashboard Chart and Heatmap */
+.dashboard-chart-section, .dashboard-heatmap-section {
+    margin: 32px 0 24px 0;
+    background: rgba(255,255,255,0.7);
+    border-radius: var(--radius-md);
+    padding: 24px 18px 18px 18px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+body[data-theme="dark"] .dashboard-chart-section,
+body[data-theme="dark"] .dashboard-heatmap-section {
+    background: rgba(24,34,49,0.65);
+}
+.dashboard-chart-title {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--accent-strong);
+}
+#wpm-line-chart {
+    width: 100% !important;
+    max-width: 600px;
+    margin: 0 auto;
+    display: block;
+}
+#key-heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(14, 1fr);
+    gap: 2px;
+    max-width: 420px;
+    margin: 0 auto;
+}
+.heatmap-key-cell {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    background: #e9edf5;
+    color: #222;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    transition: background 0.2s;
+    border: 1px solid #e0e0e0;
+    cursor: default;
+    position: relative;
+}
+body[data-theme="dark"] .heatmap-key-cell {
+    background: #232b3a;
+    color: #fff;
+    border-color: #232b3a;
+}
+.heatmap-key-cell.low {
+    background: #f4e2d8;
+}
+.heatmap-key-cell.mid {
+    background: #f4a261;
+    color: #fff;
+}
+.heatmap-key-cell.high {
+    background: #e07a5f;
+    color: #fff;
+}
+.heatmap-key-cell.weak {
+    background: #d64545;
+    color: #fff;
+}
+.heatmap-key-cell .heatmap-tooltip {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: -32px;
+    transform: translateX(-50%);
+    background: #222;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    z-index: 100;
+    pointer-events: none;
+}
+.heatmap-key-cell:hover .heatmap-tooltip {
+    display: block;
+}
 .lesson-tooltip.tooltip-left {
     left: auto;
     right: 100%;

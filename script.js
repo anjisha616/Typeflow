@@ -1107,6 +1107,92 @@ function renderDashboard() {
             weakKeysChart.appendChild(item);
         });
     }
+
+    // --- WPM Over Time Chart ---
+    renderWPMLineChart();
+
+    // --- Key Heatmap ---
+    renderKeyHeatmap();
+// --- WPM Over Time Chart ---
+function renderWPMLineChart() {
+    const ctx = document.getElementById('wpm-line-chart').getContext('2d');
+    // Get WPM history from localStorage or dummy data
+    let wpmHistory = [];
+    try {
+        wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]');
+    } catch { wpmHistory = []; }
+    if (!Array.isArray(wpmHistory) || wpmHistory.length === 0) {
+        // Dummy data if none exists
+        wpmHistory = Array.from({length: 14}, (_,i) => ({ date: `Day ${i+1}`, wpm: 20 + Math.round(Math.random()*30) }));
+    }
+    // Only keep last 14 entries
+    wpmHistory = wpmHistory.slice(-14);
+    // Save back dummy if needed
+    localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
+
+    // Remove previous chart instance if exists
+    if (window._wpmChart) { window._wpmChart.destroy(); }
+    window._wpmChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: wpmHistory.map(e => e.date),
+            datasets: [{
+                label: 'WPM',
+                data: wpmHistory.map(e => e.wpm),
+                borderColor: '#e07a5f',
+                backgroundColor: 'rgba(224,122,95,0.12)',
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: '#e07a5f',
+                fill: true,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                x: { display: true, grid: { display: false } },
+                y: { display: true, beginAtZero: true, grid: { color: '#eee' }, ticks: { stepSize: 10 } }
+            }
+        }
+    });
+}
+
+// --- Key Heatmap ---
+function renderKeyHeatmap() {
+    const grid = document.getElementById('key-heatmap-grid');
+    if (!grid) return;
+    // Get key stats from localStorage or dummy
+    let keyStats = {};
+    try {
+        keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}');
+    } catch { keyStats = {}; }
+    // Dummy: fill with random frequencies for A-Z, 0-9, and some symbols
+    const allKeys = '1234567890qwertyuiopasdfghjklzxcvbnm'.split('').concat([';',',','.','/','[',']','-','=','!','@','#','$','%','&','*','?']);
+    allKeys.forEach(k => { if (!keyStats[k]) keyStats[k] = Math.floor(Math.random()*40); });
+    // Save dummy if needed
+    localStorage.setItem('typeflow-key-stats', JSON.stringify(keyStats));
+
+    // Find max for color scaling
+    const max = Math.max(...Object.values(keyStats));
+    grid.innerHTML = '';
+    // Layout: 14 columns, fill row by row
+    let row = [];
+    allKeys.forEach((k, i) => {
+        let freq = keyStats[k] || 0;
+        let cls = 'heatmap-key-cell';
+        if (freq === 0) cls += '';
+        else if (freq < max*0.33) cls += ' low';
+        else if (freq < max*0.66) cls += ' mid';
+        else cls += ' high';
+        // Optionally, highlight weak keys
+        if (weakKeys && weakKeys.some(([wk]) => wk === k)) cls += ' weak';
+        grid.innerHTML += `<div class="${cls}">${k}<span class="heatmap-tooltip">${freq} times</span></div>`;
+    });
+}
 }
 
 // ============ MODE SWITCHING ============
