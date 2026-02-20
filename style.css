@@ -1,3 +1,18 @@
+/* Typing sound toggle button */
+#typing-sound-toggle.settings-btn {
+    margin: 0 0.5em 0 0;
+    padding: 0.4em 1em;
+    border-radius: 6px;
+    background: var(--card-bg, #fff);
+    border: 1px solid #e0e0e0;
+    font-size: 1em;
+    cursor: pointer;
+    transition: background 0.2s, box-shadow 0.2s;
+}
+#typing-sound-toggle[aria-pressed="true"] {
+    background: #e07a5f22;
+    border-color: #e07a5f;
+}
 /* Page transition animation */
 .mode-section {
     opacity: 0;

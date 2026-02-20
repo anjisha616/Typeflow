@@ -1,3 +1,31 @@
+// ============ TYPING SOUND EFFECT ============
+let typingSoundEnabled = localStorage.getItem('typeflow-typing-sound') === 'true';
+let typingAudio = null;
+function playTypingSound() {
+    if (!typingSoundEnabled) return;
+    if (!typingAudio) {
+        typingAudio = new Audio('https://cdn.jsdelivr.net/gh/aniftyco/typing-sounds@main/click1.mp3');
+        typingAudio.volume = 0.18;
+    }
+    // Clone for overlapping sounds
+    const sound = typingAudio.cloneNode();
+    sound.play();
+}
+
+function setupTypingSoundToggle() {
+    const btn = document.getElementById('typing-sound-toggle');
+    if (!btn) return;
+    function updateBtn() {
+        btn.setAttribute('aria-pressed', typingSoundEnabled ? 'true' : 'false');
+        btn.textContent = typingSoundEnabled ? '🔊 Typing Sound' : '🔈 Typing Sound';
+    }
+    btn.addEventListener('click', () => {
+        typingSoundEnabled = !typingSoundEnabled;
+        localStorage.setItem('typeflow-typing-sound', typingSoundEnabled);
+        updateBtn();
+    });
+    updateBtn();
+}
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
    Modular JavaScript Architecture
@@ -288,7 +316,7 @@ class TestEngine {
     }
 
     setupEventListeners() {
-        this.input.addEventListener("input",  (e) => this.handleTyping(e));
+        this.input.addEventListener("input",  (e) => { playTypingSound(); this.handleTyping(e); });
         this.input.addEventListener("keydown",(e) => this.handleKeydown(e));
         this.input.addEventListener("paste",  (e) => e.preventDefault());
         this.textDisplay.addEventListener("click", () => this.input.focus());
@@ -620,7 +648,7 @@ class LessonEngine {
         if (this._boundHandler) {
             this.input.removeEventListener("input", this._boundHandler);
         }
-        this._boundHandler = () => this.handleTyping();
+        this._boundHandler = () => { playTypingSound(); this.handleTyping(); };
         this.input.addEventListener("input", this._boundHandler);
     }
 
@@ -803,7 +831,7 @@ class PracticeEngine {
         if (this._boundHandler) {
             this.input.removeEventListener("input", this._boundHandler);
         }
-        this._boundHandler = () => this.handleTyping();
+        this._boundHandler = () => { playTypingSound(); this.handleTyping(); };
         this.input.addEventListener("input", this._boundHandler);
     }
 
@@ -1275,6 +1303,7 @@ function updateThemeToggle(theme) {
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
+    setupTypingSoundToggle();
     progressManager      = new ProgressManager();
     testEngine           = new TestEngine();
     lessonEngine         = new LessonEngine();
