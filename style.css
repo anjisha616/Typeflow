@@ -6,19 +6,22 @@
     left: 50%;
     bottom: 100%;
     transform: translateX(-50%) translateY(-16px);
-    background: #222;
+    background: rgba(34, 34, 34, 0.98);
     color: #fff;
-    padding: 14px 22px;
-    border-radius: 10px;
-    font-size: 1.05rem;
+    padding: 16px 26px;
+    border-radius: 12px;
+    font-size: 1.09rem;
+    font-weight: 600;
     white-space: pre-line;
     z-index: 1002;
-    margin-bottom: 10px;
-    box-shadow: 0 6px 24px rgba(0,0,0,0.22);
+    margin-bottom: 12px;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.32), 0 0 0 2px #f4a261;
+    border: 1.5px solid #f4a261;
     pointer-events: none;
-    opacity: 0.97;
-    max-width: 240px;
+    opacity: 0;
+    max-width: 260px;
     text-align: center;
+    transition: opacity 0.22s cubic-bezier(0.4,0,0.2,1);
 }
 .lesson-tooltip::before {
     content: "";
@@ -34,6 +37,7 @@
 .lesson-card.locked:hover .lesson-tooltip,
 .lesson-card.locked:focus .lesson-tooltip {
     display: block;
+    opacity: 1;
 }
 
 /* Progress bar for unlocked lessons */
