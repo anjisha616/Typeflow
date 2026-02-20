@@ -20,7 +20,6 @@ function showToast(message, type = '', duration = 3000) {
         toast.style.transform = 'translateX(-50%) translateY(16px)';
         setTimeout(() => toast.remove(), 400);
     }, duration);
-}
 
 // ============ DATA STRUCTURES ============
 
