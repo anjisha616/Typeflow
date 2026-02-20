@@ -51,6 +51,45 @@ function showToast(message, type = '', duration = 3000) {
 }
 
 // ============ DATA STRUCTURES ============
+// ============ ACHIEVEMENTS ============
+const ACHIEVEMENTS = [
+    {
+        id: 'first-test',
+        name: 'First Test',
+        desc: 'Complete your first typing test.',
+        icon: '🎉'
+    },
+    {
+        id: '50wpm',
+        name: 'Speedster',
+        desc: 'Achieve 50 WPM or higher in a test.',
+        icon: '🚀'
+    },
+    {
+        id: '100accuracy',
+        name: 'Perfect Accuracy',
+        desc: 'Score 100% accuracy in a test.',
+        icon: '🎯'
+    },
+    {
+        id: '10tests',
+        name: 'Test Veteran',
+        desc: 'Complete 10 typing tests.',
+        icon: '🏅'
+    },
+    {
+        id: '7day-streak',
+        name: 'Streak Master',
+        desc: 'Practice for 7 days in a row.',
+        icon: '🔥'
+    },
+    {
+        id: 'all-lessons',
+        name: 'Lesson Legend',
+        desc: 'Complete all lessons.',
+        icon: '🌟'
+    }
+];
 
 const LESSON_DATA = [
     {
