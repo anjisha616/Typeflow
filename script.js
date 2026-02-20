@@ -1115,7 +1115,9 @@ function renderDashboard() {
     renderKeyHeatmap();
 // --- WPM Over Time Chart ---
 function renderWPMLineChart() {
-    const ctx = document.getElementById('wpm-line-chart').getContext('2d');
+    const canvas = document.getElementById('wpm-line-chart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     // Get WPM history from localStorage or dummy data
     let wpmHistory = [];
     try {
