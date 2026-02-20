@@ -129,6 +129,24 @@ const LEVEL_THRESHOLDS = [
 // ============ STATE MANAGEMENT ============
 
 class ProgressManager {
+        hasAchievement(id) {
+            return (this.data.achievements || []).includes(id);
+        }
+
+        unlockAchievement(id) {
+            if (!this.data.achievements) this.data.achievements = [];
+            if (!this.data.achievements.includes(id)) {
+                this.data.achievements.push(id);
+                this.save();
+                // Show popup notification for new achievement
+                if (typeof ACHIEVEMENTS !== 'undefined') {
+                    const ach = ACHIEVEMENTS.find(a => a.id === id);
+                    if (ach) {
+                        showToast(`🏆 Achievement unlocked: ${ach.icon} ${ach.name}`, 'success', 4000);
+                    }
+                }
+            }
+        }
     constructor() {
         this.loadProgress();
     }
