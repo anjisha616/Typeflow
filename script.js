@@ -65,12 +65,14 @@ const LESSON_DATA = [
     },
     {
         id: 2,
+
         title: "Top Row Basics",
         description: "Expand upward - QWERT YUIOP",
         focusKeys: "qwert yuiop",
         unlocked: false,
         minAccuracy: 90,
         minWPM: 18,
+
         xpReward: 150
     },
     {
@@ -81,6 +83,7 @@ const LESSON_DATA = [
         unlocked: false,
         minAccuracy: 90,
         minWPM: 20,
+
         xpReward: 150
     },
     {
@@ -421,6 +424,12 @@ class TestEngine {
         this.timerInterval = setInterval(() => {
             this.timeLeft -= 1;
             this.updateTimerDisplay();
+            // === Achievements ===
+            if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
+            if (wpm >= 50) progressManager.unlockAchievement('50wpm');
+            if (accuracy === 100) progressManager.unlockAchievement('100accuracy');
+            if ((progressManager.data.testsTaken || 0) >= 10) progressManager.unlockAchievement('10tests');
+            if ((progressManager.data.streakDays || 0) >= 7) progressManager.unlockAchievement('7day-streak');
             if (this.timeLeft <= 0) this.end();
         }, 1000);
     }
@@ -735,6 +744,10 @@ class LessonEngine {
             // Unlock next lesson
             if (this.currentLesson.id < LESSON_DATA.length) {
                 LESSON_DATA[this.currentLesson.id].unlocked = true;
+            }
+            // Achievement: all lessons complete
+            if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) {
+                progressManager.unlockAchievement('all-lessons');
             }
             renderLessons();
         } else {
