@@ -1,3 +1,34 @@
+/* Achievements/Badges */
+#dashboard-achievements {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1em;
+    margin-top: 0.5em;
+}
+.achievement-badge {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(90deg, #fffbe6 0%, #ffe0e9 100%);
+    border: 1.5px solid #e07a5f55;
+    border-radius: 10px;
+    padding: 0.4em 1em 0.4em 0.7em;
+    font-size: 1.08em;
+    font-weight: 500;
+    box-shadow: 0 2px 8px 0 #e07a5f22;
+    transition: box-shadow 0.18s, border 0.18s;
+    cursor: pointer;
+}
+.achievement-badge:hover {
+    box-shadow: 0 4px 16px 0 #e07a5f44;
+    border-color: #e07a5f;
+}
+.badge-icon {
+    font-size: 1.5em;
+    margin-right: 0.5em;
+}
+.badge-name {
+    font-size: 1em;
+}
 /* Typing sound toggle button */
 #typing-sound-toggle.settings-btn {
     margin: 0 0.5em 0 0;

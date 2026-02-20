@@ -1177,6 +1177,26 @@ function renderDashboard() {
         });
     }
 
+    // --- Achievements/Badges ---
+    const achWrap = document.getElementById('dashboard-achievements');
+    if (achWrap) {
+        achWrap.innerHTML = '';
+        const unlocked = (data.achievements || []);
+        if (unlocked.length === 0) {
+            achWrap.innerHTML = '<p class="empty-state">No achievements yet</p>';
+        } else {
+            unlocked.forEach(id => {
+                const ach = ACHIEVEMENTS.find(a => a.id === id);
+                if (!ach) return;
+                const badge = document.createElement('div');
+                badge.className = 'achievement-badge';
+                badge.title = ach.desc;
+                badge.innerHTML = `<span class="badge-icon">${ach.icon}</span><span class="badge-name">${ach.name}</span>`;
+                achWrap.appendChild(badge);
+            });
+        }
+    }
+
     // --- WPM Over Time Chart ---
     renderWPMLineChart();
 
