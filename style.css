@@ -1,22 +1,40 @@
 .lesson-tooltip.tooltip-left {
     left: auto;
-    right: 12px;
-    transform: translateY(-16px);
+    right: 100%;
+    bottom: 50%;
+    top: auto;
+    transform: translateY(50%) translateX(-16px);
 }
 .lesson-tooltip.tooltip-left::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: -10px;
     left: auto;
-    right: 24px;
-    transform: none;
+    transform: translateY(-50%);
+    border-width: 10px 0 10px 10px;
+    border-style: solid;
+    border-color: transparent transparent transparent #222;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.18));
 }
 .lesson-tooltip.tooltip-right {
-    left: 12px;
+    left: 100%;
     right: auto;
-    transform: translateY(-16px);
+    bottom: 50%;
+    top: auto;
+    transform: translateY(50%) translateX(16px);
 }
 .lesson-tooltip.tooltip-right::before {
-    left: 24px;
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -10px;
     right: auto;
-    transform: none;
+    transform: translateY(-50%);
+    border-width: 10px 10px 10px 0;
+    border-style: solid;
+    border-color: transparent #222 transparent transparent;
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.18));
 }
 /* Tooltip for locked lessons */
 /* Improved tooltip for locked lessons */
