@@ -1,3 +1,53 @@
+/* Tooltip for locked lessons */
+.lesson-tooltip {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    background: #222;
+    color: #fff;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    white-space: pre-line;
+    z-index: 10;
+    margin-top: 8px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+    pointer-events: none;
+}
+.lesson-card.locked:hover .lesson-tooltip,
+.lesson-card.locked:focus .lesson-tooltip {
+    display: block;
+}
+
+/* Progress bar for unlocked lessons */
+.lesson-progress-bar-container {
+    position: relative;
+    width: 100%;
+    height: 14px;
+    background: rgba(0,0,0,0.07);
+    border-radius: 8px;
+    margin-top: 10px;
+    margin-bottom: 2px;
+    overflow: hidden;
+}
+.lesson-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+    border-radius: 8px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+}
+.lesson-progress-label {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.85rem;
+    color: var(--muted);
+    font-weight: 600;
+    pointer-events: none;
+}
 /* === EXISTING 1.25x SCALE OVERRIDES === */
 .app {
     width: min(1375px, 100%) !important;
