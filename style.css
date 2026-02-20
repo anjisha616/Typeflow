@@ -1,3 +1,83 @@
+/* Dashboard Charts */
+.dashboard-charts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    margin-bottom: 32px;
+    justify-content: space-between;
+}
+.dashboard-chart-card {
+    background: rgba(255,255,255,0.7);
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    padding: 22px 18px 18px 18px;
+    flex: 1 1 340px;
+    min-width: 320px;
+    max-width: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+body[data-theme="dark"] .dashboard-chart-card {
+    background: rgba(24, 34, 49, 0.65);
+}
+.dashboard-chart-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-align: center;
+}
+#wpm-line-chart {
+    background: rgba(0,0,0,0.03);
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+#key-heatmap {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-gap: 2px;
+    margin: 0 auto;
+    width: 100%;
+    max-width: 420px;
+    min-height: 90px;
+    background: rgba(0,0,0,0.03);
+    border-radius: 10px;
+    padding: 8px 4px;
+}
+.heatmap-key {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.05rem;
+    font-weight: 600;
+    border-radius: 6px;
+    background: #e9edf5;
+    color: #222;
+    transition: background 0.2s;
+    user-select: none;
+}
+body[data-theme="dark"] .heatmap-key {
+    background: #232b3a;
+    color: #fff;
+}
+.heatmap-key.low {
+    background: #f4e2d8;
+    color: #a85b2a;
+}
+.heatmap-key.mid {
+    background: #f4a261;
+    color: #fff;
+}
+.heatmap-key.high {
+    background: #e76f51;
+    color: #fff;
+}
+.heatmap-key.weak {
+    background: #d64545;
+    color: #fff;
+}
 .lesson-tooltip.tooltip-left {
     left: auto;
     right: 100%;
