@@ -6,7 +6,7 @@
     left: 50%;
     bottom: 100%;
     transform: translateX(-50%) translateY(-16px);
-    background: #222;
+    background: #222 !important;
     color: #fff;
     padding: 16px 26px;
     border-radius: 12px;
@@ -37,7 +37,7 @@
 .lesson-card.locked:hover .lesson-tooltip,
 .lesson-card.locked:focus .lesson-tooltip {
     display: block;
-    opacity: 1;
+    opacity: 1 !important;
 }
 
 /* Progress bar for unlocked lessons */
