@@ -1,3 +1,23 @@
+.lesson-tooltip.tooltip-left {
+    left: auto;
+    right: 12px;
+    transform: translateY(-16px);
+}
+.lesson-tooltip.tooltip-left::before {
+    left: auto;
+    right: 24px;
+    transform: none;
+}
+.lesson-tooltip.tooltip-right {
+    left: 12px;
+    right: auto;
+    transform: translateY(-16px);
+}
+.lesson-tooltip.tooltip-right::before {
+    left: 24px;
+    right: auto;
+    transform: none;
+}
 /* Tooltip for locked lessons */
 /* Improved tooltip for locked lessons */
 .lesson-tooltip {

@@ -1011,12 +1011,15 @@ function renderLessons() {
             let tooltip = prevLesson
                 ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM`
                 : "Complete previous lesson to unlock";
+            let tooltipClass = "lesson-tooltip";
+            if (lesson.id === 5) tooltipClass += " tooltip-left";
+            if (lesson.id === 6) tooltipClass += " tooltip-right";
             card.innerHTML = `
                 <div class="lesson-lock-icon">🔒</div>
                 <div class="lesson-number">Lesson ${lesson.id}</div>
                 <h3 class="lesson-card-title">${lesson.title}</h3>
                 <p class="lesson-card-desc">Complete previous lesson to unlock</p>
-                <div class="lesson-tooltip">${tooltip}</div>`;
+                <div class="${tooltipClass}">${tooltip}</div>`;
             card.setAttribute("tabindex", "0");
         } else {
             // Progress indicator for unlocked lessons
