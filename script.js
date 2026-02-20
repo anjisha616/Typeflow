@@ -898,12 +898,40 @@ class FingerTrainingEngine {
     setupEventListeners() {
         this.keyboardKeys.forEach(key => {
             key.addEventListener('click', () => this.showKeyInfo(key.dataset.key));
+            // Highlight finger on hover
+            key.addEventListener('mouseenter', () => this.highlightFingerForKey(key.dataset.key));
+            key.addEventListener('mouseleave', () => this.clearFingerHighlight());
         });
 
         document.addEventListener('keydown', (e) => {
             if (document.getElementById('finger-training-mode').hasAttribute('hidden')) return;
             this.handleKeyPress(e);
         });
+    }
+
+    highlightFingerForKey(keyChar) {
+        const finger = FINGER_MAP[keyChar.toLowerCase()];
+        if (!finger) return;
+        // Add highlight to finger icon and name
+        this.targetFingerIcon.classList.add('finger-highlight');
+        this.targetFingerName.classList.add('finger-highlight');
+        // Optionally, show which finger in text/icon
+        this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
+        this.targetFingerName.textContent = FINGER_NAMES[finger];
+    }
+
+    clearFingerHighlight() {
+        this.targetFingerIcon.classList.remove('finger-highlight');
+        this.targetFingerName.classList.remove('finger-highlight');
+        // Optionally, reset to currentKey or default
+        if (this.currentKey) {
+            const finger = FINGER_MAP[this.currentKey];
+            this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
+            this.targetFingerName.textContent = FINGER_NAMES[finger];
+        } else {
+            this.targetFingerIcon.textContent = '👆';
+            this.targetFingerName.textContent = 'Waiting...';
+        }
     }
 
     showKeyInfo(keyChar) {

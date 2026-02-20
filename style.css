@@ -1,3 +1,23 @@
+/* Page transition animation */
+.mode-section {
+    opacity: 0;
+    transform: translateY(24px);
+    pointer-events: none;
+    transition: opacity 0.45s cubic-bezier(.4,0,.2,1), transform 0.45s cubic-bezier(.4,0,.2,1);
+}
+.mode-section.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    z-index: 1;
+}
+/* Finger highlight for interactive keyboard */
+.finger-highlight {
+    background: linear-gradient(90deg, #f9d29d 0%, #ffd6e0 100%);
+    border-radius: 8px;
+    box-shadow: 0 0 8px 2px #e07a5f44;
+    transition: background 0.2s, box-shadow 0.2s;
+}
 /* Dashboard Chart and Heatmap */
 .dashboard-chart-section, .dashboard-heatmap-section {
     margin: 32px 0 24px 0;
