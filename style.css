@@ -381,7 +381,6 @@ body:not([data-theme="dark"]) .logo-header .tagline {
 body.dark-mode, body[data-theme="dark"] {
     background: #121629 !important;
 }
-
 /* === BASE STYLES === */
 * {
     margin: 0;
