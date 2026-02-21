@@ -440,7 +440,6 @@ body {
     /* IMPROVEMENT: top padding so content doesn't go behind fixed header */
     padding: 72px 28px 28px;
 }
-
 button, input, select, textarea {
     font-family: 'Poppins', sans-serif !important;
 }
