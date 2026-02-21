@@ -331,6 +331,19 @@ const famousQuotes = [
     "In the middle of difficulty lies opportunity. — Albert Einstein"
 ];
 
+const codeSnippets = [
+    `for (let i = 0; i < 10; i++) {\n    console.log(i);\n}`,
+    `def greet(name):\n    print(f"Hello, {name}!")`,
+    `const add = (a, b) => a + b;`,
+    `if (user.isLoggedIn) {\n    showDashboard();\n} else {\n    showLogin();\n}`,
+    `function sum(arr) {\n    return arr.reduce((a, b) => a + b, 0);\n}`,
+    `class Person {\n    constructor(name) {\n        this.name = name;\n    }\n}`,
+    `let total = 0;\nfor (const num of numbers) {\n    total += num;\n}`,
+    `try {\n    riskyOperation();\n} catch (e) {\n    handleError(e);\n}`,
+    `public static void main(String[] args) {\n    System.out.println("Hello World");\n}`,
+    `SELECT * FROM users WHERE active = 1;`
+];
+
 const symbols = ["!","@","#","$","%","&","*","+","-","?"];
 
 const homeRowWords   = ["as","sad","dad","lad","fad","ask","flask","sass","lass","fall","hall","salad","alaska","alas","adds","fall"];
@@ -404,6 +417,9 @@ class TestEngine {
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
             return famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
+        }
+        if (mode === 'code') {
+            return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
         }
         const includeCaps    = document.getElementById("toggle-caps").checked;
         const includeNumbers = document.getElementById("toggle-numbers").checked;
