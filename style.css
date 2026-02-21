@@ -388,7 +388,6 @@ body.dark-mode, body[data-theme="dark"] {
     padding: 0;
     box-sizing: border-box;
 }
-
 :root {
     --bg: #f4f1ee;
     --bg-grad-1: #fef5ea;
