@@ -464,7 +464,8 @@ class TestEngine {
     displayText() {
         const typedText  = this.input.value;
         const hideUntil  = this.getHideUntilIndex(typedText);
-        const html = this.currentText.split("").map((char, i) => {
+        const chars = this.currentText.split("");
+        const html = chars.map((char, i) => {
             let cls = "char";
             if (i < this.currentPosition) {
                 cls += typedText[i] === char ? " correct" : " incorrect";
@@ -474,7 +475,13 @@ class TestEngine {
             if (i < hideUntil) cls += " gone";
             return `<span class="${cls}">${this.formatChar(char)}</span>`;
         }).join("");
-        this.textDisplay.innerHTML = html;
+        // Smooth scroll: move up as you type
+        let scrollOffset = 0;
+        const charsPerLine = 50;
+        if (this.currentPosition > charsPerLine) {
+            scrollOffset = Math.floor(this.currentPosition / charsPerLine) * 48; // 48px per line
+        }
+        this.textDisplay.innerHTML = `<div class="text-display-inner" style="transform: translateY(-${scrollOffset}px);">${html}</div>`;
     }
 
     getHideUntilIndex(typedText) {
