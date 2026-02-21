@@ -337,7 +337,7 @@ body[data-theme="dark"] .heatmap-key-cell {
     transition: transform 0.3s cubic-bezier(.4,0,.2,1);
     will-change: transform;
 }
-}
+
 .mode-switch-header {
     position: fixed;
     top: 18px;
