@@ -323,6 +323,20 @@ body[data-theme="dark"] .heatmap-key-cell {
 .text-display {
     font-size: clamp(1.35rem, 2.75vw, 1.9rem) !important;
     line-height: 2 !important;
+    max-height: 120px;
+    overflow: hidden;
+    display: block;
+    position: relative;
+    transition: max-height 0.3s;
+    scroll-behavior: smooth;
+}
+
+.text-display-inner {
+    display: block;
+    position: relative;
+    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
+    will-change: transform;
+}
 }
 .mode-switch-header {
     position: fixed;
