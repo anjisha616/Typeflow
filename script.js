@@ -594,6 +594,13 @@ class TestEngine {
         const xpGained = this.calculateXP(wpm, accuracy);
         progressManager.addXP(xpGained);
 
+        // === Achievements (moved from timer to here for reliability) ===
+        if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
+        if (wpm >= 50 && !progressManager.hasAchievement('50wpm')) progressManager.unlockAchievement('50wpm');
+        if (accuracy === 100 && !progressManager.hasAchievement('100accuracy')) progressManager.unlockAchievement('100accuracy');
+        if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
+        if ((progressManager.data.streakDays || 0) >= 7 && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
+
         this.showResults(wpm, accuracy, xpGained);
     }
 
