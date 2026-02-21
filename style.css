@@ -9,14 +9,25 @@
     display: flex;
     align-items: center;
     background: linear-gradient(90deg, #fffbe6 0%, #ffe0e9 100%);
-    border: 1.5px solid #e07a5f55;
-    border-radius: 10px;
-    padding: 0.4em 1em 0.4em 0.7em;
-    font-size: 1.08em;
-    font-weight: 500;
-    box-shadow: 0 2px 8px 0 #e07a5f22;
-    transition: box-shadow 0.18s, border 0.18s;
+    border: 2px solid #e07a5f;
+    border-radius: 12px;
+    padding: 0.5em 1.2em 0.5em 0.9em;
+    font-size: 1.13em;
+    font-weight: 600;
+    box-shadow: 0 4px 16px 0 #e07a5f33, 0 1.5px 8px 0 #fffbe6cc;
+    transition: box-shadow 0.18s, border 0.18s, background 0.18s;
     cursor: pointer;
+    color: #1f2933;
+    z-index: 2;
+    position: relative;
+    opacity: 1;
+}
+body[data-theme="dark"] .achievement-badge {
+    background: linear-gradient(90deg, #232b3a 0%, #2d3142 100%);
+    border: 2px solid #f4a261;
+    color: #fff;
+    box-shadow: 0 4px 16px 0 #f4a26133, 0 1.5px 8px 0 #232b3acc;
+/* removed stray curly brace */
 }
 .achievement-badge:hover {
     box-shadow: 0 4px 16px 0 #e07a5f44;
