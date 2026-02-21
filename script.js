@@ -318,6 +318,19 @@ const baseWords = [
     "build","learn","trust","align","repeat","refine","polish","deliver"
 ];
 
+const famousQuotes = [
+    "The only way to do great work is to love what you do. — Steve Jobs",
+    "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
+    "Life is what happens when you're busy making other plans. — John Lennon",
+    "You miss 100% of the shots you don't take. — Wayne Gretzky",
+    "The best way to predict the future is to invent it. — Alan Kay",
+    "Do not wait to strike till the iron is hot; but make it hot by striking. — William Butler Yeats",
+    "Whether you think you can or you think you can't, you're right. — Henry Ford",
+    "The journey of a thousand miles begins with one step. — Lao Tzu",
+    "It always seems impossible until it's done. — Nelson Mandela",
+    "In the middle of difficulty lies opportunity. — Albert Einstein"
+];
+
 const symbols = ["!","@","#","$","%","&","*","+","-","?"];
 
 const homeRowWords   = ["as","sad","dad","lad","fad","ask","flask","sass","lass","fall","hall","salad","alaska","alas","adds","fall"];
@@ -388,6 +401,10 @@ class TestEngine {
     }
 
     generateText() {
+        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
+        if (mode === 'quote') {
+            return famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
+        }
         const includeCaps    = document.getElementById("toggle-caps").checked;
         const includeNumbers = document.getElementById("toggle-numbers").checked;
         const includeSymbols = document.getElementById("toggle-symbols").checked;
