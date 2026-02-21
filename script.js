@@ -421,10 +421,15 @@ class TestEngine {
         if (mode === 'code') {
             return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
         }
+        // Word count mode
+        let wordCount = this.getWordCountForTime(this.timeLimit);
+        const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
+        if (wordCountMode) {
+            wordCount = parseInt(wordCountMode, 10);
+        }
         const includeCaps    = document.getElementById("toggle-caps").checked;
         const includeNumbers = document.getElementById("toggle-numbers").checked;
         const includeSymbols = document.getElementById("toggle-symbols").checked;
-        const wordCount = this.getWordCountForTime(this.timeLimit);
         const words = [];
 
         for (let i = 0; i < wordCount; i++) {
