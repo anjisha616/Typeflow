@@ -22,9 +22,11 @@
 }
 .word-count-group {
     display: inline-flex;
-    gap: 6px;
-    margin-left: 12px;
-    vertical-align: middle;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;   
+    border-radius: 999px; 
 }
 /* Achievements/Badges */
 #dashboard-achievements {
