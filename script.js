@@ -1,21 +1,4 @@
 // ============ TYPING SOUND EFFECT ============
-let typingAudio = null;
-function playTypingSound() {
-    // Use a working sound file (public domain click)
-    const soundUrl = 'https://cdn.jsdelivr.net/gh/loyso/typing-sounds@main/sounds/click1.mp3';
-    if (!typingAudio) {
-        typingAudio = new Audio(soundUrl);
-        typingAudio.volume = 0.18;
-    }
-    // Clone for overlapping sounds
-    const sound = typingAudio.cloneNode();
-    sound.onerror = () => {};
-    try {
-        sound.play();
-    } catch (e) {
-        // Fail silently if sound cannot play
-    }
-}
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
    Modular JavaScript Architecture
@@ -393,7 +376,7 @@ class TestEngine {
     }
 
     setupEventListeners() {
-        this.input.addEventListener("input",  (e) => { playTypingSound(); this.handleTyping(e); });
+        this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
         this.input.addEventListener("keydown",(e) => this.handleKeydown(e));
         this.input.addEventListener("paste",  (e) => e.preventDefault());
         this.textDisplay.addEventListener("click", () => this.input.focus());
@@ -769,7 +752,7 @@ class LessonEngine {
         if (this._boundHandler) {
             this.input.removeEventListener("input", this._boundHandler);
         }
-        this._boundHandler = () => { playTypingSound(); this.handleTyping(); };
+        this._boundHandler = () => { this.handleTyping(); };
         this.input.addEventListener("input", this._boundHandler);
     }
 
@@ -962,7 +945,7 @@ class PracticeEngine {
         if (this._boundHandler) {
             this.input.removeEventListener("input", this._boundHandler);
         }
-        this._boundHandler = () => { playTypingSound(); this.handleTyping(); };
+        this._boundHandler = () => { this.handleTyping(); };
         this.input.addEventListener("input", this._boundHandler);
     }
 
