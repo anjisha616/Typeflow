@@ -905,17 +905,21 @@ class PracticeEngine {
     }
 
     generatePracticeText() {
-        const weakKeys = progressManager.getTopWeakKeys(5);
+        const weakKeys = progressManager.getTopWeakKeys(5).filter(([c]) => c && c.trim() !== "");
         if (weakKeys.length === 0) {
             return "Practice makes perfect. Keep typing to improve your skills.";
         }
         const targetChars = weakKeys.map(([c]) => c);
         const words = [];
         for (let i = 0; i < 40; i++) {
-            words.push(Math.random() < 0.7
+            let word = Math.random() < 0.7
                 ? this.findWordWithChars(targetChars)
-                : baseWords[Math.floor(Math.random() * baseWords.length)]
-            );
+                : baseWords[Math.floor(Math.random() * baseWords.length)];
+            // Highlight weak keys in the word
+            targetChars.forEach(wk => {
+                word = word.replaceAll(wk, `<span class='weak-highlight'>${wk}</span>`);
+            });
+            words.push(word);
         }
         return words.join(" ") + ".";
     }
@@ -1238,6 +1242,7 @@ function renderWeakKeys() {
     }
     container.innerHTML = "";
     weakKeys.forEach(([char, count]) => {
+        if (!char || char.trim() === "") return; // skip empty keys
         const item = document.createElement("div");
         item.className = "weak-key-item";
         item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${count} errors</span>`;
