@@ -954,14 +954,19 @@ class PracticeEngine {
     }
 
     displayText() {
-        const typedText = this.input.value;
-        const html = this.currentText.split("").map((char, i) => {
-            let cls = "char";
-            if (i < this.currentPosition)       cls += typedText[i] === char ? " correct" : " incorrect";
-            else if (i === this.currentPosition) cls += " current";
-            return `<span class="${cls}">${char === " " ? " " : char}</span>`;
-        }).join("");
-        this.textDisplay.innerHTML = html;
+        // If currentText contains span tags, render as HTML
+        if (this.currentText.includes('<span')) {
+            this.textDisplay.innerHTML = this.currentText;
+        } else {
+            const typedText = this.input.value;
+            const html = this.currentText.split("").map((char, i) => {
+                let cls = "char";
+                if (i < this.currentPosition)       cls += typedText[i] === char ? " correct" : " incorrect";
+                else if (i === this.currentPosition) cls += " current";
+                return `<span class="${cls}">${char === " " ? " " : char}</span>`;
+            }).join("");
+            this.textDisplay.innerHTML = html;
+        }
     }
 
     handleTyping() {
