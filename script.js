@@ -1456,7 +1456,7 @@ function updateThemeToggle(theme) {
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
-    setupTypingSoundToggle();
+    
     progressManager      = new ProgressManager();
     testEngine           = new TestEngine();
     lessonEngine         = new LessonEngine();
