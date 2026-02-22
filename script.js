@@ -1,13 +1,20 @@
 // ============ TYPING SOUND EFFECT ============
 let typingAudio = null;
 function playTypingSound() {
+    // Use a working sound file (public domain click)
+    const soundUrl = 'https://cdn.jsdelivr.net/gh/loyso/typing-sounds@main/sounds/click1.mp3';
     if (!typingAudio) {
-        typingAudio = new Audio('https://cdn.jsdelivr.net/gh/aniftyco/typing-sounds@main/click1.mp3');
+        typingAudio = new Audio(soundUrl);
         typingAudio.volume = 0.18;
     }
     // Clone for overlapping sounds
     const sound = typingAudio.cloneNode();
-    sound.play();
+    sound.onerror = () => {};
+    try {
+        sound.play();
+    } catch (e) {
+        // Fail silently if sound cannot play
+    }
 }
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
