@@ -323,21 +323,7 @@ body[data-theme="dark"] .heatmap-key-cell {
 .text-display {
     font-size: clamp(1.35rem, 2.75vw, 1.9rem) !important;
     line-height: 2 !important;
-    max-height: 120px;
-    overflow: hidden;
-    display: block;
-    position: relative;
-    transition: max-height 0.3s;
-    scroll-behavior: smooth;
 }
-
-.text-display-inner {
-    display: block;
-    position: relative;
-    transition: transform 0.3s cubic-bezier(.4,0,.2,1);
-    will-change: transform;
-}
-
 .mode-switch-header {
     position: fixed;
     top: 18px;
@@ -381,12 +367,14 @@ body:not([data-theme="dark"]) .logo-header .tagline {
 body.dark-mode, body[data-theme="dark"] {
     background: #121629 !important;
 }
+
 /* === BASE STYLES === */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
 :root {
     --bg: #f4f1ee;
     --bg-grad-1: #fef5ea;
@@ -429,6 +417,7 @@ body[data-theme="dark"] {
     --shadow: 0 30px 80px rgba(2, 6, 23, 0.45);
     --disabled-bg: #111827;
 }
+
 body {
     font-family: 'Poppins', sans-serif !important;
     color: var(--ink);
@@ -440,9 +429,11 @@ body {
     /* IMPROVEMENT: top padding so content doesn't go behind fixed header */
     padding: 72px 28px 28px;
 }
+
 button, input, select, textarea {
     font-family: 'Poppins', sans-serif !important;
 }
+
 body::before {
     content: "";
     position: fixed;
