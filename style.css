@@ -35,7 +35,7 @@
     color: var(--ink);
 }
 
-body[data-theme="dark"] .timer-btn:hover {
+body[data-theme="dark"] .word-count-btn:hover {
     background: rgba(255, 255, 255, 0.09);
 }
 
