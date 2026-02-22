@@ -19,6 +19,8 @@
     box-shadow: 0 2px 12px 0 rgba(224, 122, 95, 0.18);
     padding-left: 2px !important;
     padding-right: 2px !important;
+    border-radius: 999px; 
+
 }
 .word-count-group {
     display: inline-flex;
@@ -28,6 +30,15 @@
     padding: 8px;   
     border-radius: 999px; 
 }
+.word-count-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--ink);
+}
+
+body[data-theme="dark"] .timer-btn:hover {
+    background: rgba(255, 255, 255, 0.09);
+}
+
 /* Achievements/Badges */
 #dashboard-achievements {
     display: flex;
