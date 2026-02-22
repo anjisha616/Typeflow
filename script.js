@@ -1,8 +1,6 @@
 // ============ TYPING SOUND EFFECT ============
-let typingSoundEnabled = localStorage.getItem('typeflow-typing-sound') === 'true';
 let typingAudio = null;
 function playTypingSound() {
-    if (!typingSoundEnabled) return;
     if (!typingAudio) {
         typingAudio = new Audio('https://cdn.jsdelivr.net/gh/aniftyco/typing-sounds@main/click1.mp3');
         typingAudio.volume = 0.18;
@@ -10,21 +8,6 @@ function playTypingSound() {
     // Clone for overlapping sounds
     const sound = typingAudio.cloneNode();
     sound.play();
-}
-
-function setupTypingSoundToggle() {
-    const btn = document.getElementById('typing-sound-toggle');
-    if (!btn) return;
-    function updateBtn() {
-        btn.setAttribute('aria-pressed', typingSoundEnabled ? 'true' : 'false');
-        btn.textContent = typingSoundEnabled ? '🔊 Typing Sound' : '🔈 Typing Sound';
-    }
-    btn.addEventListener('click', () => {
-        typingSoundEnabled = !typingSoundEnabled;
-        localStorage.setItem('typeflow-typing-sound', typingSoundEnabled);
-        updateBtn();
-    });
-    updateBtn();
 }
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
@@ -281,6 +264,7 @@ class ProgressManager {
 
     getTopWeakKeys(count = 5) {
         return Object.entries(this.data.weakKeys)
+            .filter(([c]) => c && c.trim() !== "" && c !== " ")
             .sort((a, b) => b[1] - a[1])
             .slice(0, count);
     }
@@ -518,12 +502,10 @@ class TestEngine {
         this.timerInterval = setInterval(() => {
             this.timeLeft -= 1;
             this.updateTimerDisplay();
-            // === Achievements ===
+            // === Achievements (only those that don't require wpm/accuracy) ===
             if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
-            if (wpm >= 50) progressManager.unlockAchievement('50wpm');
-            if (accuracy === 100) progressManager.unlockAchievement('100accuracy');
-            if ((progressManager.data.testsTaken || 0) >= 10) progressManager.unlockAchievement('10tests');
-            if ((progressManager.data.streakDays || 0) >= 7) progressManager.unlockAchievement('7day-streak');
+            if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
+            if ((progressManager.data.streakDays || 0) >= 7 && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
             if (this.timeLeft <= 0) this.end();
         }, 1000);
     }
@@ -553,6 +535,20 @@ class TestEngine {
         if (typedText.length < lockIndex) {
             this.input.value = typedText.slice(0, lockIndex);
             this.input.setSelectionRange(lockIndex, lockIndex);
+        }
+
+        // --- Track key stats for each new character typed ---
+        if (typedText.length > this.currentPosition) {
+            const newChar = typedText[this.currentPosition];
+            if (newChar && newChar.length === 1) {
+                let keyStats = {};
+                try {
+                    keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}');
+                } catch { keyStats = {}; }
+                const k = newChar.toLowerCase();
+                keyStats[k] = (keyStats[k] || 0) + 1;
+                localStorage.setItem('typeflow-key-stats', JSON.stringify(keyStats));
+            }
         }
 
         this.currentPosition = this.input.value.length;
@@ -637,6 +633,14 @@ class TestEngine {
         if (accuracy === 100 && !progressManager.hasAchievement('100accuracy')) progressManager.unlockAchievement('100accuracy');
         if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
         if ((progressManager.data.streakDays || 0) >= 7 && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
+
+        // --- Save WPM history ---
+        let wpmHistory = [];
+        try {
+            wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]');
+        } catch { wpmHistory = []; }
+        wpmHistory.push({ date: new Date().toLocaleDateString(), wpm });
+        localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory.slice(-30)));
 
         this.showResults(wpm, accuracy, xpGained);
     }
@@ -1337,14 +1341,9 @@ function renderWPMLineChart() {
     try {
         wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]');
     } catch { wpmHistory = []; }
-    if (!Array.isArray(wpmHistory) || wpmHistory.length === 0) {
-        // Dummy data if none exists
-        wpmHistory = Array.from({length: 14}, (_,i) => ({ date: `Day ${i+1}`, wpm: 20 + Math.round(Math.random()*30) }));
-    }
-    // Only keep last 14 entries
+    if (!Array.isArray(wpmHistory)) wpmHistory = [];
+    // Only keep last 14 entries for chart
     wpmHistory = wpmHistory.slice(-14);
-    // Save back dummy if needed
-    localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
 
     // Remove previous chart instance if exists
     if (window._wpmChart) { window._wpmChart.destroy(); }
@@ -1381,16 +1380,12 @@ function renderWPMLineChart() {
 function renderKeyHeatmap() {
     const grid = document.getElementById('key-heatmap-grid');
     if (!grid) return;
-    // Get key stats from localStorage or dummy
+    // Get key stats from localStorage
     let keyStats = {};
     try {
         keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}');
     } catch { keyStats = {}; }
-    // Dummy: fill with random frequencies for A-Z, 0-9, and some symbols
     const allKeys = '1234567890qwertyuiopasdfghjklzxcvbnm'.split('').concat([';',',','.','/','[',']','-','=','!','@','#','$','%','&','*','?']);
-    allKeys.forEach(k => { if (!keyStats[k]) keyStats[k] = Math.floor(Math.random()*40); });
-    // Save dummy if needed
-    localStorage.setItem('typeflow-key-stats', JSON.stringify(keyStats));
 
     // Find max for color scaling
     const max = Math.max(...Object.values(keyStats));
