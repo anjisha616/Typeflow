@@ -413,21 +413,27 @@ class TestEngine {
         return lastSpace + 1;
     }
 
-    displayText() {
-        const typedText  = this.input.value;
-        const hideUntil  = this.getHideUntilIndex(typedText);
-        const html = this.currentText.split("").map((char, i) => {
-            let cls = "char";
-            if (i < this.currentPosition) {
-                cls += typedText[i] === char ? " correct" : " incorrect";
-            } else if (i === this.currentPosition) {
-                cls += " current";
-            }
-            if (i < hideUntil) cls += " gone";
-            return `<span class="${cls}">${this.formatChar(char)}</span>`;
-        }).join("");
-        this.textDisplay.innerHTML = html;
-    }
+    generateText() {
+        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
+        if (mode === 'quote') {
+            return famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
+        }
+        if (mode === 'code') {
+            return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+        }
+        let wordCount = this.getWordCountForTime(this.timeLimit);
+        const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
+        if (wordCountMode) {
+            wordCount = parseInt(wordCountMode, 10);
+        }
+        const includeCaps    = document.getElementById("toggle-caps").checked;
+        const includeNumbers = document.getElementById("toggle-numbers").checked;
+        const includeSymbols = document.getElementById("toggle-symbols").checked;
+        const words = [];
+
+        for (let i = 0; i < wordCount; i++) {
+            let word = baseWords[Math.floor(Math.random() * baseWords.length)];
+            if (includeCaps    && Math.random() < 0.18) word = this.capitalize(word);
             if (includeNumbers && Math.random() < 0.14) word += this.randomBetween(0, 99);
             if (includeSymbols && Math.random() < 0.1)  word += symbols[Math.floor(Math.random() * symbols.length)];
             words.push(word);
