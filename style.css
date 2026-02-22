@@ -1,20 +1,17 @@
 /* Word count buttons styled like timer buttons */
 .word-count-btn {
     padding: 12px 21px !important;
-    background: #fff;
-    color: var(--accent);
     border: none;
+    background: transparent;
+    color: var(--muted);
+    padding: 10px 18px;
     border-radius: 999px;
-    font-size: 1em;
-    font-weight: 500;
-    margin: 0 2px;
     cursor: pointer;
-    transition: background 0.18s, color 0.18s, box-shadow 0.18s;
-    min-width: 80px;
-    min-height: 44px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    min-width: 60px;
+    text-align: center;
+    font-weight: 500;
 }
 .word-count-btn.active {
     background: var(--accent);
