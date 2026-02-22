@@ -1159,6 +1159,7 @@ class FingerTrainingEngine {
         this.correctCount = 0;
         this.wrongCount   = 0;
         this.fingerDrillStats.style.display = 'none';
+        this.fingerDrillStats.style.display = 'grid';
         this.targetKeyChar.textContent    = '-';
         this.targetFingerIcon.textContent = '👆';
         this.targetFingerName.textContent = 'Waiting...';
