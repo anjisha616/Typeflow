@@ -1413,6 +1413,33 @@ function switchMode(mode) {
     else if (mode === "practice")   { renderWeakKeys(); practiceEngine.start(); }
     else if (mode === "dashboard")  renderDashboard();
     else if (mode === "finger-training") fingerTrainingEngine.reset();
+    else if (mode === "test" || mode === "quote" || mode === "code") {
+        // For test/quote/code, regenerate text
+        testEngine.reset(true);
+    }
+    // Save mode
+    localStorage.setItem('typeflow-mode', mode);
+}
+
+// --- Mode tab click handlers ---
+document.querySelectorAll('.mode-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        switchMode(tab.dataset.mode);
+    });
+});
+
+// --- Word count button handlers ---
+document.querySelectorAll('.word-count-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.word-count-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Regenerate text if in test/quote/code mode
+        const mode = document.querySelector('.mode-tab.active').dataset.mode;
+        if (mode === 'test' || mode === 'quote' || mode === 'code') {
+            testEngine.reset(true);
+        }
+    });
+});
 }
 
 // ============ THEME MANAGEMENT ============
