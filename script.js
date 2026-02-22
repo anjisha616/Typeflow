@@ -956,19 +956,30 @@ class PracticeEngine {
     }
 
     displayText() {
-        // If currentText contains span tags, render as HTML
-        if (this.currentText.includes('<span')) {
-            this.textDisplay.innerHTML = this.currentText;
-        } else {
-            const typedText = this.input.value;
-            const html = this.currentText.split("").map((char, i) => {
-                let cls = "char";
-                if (i < this.currentPosition)       cls += typedText[i] === char ? " correct" : " incorrect";
-                else if (i === this.currentPosition) cls += " current";
-                return `<span class="${cls}">${char === " " ? " " : char}</span>`;
-            }).join("");
-            this.textDisplay.innerHTML = html;
+        // Combine weak-highlight and typing state classes
+        const typedText = this.input.value;
+        // Parse the currentText as HTML, but reconstruct spans with typing state
+        let idx = 0;
+        let html = "";
+        // Use a regex to match either a weak-highlight span or a normal character
+        const regex = /<span class='weak-highlight'>(.*?)<\/span>|./g;
+        let match;
+        while ((match = regex.exec(this.currentText)) !== null) {
+            let char, isWeak = false;
+            if (match[1]) {
+                char = match[1];
+                isWeak = true;
+            } else {
+                char = match[0];
+            }
+            let cls = "char";
+            if (isWeak) cls += " weak-highlight";
+            if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
+            else if (idx === this.currentPosition) cls += " current";
+            html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
+            idx++;
         }
+        this.textDisplay.innerHTML = html;
     }
 
     handleTyping() {
