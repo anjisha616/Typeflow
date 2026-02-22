@@ -915,11 +915,13 @@ class PracticeEngine {
             let word = Math.random() < 0.7
                 ? this.findWordWithChars(targetChars)
                 : baseWords[Math.floor(Math.random() * baseWords.length)];
-            // Highlight weak keys in the word
-            targetChars.forEach(wk => {
-                word = word.replaceAll(wk, `<span class='weak-highlight'>${wk}</span>`);
-            });
-            words.push(word);
+            // Highlight weak keys in the word (character by character)
+            let highlighted = word.split("").map(char => {
+                return targetChars.includes(char)
+                    ? `<span class='weak-highlight'>${char}</span>`
+                    : char;
+            }).join("");
+            words.push(highlighted);
         }
         return words.join(" ") + ".";
     }
