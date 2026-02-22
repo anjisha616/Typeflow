@@ -1440,7 +1440,7 @@ document.querySelectorAll('.word-count-btn').forEach(btn => {
         }
     });
 });
-}
+
 
 // ============ THEME MANAGEMENT ============
 
