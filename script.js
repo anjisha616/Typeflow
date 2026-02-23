@@ -19,14 +19,12 @@ function showCapsWarning(show) {
         warn.classList.add('visible');
         warn.style.display = 'block';
     } else {
+        // Instantly hide (no fade)
         warn.classList.remove('visible');
-        // Wait for fade-out, then hide
-        warn.addEventListener('transitionend', function handler() {
-            if (!warn.classList.contains('visible')) {
-                warn.style.display = 'none';
-            }
-            warn.removeEventListener('transitionend', handler);
-        });
+        warn.style.transition = 'none';
+        warn.style.display = 'none';
+        // Restore transition for next show
+        setTimeout(() => { warn.style.transition = ''; }, 0);
     }
 }
 
