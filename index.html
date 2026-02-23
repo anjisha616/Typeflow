@@ -394,9 +394,14 @@
         <!-- Dashboard Mode -->
         <section class="mode-section" id="dashboard-mode" role="tabpanel" hidden>
             <div class="panel">
-                <div class="dashboard-header">
-                    <h2 class="section-title">Your Progress</h2>
-                    <p class="section-subtitle">Track your typing journey</p>
+                <!-- Today's Goal Widget -->
+                <div class="todays-goal-widget" id="todays-goal-widget">
+                    <div class="goal-title">Today's Goal</div>
+                    <div class="goal-desc">Complete <span id="goal-total">3</span> tests today</div>
+                    <div class="goal-progress-bar-container">
+                        <div class="goal-progress-bar" id="goal-progress-bar"></div>
+                    </div>
+                    <div class="goal-progress-label"><span id="goal-progress-count">0</span>/<span id="goal-total-2">3</span> tests</div>
                 </div>
 
                 <!-- Achievements -->
