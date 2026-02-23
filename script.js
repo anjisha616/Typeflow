@@ -1410,6 +1410,16 @@ function switchMode(mode) {
     const activeSection = document.getElementById(`${sectionMode}-mode`);
     if (activeSection) { activeSection.classList.add("active"); activeSection.hidden = false; }
 
+    // Hide options row in quote/code mode, show in test mode
+    const optionsRow = document.querySelector('.options-row');
+    if (optionsRow) {
+        if (mode === 'quote' || mode === 'code') {
+            optionsRow.style.display = 'none';
+        } else {
+            optionsRow.style.display = '';
+        }
+    }
+
     if (mode === "lessons")         renderLessons();
     else if (mode === "practice")   { renderWeakKeys(); practiceEngine.start(); }
     else if (mode === "dashboard")  renderDashboard();
