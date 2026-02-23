@@ -137,57 +137,58 @@ body[data-theme="dark"] .dashboard-heatmap-section {
     max-width: 420px;
     margin: 0 auto;
 }
+/* ===== ADD THIS TO YOUR style.css ===== */
+
+/* Heatmap QWERTY row layout */
+#key-heatmap-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.heatmap-row {
+    display: flex;
+    gap: 4px;
+}
+
 .heatmap-key-cell {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    background: #e9edf5;
-    color: #222;
-    font-size: 0.95rem;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    font-size: 0.85rem;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    transition: background 0.2s;
-    border: 1px solid #e0e0e0;
+    border: 2px solid transparent;
     cursor: default;
     position: relative;
+    transition: transform 0.15s ease;
 }
-body[data-theme="dark"] .heatmap-key-cell {
-    background: #232b3a;
-    color: #fff;
-    border-color: #232b3a;
+
+.heatmap-key-cell:hover {
+    transform: translateY(-2px);
 }
-.heatmap-key-cell.low {
-    background: #f4e2d8;
-}
-.heatmap-key-cell.mid {
-    background: #f4a261;
-    color: #fff;
-}
-.heatmap-key-cell.high {
-    background: #e07a5f;
-    color: #fff;
-}
-.heatmap-key-cell.weak {
-    background: #d64545;
-    color: #fff;
-}
+
 .heatmap-key-cell .heatmap-tooltip {
     display: none;
     position: absolute;
     left: 50%;
-    top: -32px;
+    top: -36px;
     transform: translateX(-50%);
     background: #222;
     color: #fff;
     padding: 4px 10px;
     border-radius: 6px;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     white-space: nowrap;
     z-index: 100;
     pointer-events: none;
 }
+
 .heatmap-key-cell:hover .heatmap-tooltip {
     display: block;
 }
