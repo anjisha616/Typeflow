@@ -1107,13 +1107,15 @@ function renderWPMLineChart() {
     let wpmHistory = [];
     try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
     if (!Array.isArray(wpmHistory)) wpmHistory = [];
-    wpmHistory = wpmHistory.slice(-14);
+    // Show last 20 tests, not grouped by date
+    const N = 20;
+    wpmHistory = wpmHistory.slice(-N);
 
     if (window._wpmChart) { window._wpmChart.destroy(); }
     window._wpmChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: wpmHistory.map(e => e.date),
+            labels: wpmHistory.map((e, i) => `Test #${wpmHistory.length - N + i + 1}`),
             datasets: [{
                 label: 'WPM',
                 data: wpmHistory.map(e => e.wpm),
