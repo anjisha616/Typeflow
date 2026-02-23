@@ -272,9 +272,28 @@ class TestEngine {
     }
 
     setupEventListeners() {
-        this.input.addEventListener("input",   (e) => this.handleTyping(e));
-        this.input.addEventListener("keydown", (e) => this.handleKeydown(e));
-        this.input.addEventListener("paste",   (e) => e.preventDefault());
+        this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
+        this.input.addEventListener("keydown", (e) => {
+            this.handleKeydown(e);
+            // Caps Lock warning
+            if (e.getModifierState && e.getModifierState('CapsLock')) {
+                showCapsWarning(true);
+            } else {
+                showCapsWarning(false);
+            }
+            // Tab to restart
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                this.reset(false);
+                this.start(false);
+            }
+        });
+        this.input.addEventListener("keyup", (e) => {
+            if (e.getModifierState && !e.getModifierState('CapsLock')) {
+                showCapsWarning(false);
+            }
+        });
+        this.input.addEventListener("paste",  (e) => e.preventDefault());
         this.textDisplay.addEventListener("click", () => this.input.focus());
     }
 
@@ -295,19 +314,32 @@ class TestEngine {
     }
 
     generateText() {
-        const mode = this.getCurrentMode();
-        if (mode === 'quote') return famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
-        if (mode === 'code')  return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
-
+        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
+        if (mode === 'quote') {
+            // Pick a quote and split author
+            const raw = famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
+            const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
+            if (match) {
+                this.currentAuthor = match[2];
+                return match[1];
+            } else {
+                this.currentAuthor = '';
+                return raw;
+            }
+        }
+        if (mode === 'code') {
+            this.currentAuthor = '';
+            return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+        }
         let wordCount = this.getWordCountForTime(this.timeLimit);
         const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
-        if (wordCountMode) wordCount = parseInt(wordCountMode, 10);
-
+        if (wordCountMode) {
+            wordCount = parseInt(wordCountMode, 10);
+        }
         const includeCaps    = document.getElementById("toggle-caps").checked;
         const includeNumbers = document.getElementById("toggle-numbers").checked;
         const includeSymbols = document.getElementById("toggle-symbols").checked;
         const words = [];
-
         for (let i = 0; i < wordCount; i++) {
             let word = baseWords[Math.floor(Math.random() * baseWords.length)];
             if (includeCaps    && Math.random() < 0.18) word = this.capitalize(word);
@@ -315,6 +347,7 @@ class TestEngine {
             if (includeSymbols && Math.random() < 0.1)  word += symbols[Math.floor(Math.random() * symbols.length)];
             words.push(word);
         }
+        this.currentAuthor = '';
         return `${words.join(" ")}.`;
     }
 
@@ -335,17 +368,37 @@ class TestEngine {
     displayText() {
         const typedText = this.input.value;
         const hideUntil = this.getHideUntilIndex(typedText);
-        const html = this.currentText.split("").map((char, i) => {
-            let cls = "char";
-            if (i < this.currentPosition) {
-                cls += typedText[i] === char ? " correct" : " incorrect";
-            } else if (i === this.currentPosition) {
-                cls += " current";
+        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
+        if (mode === 'quote') {
+            // Show quote and author separately
+            const html = this.currentText.split("").map((char, i) => {
+                let cls = "char";
+                if (i < this.currentPosition) {
+                    cls += typedText[i] === char ? " correct" : " incorrect";
+                } else if (i === this.currentPosition) {
+                    cls += " current";
+                }
+                if (i < hideUntil) cls += " gone";
+                return `<span class="${cls}">${this.formatChar(char)}</span>`;
+            }).join("");
+            let authorHtml = '';
+            if (this.currentAuthor) {
+                authorHtml = `<div class="quote-author">— ${this.currentAuthor}</div>`;
             }
-            if (i < hideUntil) cls += " gone";
-            return `<span class="${cls}">${this.formatChar(char)}</span>`;
-        }).join("");
-        this.textDisplay.innerHTML = html;
+            this.textDisplay.innerHTML = `<div class="quote-main">${html}</div>${authorHtml}`;
+        } else {
+            const html = this.currentText.split("").map((char, i) => {
+                let cls = "char";
+                if (i < this.currentPosition) {
+                    cls += typedText[i] === char ? " correct" : " incorrect";
+                } else if (i === this.currentPosition) {
+                    cls += " current";
+                }
+                if (i < hideUntil) cls += " gone";
+                return `<span class="${cls}">${this.formatChar(char)}</span>`;
+            }).join("");
+            this.textDisplay.innerHTML = html;
+        }
     }
 
     getHideUntilIndex(typedText) {
@@ -396,12 +449,21 @@ class TestEngine {
     }
 
     updateTimerDisplay() {
-        const mode = this.getCurrentMode();
-        // FIX: In quote/code/word-count mode show elapsed chars or hide timer
-        if (!this.isTimedMode()) {
-            this.timerDisplay.textContent = "∞";
+        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
+        const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
+        if (wordCountMode) {
+            // Word count mode: show words left
+            const wordsTyped = this.input.value.trim().split(/\s+/).filter(Boolean).length;
+            const wordsLeft = Math.max(0, parseInt(wordCountMode, 10) - wordsTyped);
+            this.timerDisplay.textContent = wordsLeft;
+            // Change label to Words
+            const label = this.timerDisplay.parentElement.querySelector('.stat-label');
+            if (label) label.textContent = 'Words';
         } else {
-            this.timerDisplay.textContent = Math.max(this.timeLeft, 0);
+            this.timerDisplay.textContent = this.isTimedMode() ? Math.max(this.timeLeft, 0) : '∞';
+            // Change label to Time
+            const label = this.timerDisplay.parentElement.querySelector('.stat-label');
+            if (label) label.textContent = 'Time';
         }
     }
 
