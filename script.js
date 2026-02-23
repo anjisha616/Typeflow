@@ -26,39 +26,256 @@ function showCapsWarning(show) {
     }
 }
 
-    setupEventListeners() {
-        this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
-        this.input.addEventListener("keydown", (e) => {
-            this.handleKeydown(e);
-            // Always check current Caps Lock state
-            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
-            // Tab to restart
-            if (e.key === 'Tab') {
-                e.preventDefault();
-                this.reset(false);
-                this.start(false);
-            }
-        });
-        this.input.addEventListener("keyup", (e) => {
-            // Always check current Caps Lock state
-            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
-        });
-        this.input.addEventListener("focus", (e) => {
-            // Check Caps Lock state on focus
-            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
-        });
-        this.input.addEventListener("blur", () => {
-            // Always hide warning on blur
-            showCapsWarning(false);
-        });
-        this.input.addEventListener("paste",  (e) => e.preventDefault());
-        this.textDisplay.addEventListener("click", () => this.input.focus());
+// ============ TOAST UTILITY ============
+
+function showToast(message, type = '', duration = 3000) {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = `toast${type ? ' ' + type : ''}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(16px)';
+        setTimeout(() => toast.remove(), 400);
+    }, duration);
+}
+
+// ============ ACHIEVEMENTS ============
+const ACHIEVEMENTS = [
+    { id: 'first-test',    name: 'First Test',       desc: 'Complete your first typing test.',     icon: '🎉' },
+    { id: '50wpm',         name: 'Speedster',         desc: 'Achieve 50 WPM or higher in a test.', icon: '🚀' },
+    { id: '100accuracy',   name: 'Perfect Accuracy',  desc: 'Score 100% accuracy in a test.',      icon: '🎯' },
+    { id: '10tests',       name: 'Test Veteran',      desc: 'Complete 10 typing tests.',            icon: '🏅' },
+    { id: '7day-streak',   name: 'Streak Master',     desc: 'Practice for 7 days in a row.',       icon: '🔥' },
+    { id: 'all-lessons',   name: 'Lesson Legend',     desc: 'Complete all lessons.',               icon: '🌟' }
+];
+
+const LESSON_DATA = [
+    { id: 1, title: "Home Row Fundamentals", description: "Master the foundation - ASDF JKL;",        focusKeys: "asdf jkl;",           unlocked: true,  minAccuracy: 90, minWPM: 15, xpReward: 100 },
+    { id: 2, title: "Top Row Basics",        description: "Expand upward - QWERT YUIOP",              focusKeys: "qwert yuiop",         unlocked: false, minAccuracy: 90, minWPM: 18, xpReward: 150 },
+    { id: 3, title: "Bottom Row Training",   description: "Complete the alphabet - ZXCVBNM",          focusKeys: "zxcvbnm",             unlocked: false, minAccuracy: 90, minWPM: 20, xpReward: 150 },
+    { id: 4, title: "Full Alphabet",         description: "Combine all letters with confidence",      focusKeys: "all letters",         unlocked: false, minAccuracy: 92, minWPM: 25, xpReward: 200 },
+    { id: 5, title: "Numbers Integration",   description: "Add numeric proficiency",                  focusKeys: "0-9",                 unlocked: false, minAccuracy: 90, minWPM: 25, xpReward: 200 },
+    { id: 6, title: "Symbols Mastery",       description: "Complete typing - symbols & punctuation",  focusKeys: "! @ # $ % & * + - ?", unlocked: false, minAccuracy: 88, minWPM: 30, xpReward: 250 }
+];
+
+const LEVEL_THRESHOLDS = [
+    { level: 1, name: "Beginner",  minXP: 0,    maxXP: 500 },
+    { level: 2, name: "Improving", minXP: 500,  maxXP: 1200 },
+    { level: 3, name: "Fluent",    minXP: 1200, maxXP: 2500 },
+    { level: 4, name: "Fast",      minXP: 2500, maxXP: 5000 },
+    { level: 5, name: "Elite",     minXP: 5000, maxXP: Infinity }
+];
+
+// ============ STATE MANAGEMENT ============
+
+class ProgressManager {
+    constructor() {
+        this.loadProgress();
     }
 
-    getLockIndex() {
-        const lastSpace = this.input.value.lastIndexOf(" ");
+    loadProgress() {
+        const saved = localStorage.getItem('typeflow-progress');
+        if (saved) {
+            this.data = JSON.parse(saved);
+        } else {
+            this.data = {
+                bestWPM: 0, averageAccuracy: 0, totalPracticeTime: 0,
+                completedLessons: [], weakKeys: {}, streakDays: 0,
+                lastPracticeDate: null, testsTaken: 0, totalTests: 0,
+                xp: 0, level: 1, achievements: []
+            };
+        }
+    }
+
+    save() { localStorage.setItem('typeflow-progress', JSON.stringify(this.data)); }
+
+    hasAchievement(id) { return (this.data.achievements || []).includes(id); }
+
+    unlockAchievement(id) {
+        if (!this.data.achievements) this.data.achievements = [];
+        if (!this.data.achievements.includes(id)) {
+            this.data.achievements.push(id);
+            this.save();
+            const ach = ACHIEVEMENTS.find(a => a.id === id);
+            if (ach) showToast(`🏆 Achievement unlocked: ${ach.icon} ${ach.name}`, 'success', 4000);
+        }
+    }
+
+    updateTestStats(wpm, accuracy, duration, mistakes) {
+        if (wpm > this.data.bestWPM) this.data.bestWPM = wpm;
+        const totalTests = this.data.totalTests || 0;
+        const currentAvg = this.data.averageAccuracy || 0;
+        this.data.averageAccuracy = Math.round((currentAvg * totalTests + accuracy) / (totalTests + 1));
+        this.data.totalPracticeTime += duration;
+        this.data.testsTaken  = (this.data.testsTaken  || 0) + 1;
+        this.data.totalTests  = (this.data.totalTests  || 0) + 1;
+        if (mistakes && typeof mistakes === 'object') {
+            Object.keys(mistakes).forEach(key => {
+                this.data.weakKeys[key] = (this.data.weakKeys[key] || 0) + mistakes[key];
+            });
+        }
+        this.updateStreak();
+        this.save();
+    }
+
+    updateStreak() {
+        const today    = new Date().toDateString();
+        const lastDate = this.data.lastPracticeDate;
+        if (!lastDate) {
+            this.data.streakDays = 1;
+        } else if (lastDate !== today) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            this.data.streakDays = lastDate === yesterday.toDateString() ? this.data.streakDays + 1 : 1;
+        }
+        this.data.lastPracticeDate = today;
+    }
+
+    completeLesson(lessonId) {
+        if (!this.data.completedLessons.includes(lessonId)) this.data.completedLessons.push(lessonId);
+        const lesson = LESSON_DATA.find(l => l.id === lessonId);
+        if (lesson) this.addXP(lesson.xpReward);
+        this.save();
+    }
+
+    addXP(amount) { this.data.xp += amount; this.updateLevel(); this.save(); }
+
+    updateLevel() {
+        for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
+            if (this.data.xp >= LEVEL_THRESHOLDS[i].minXP) { this.data.level = LEVEL_THRESHOLDS[i].level; break; }
+        }
+    }
+
+    getTopWeakKeys(count = 5) {
+        return Object.entries(this.data.weakKeys)
+            .filter(([c]) => c && c.trim() !== "" && c !== " ")
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, count);
+    }
+
+    getCurrentLevel() { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0]; }
+    getNextLevel()    { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level + 1); }
+
+    getXPProgress() {
+        const current = this.getCurrentLevel();
+        const next    = this.getNextLevel();
+        if (!next) return 100;
+        return Math.min(Math.round(((this.data.xp - current.minXP) / (next.minXP - current.minXP)) * 100), 100);
+    }
+
+    getXPToNextLevel() { const next = this.getNextLevel(); return next ? next.minXP - this.data.xp : 0; }
+
+    resetAllProgress() {
+        localStorage.removeItem('typeflow-progress');
+        localStorage.removeItem('typeflow-wpm-history');
+        localStorage.removeItem('typeflow-key-stats');
+        LESSON_DATA.forEach((_, i) => { if (i > 0) LESSON_DATA[i].unlocked = false; });
+        this.loadProgress();
+    }
+}
+
+// ============ WORD BANKS ============
+
+const baseWords = [
+    "design","typing","focus","rhythm","steady","clarity","flow","precision","practice","balance",
+    "signal","detail","craft","gentle","future","method","energy","motion","value","quality",
+    "simple","quiet","progress","intent","context","pattern","tempo","memory","logic","system",
+    "layout","screen","accent","measure","stable","vision","reason","result","build","learn",
+    "trust","align","repeat","refine","polish","deliver","create","impact","growth","change",
+    "thought","listen","write","speak","reach","drive","shape","guide","solve","connect"
+];
+
+// FIX: Expanded quote bank (was only 10)
+const famousQuotes = [
+    "The only way to do great work is to love what you do. — Steve Jobs",
+    "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
+    "Life is what happens when you're busy making other plans. — John Lennon",
+    "You miss 100% of the shots you don't take. — Wayne Gretzky",
+    "The best way to predict the future is to invent it. — Alan Kay",
+    "Do not wait to strike till the iron is hot; but make it hot by striking. — William Butler Yeats",
+    "Whether you think you can or you think you can't, you're right. — Henry Ford",
+    "The journey of a thousand miles begins with one step. — Lao Tzu",
+    "It always seems impossible until it's done. — Nelson Mandela",
+    "In the middle of difficulty lies opportunity. — Albert Einstein",
+    "Simplicity is the ultimate sophistication. — Leonardo da Vinci",
+    "Be yourself; everyone else is already taken. — Oscar Wilde",
+    "Two things are infinite: the universe and human stupidity. — Albert Einstein",
+    "A room without books is like a body without a soul. — Marcus Tullius Cicero",
+    "You only live once, but if you do it right, once is enough. — Mae West",
+    "In three words I can sum up everything I've learned about life: it goes on. — Robert Frost",
+    "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment. — Ralph Waldo Emerson",
+    "It is better to be hated for what you are than to be loved for what you are not. — Andre Gide",
+    "Good friends, good books, and a sleepy conscience: this is the ideal life. — Mark Twain",
+    "Darkness cannot drive out darkness; only light can do that. — Martin Luther King Jr.",
+    "We accept the love we think we deserve. — Stephen Chbosky",
+    "Not all those who wander are lost. — J.R.R. Tolkien",
+    "There is no greater agony than bearing an untold story inside you. — Maya Angelou",
+    "Without music, life would be a mistake. — Friedrich Nietzsche",
+    "I am not afraid of storms, for I am learning how to sail my ship. — Louisa May Alcott"
+];
+
+// FIX: Expanded code snippets (was only 10)
+const codeSnippets = [
+    `for (let i = 0; i < 10; i++) {\n    console.log(i);\n}`,
+    `def greet(name):\n    print(f"Hello, {name}!")`,
+    `const add = (a, b) => a + b;`,
+    `if (user.isLoggedIn) {\n    showDashboard();\n} else {\n    showLogin();\n}`,
+    `function sum(arr) {\n    return arr.reduce((a, b) => a + b, 0);\n}`,
+    `class Person {\n    constructor(name) {\n        this.name = name;\n    }\n}`,
+    `let total = 0;\nfor (const num of numbers) {\n    total += num;\n}`,
+    `try {\n    riskyOperation();\n} catch (e) {\n    handleError(e);\n}`,
+    `public static void main(String[] args) {\n    System.out.println("Hello World");\n}`,
+    `SELECT * FROM users WHERE active = 1;`,
+    `const fetchData = async (url) => {\n    const res = await fetch(url);\n    return res.json();\n};`,
+    `[1, 2, 3].map(x => x * 2).filter(x => x > 2);`,
+    `const obj = { name: "Alice", age: 30 };\nconst { name, age } = obj;`,
+    `setTimeout(() => {\n    console.log("delayed");\n}, 1000);`,
+    `const nums = Array.from({ length: 5 }, (_, i) => i + 1);`,
+    `def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)`,
+    `git commit -m "fix: resolve null pointer in auth module"`,
+    `npm install --save-dev eslint prettier`,
+    `const sorted = [...arr].sort((a, b) => a - b);`,
+    `Object.keys(data).forEach(key => {\n    console.log(key, data[key]);\n});`
+];
+
+const symbols = ["!","@","#","$","%","&","*","+","-","?"];
+const homeRowWords   = ["as","sad","dad","lad","fad","ask","flask","sass","lass","fall","hall","salad","alaska","alas","adds"];
+const topRowWords    = ["we","were","where","quiet","quit","quote","rope","tire","wire","power","tower","your","pure","true","type"];
+const bottomRowWords = ["can","van","ban","man","cab","nab","venom","cabin","cannot","banana","zinc","mix"];
+
+// ============ FINGER TRAINING DATA ============
+
+const FINGER_MAP = {
+    'a':'left-pinky','q':'left-pinky','z':'left-pinky','1':'left-pinky','`':'left-pinky',
+    's':'left-ring','w':'left-ring','x':'left-ring','2':'left-ring',
+    'd':'left-middle','e':'left-middle','c':'left-middle','3':'left-middle',
+    'f':'left-index','r':'left-index','v':'left-index','t':'left-index','g':'left-index','b':'left-index','4':'left-index','5':'left-index',
+    'j':'right-index','u':'right-index','m':'right-index','y':'right-index','h':'right-index','n':'right-index','6':'right-index','7':'right-index',
+    'k':'right-middle','i':'right-middle',',':'right-middle','8':'right-middle',
+    'l':'right-ring','o':'right-ring','.':'right-ring','9':'right-ring',
+    ';':'right-pinky','p':'right-pinky','/':'right-pinky','0':'right-pinky','-':'right-pinky','=':'right-pinky','[':'right-pinky',']':'right-pinky','\\':'right-pinky',"'":'right-pinky',
+    ' ':'thumb'
+};
+
+const FINGER_NAMES  = { 'left-pinky':'Left Pinky','left-ring':'Left Ring','left-middle':'Left Middle','left-index':'Left Index','right-index':'Right Index','right-middle':'Right Middle','right-ring':'Right Ring','right-pinky':'Right Pinky','thumb':'Thumb' };
+const FINGER_EMOJIS = { 'left-pinky':'🤙','left-ring':'💍','left-middle':'🖕','left-index':'☝️','right-index':'☝️','right-middle':'🖕','right-ring':'💍','right-pinky':'🤙','thumb':'👍' };
+const PRACTICE_KEYS = Object.keys(FINGER_MAP).filter(k => k.length === 1 && k !== ' ');
+
+// ============ TEST ENGINE ============
+
 class TestEngine {
     constructor() {
+        this.currentText     = "";
+        this.currentPosition = 0;
+        this.correctChars    = 0;
+        this.incorrectChars  = 0;
+        this.isActive        = false;
         this.startTime       = null;
         this.timerInterval   = null;
         this.timeLimit       = 15;
@@ -129,6 +346,55 @@ class TestEngine {
             const raw = famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
             const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
             if (match) {
+                this.currentAuthor = match[2];
+                return match[1];
+            } else {
+                this.currentAuthor = '';
+                return raw;
+            }
+        }
+        if (mode === 'code') {
+            this.currentAuthor = '';
+            return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+        }
+        let wordCount = this.getWordCountForTime(this.timeLimit);
+        const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
+        if (wordCountMode) {
+            wordCount = parseInt(wordCountMode, 10);
+        }
+        const includeCaps    = document.getElementById("toggle-caps").checked;
+        const includeNumbers = document.getElementById("toggle-numbers").checked;
+        const includeSymbols = document.getElementById("toggle-symbols").checked;
+        const words = [];
+        for (let i = 0; i < wordCount; i++) {
+            let word = baseWords[Math.floor(Math.random() * baseWords.length)];
+            if (includeCaps    && Math.random() < 0.18) word = this.capitalize(word);
+            if (includeNumbers && Math.random() < 0.14) word += this.randomBetween(0, 99);
+            if (includeSymbols && Math.random() < 0.1)  word += symbols[Math.floor(Math.random() * symbols.length)];
+            words.push(word);
+        }
+        this.currentAuthor = '';
+        return `${words.join(" ")}.`;
+    }
+
+    getWordCountForTime(seconds) {
+        const base = Math.max(Math.round((seconds / 60) * 45), 12);
+        return this.randomBetween(base + 6, base + 14);
+    }
+
+    randomBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    capitalize(word) { return word.length ? word[0].toUpperCase() + word.slice(1) : word; }
+
+    loadNewText() {
+        this.currentText     = this.generateText();
+        this.currentPosition = 0;
+        this.displayText();
+    }
+
+    displayText() {
+        const typedText = this.input.value;
+        const hideUntil = this.getHideUntilIndex(typedText);
+        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
             // Show quote and author separately
             const html = this.currentText.split("").map((char, i) => {
@@ -1208,45 +1474,3 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-// --- Today's Goal Logic ---
-const DAILY_GOAL = 3;
-function getTodayKey() {
-    const d = new Date();
-    return `goal-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
-}
-function getTodayProgress() {
-    return parseInt(localStorage.getItem(getTodayKey()) || '0', 10);
-}
-function incrementTodayProgress() {
-    const key = getTodayKey();
-    let val = getTodayProgress();
-    val++;
-    localStorage.setItem(key, val);
-    updateGoalWidget();
-}
-function updateGoalWidget() {
-    const count = getTodayProgress();
-    const bar = document.getElementById('goal-progress-bar');
-    const label = document.getElementById('goal-progress-count');
-    const total1 = document.getElementById('goal-total');
-    const total2 = document.getElementById('goal-total-2');
-    if (bar) bar.style.width = Math.min(100, (count/DAILY_GOAL)*100) + '%';
-    if (label) label.textContent = count;
-    if (total1) total1.textContent = DAILY_GOAL;
-    if (total2) total2.textContent = DAILY_GOAL;
-}
-// Call updateGoalWidget on dashboard load
-const dashboardSection = document.getElementById('dashboard-mode');
-if (dashboardSection) {
-    const observer = new MutationObserver(() => {
-        if (!dashboardSection.hidden) updateGoalWidget();
-    });
-    observer.observe(dashboardSection, { attributes: true, attributeFilter: ['hidden'] });
-}
-// Increment progress when a test is completed today
-const origUpdateTestStats = ProgressManager.prototype.updateTestStats;
-ProgressManager.prototype.updateTestStats = function(wpm, accuracy, duration, mistakes) {
-    origUpdateTestStats.call(this, wpm, accuracy, duration, mistakes);
-    // Only increment if today
-    incrementTodayProgress();
-};

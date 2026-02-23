@@ -1862,7 +1862,7 @@ body[data-theme="dark"] .key[data-finger="right-ring"]   { background: linear-gr
 body[data-theme="dark"] .key[data-finger="left-middle"],
 body[data-theme="dark"] .key[data-finger="right-middle"] { background: linear-gradient(135deg, #1e40af, #2563eb); }
 body[data-theme="dark"] .key[data-finger="left-index"],
-body[data-theme="dark"] .key[data-finger="right-index"]  { background: linear-gradient(135deg,#047857,#059669); }
+body[data-theme="dark"] .key[data-finger="right-index"]  { background: linear-gradient(135deg, #047857, #059669); }
 body[data-theme="dark"] .key[data-finger="thumb"]        { background: linear-gradient(135deg, #b45309, #d97706); }
 
 .key.home-key {
