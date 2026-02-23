@@ -15,38 +15,9 @@ function showCapsWarning(show) {
         warn.style.display = 'none';
         if (inputCard) inputCard.appendChild(warn);
     }
-    if (show) {
-        warn.classList.add('visible');
-        warn.style.display = 'block';
-        warn.style.opacity = '1';
-    } else {
-        warn.classList.remove('visible');
-        warn.style.display = 'none';
-        warn.style.opacity = '1';
-    }
-}
+    });
 
-// ============ TOAST UTILITY ============
-
-function showToast(message, type = '', duration = 3000) {
-    const existing = document.querySelector('.toast');
-    if (existing) existing.remove();
-
-    const toast = document.createElement('div');
-    toast.className = `toast${type ? ' ' + type : ''}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(-50%) translateY(16px)';
-        setTimeout(() => toast.remove(), 400);
-    }, duration);
-}
-
-// ============ ACHIEVEMENTS ============
-const ACHIEVEMENTS = [
+    // The following methods are part of TestEngine, not global
     { id: 'first-test',    name: 'First Test',       desc: 'Complete your first typing test.',     icon: '🎉' },
     { id: '50wpm',         name: 'Speedster',         desc: 'Achieve 50 WPM or higher in a test.', icon: '🚀' },
     { id: '100accuracy',   name: 'Perfect Accuracy',  desc: 'Score 100% accuracy in a test.',      icon: '🎯' },
