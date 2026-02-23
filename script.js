@@ -1406,7 +1406,8 @@ function switchMode(mode) {
     if (activeTab) { activeTab.classList.add("active"); activeTab.setAttribute("aria-selected", "true"); }
 
     document.querySelectorAll(".mode-section").forEach(s => { s.classList.remove("active"); s.hidden = true; });
-    const activeSection = document.getElementById(`${mode}-mode`);
+    const sectionMode = (mode === "quote" || mode === "code") ? "test" : mode;
+    const activeSection = document.getElementById(`${sectionMode}-mode`);
     if (activeSection) { activeSection.classList.add("active"); activeSection.hidden = false; }
 
     if (mode === "lessons")         renderLessons();
