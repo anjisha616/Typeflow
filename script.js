@@ -311,6 +311,18 @@ class TestEngine {
                 showCapsWarning(false);
             }
         });
+        this.input.addEventListener("focus", (e) => {
+            // Check Caps Lock state on focus
+            if (e.getModifierState && e.getModifierState('CapsLock')) {
+                showCapsWarning(true);
+            } else {
+                showCapsWarning(false);
+            }
+        });
+        this.input.addEventListener("blur", () => {
+            // Always hide warning on blur
+            showCapsWarning(false);
+        });
         this.input.addEventListener("paste",  (e) => e.preventDefault());
         this.textDisplay.addEventListener("click", () => this.input.focus());
     }
