@@ -18,13 +18,11 @@ function showCapsWarning(show) {
     if (show) {
         warn.classList.add('visible');
         warn.style.display = 'block';
+        warn.style.opacity = '1';
     } else {
-        // Instantly hide (no fade)
         warn.classList.remove('visible');
-        warn.style.transition = 'none';
         warn.style.display = 'none';
-        // Restore transition for next show
-        setTimeout(() => { warn.style.transition = ''; }, 0);
+        warn.style.opacity = '1';
     }
 }
 
