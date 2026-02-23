@@ -1041,24 +1041,61 @@ function renderWPMLineChart() {
     });
 }
 
-// FIX: weakKeys now correctly scoped — passed in from renderDashboard
+// FIX: QWERTY layout rows + dark mode inline color support
 function renderKeyHeatmap(weakKeys) {
     const grid = document.getElementById('key-heatmap-grid');
     if (!grid) return;
     let keyStats = {};
     try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
-    const allKeys = '1234567890qwertyuiopasdfghjklzxcvbnm'.split('').concat([';',',','.','/','[',']','-','=']);
+
+    // QWERTY layout — each sub-array is a row
+    const QWERTY_ROWS = [
+        ['1','2','3','4','5','6','7','8','9','0','-','='],
+        ['q','w','e','r','t','y','u','i','o','p','[',']'],
+        ['a','s','d','f','g','h','j','k','l',';',"'"],
+        ['z','x','c','v','b','n','m',',','.','/']
+    ];
+
+    const isDark = document.body.getAttribute('data-theme') === 'dark';
     const max = Math.max(...Object.values(keyStats), 1);
     grid.innerHTML = '';
-    allKeys.forEach(k => {
-        let freq = keyStats[k] || 0;
-        let cls  = 'heatmap-key-cell';
-        if      (freq === 0)          cls += '';
-        else if (freq < max * 0.33)   cls += ' low';
-        else if (freq < max * 0.66)   cls += ' mid';
-        else                          cls += ' high';
-        if (weakKeys && weakKeys.some(([wk]) => wk === k)) cls += ' weak';
-        grid.innerHTML += `<div class="${cls}">${k}<span class="heatmap-tooltip">${freq} times</span></div>`;
+
+    QWERTY_ROWS.forEach(row => {
+        const rowEl = document.createElement('div');
+        rowEl.className = 'heatmap-row';
+
+        row.forEach(k => {
+            const freq    = keyStats[k] || 0;
+            const isWeak  = weakKeys && weakKeys.some(([wk]) => wk === k);
+            const ratio   = freq / max;
+
+            // Inline color so dark mode override in CSS doesn't flatten it
+            let bg, color;
+            if (isWeak) {
+                bg    = '#d64545';
+                color = '#fff';
+            } else if (freq === 0) {
+                bg    = isDark ? '#1e2a3a' : '#e9edf5';
+                color = isDark ? '#6b7a8d' : '#999';
+            } else if (ratio < 0.33) {
+                bg    = isDark ? '#3a2820' : '#f4e2d8';
+                color = isDark ? '#e8a88a' : '#8b4a3a';
+            } else if (ratio < 0.66) {
+                bg    = isDark ? '#7a4020' : '#f4a261';
+                color = '#fff';
+            } else {
+                bg    = isDark ? '#c05a30' : '#e07a5f';
+                color = '#fff';
+            }
+
+            const cell = document.createElement('div');
+            cell.className = 'heatmap-key-cell';
+            cell.style.cssText = `background:${bg}; color:${color}; border-color:${isWeak ? '#ff6b6b' : 'transparent'};`;
+            cell.innerHTML = `${k}<span class="heatmap-tooltip">${freq} times</span>`;
+            rowEl.appendChild(cell);
+        });
+
+        grid.appendChild(rowEl);
     });
 }
 
