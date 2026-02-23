@@ -1,4 +1,3 @@
-// ============ TYPING SOUND EFFECT ============
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
    Modular JavaScript Architecture
@@ -23,111 +22,23 @@ function showToast(message, type = '', duration = 3000) {
     }, duration);
 }
 
-// ============ DATA STRUCTURES ============
 // ============ ACHIEVEMENTS ============
 const ACHIEVEMENTS = [
-    {
-        id: 'first-test',
-        name: 'First Test',
-        desc: 'Complete your first typing test.',
-        icon: '🎉'
-    },
-    {
-        id: '50wpm',
-        name: 'Speedster',
-        desc: 'Achieve 50 WPM or higher in a test.',
-        icon: '🚀'
-    },
-    {
-        id: '100accuracy',
-        name: 'Perfect Accuracy',
-        desc: 'Score 100% accuracy in a test.',
-        icon: '🎯'
-    },
-    {
-        id: '10tests',
-        name: 'Test Veteran',
-        desc: 'Complete 10 typing tests.',
-        icon: '🏅'
-    },
-    {
-        id: '7day-streak',
-        name: 'Streak Master',
-        desc: 'Practice for 7 days in a row.',
-        icon: '🔥'
-    },
-    {
-        id: 'all-lessons',
-        name: 'Lesson Legend',
-        desc: 'Complete all lessons.',
-        icon: '🌟'
-    }
+    { id: 'first-test',    name: 'First Test',       desc: 'Complete your first typing test.',     icon: '🎉' },
+    { id: '50wpm',         name: 'Speedster',         desc: 'Achieve 50 WPM or higher in a test.', icon: '🚀' },
+    { id: '100accuracy',   name: 'Perfect Accuracy',  desc: 'Score 100% accuracy in a test.',      icon: '🎯' },
+    { id: '10tests',       name: 'Test Veteran',      desc: 'Complete 10 typing tests.',            icon: '🏅' },
+    { id: '7day-streak',   name: 'Streak Master',     desc: 'Practice for 7 days in a row.',       icon: '🔥' },
+    { id: 'all-lessons',   name: 'Lesson Legend',     desc: 'Complete all lessons.',               icon: '🌟' }
 ];
 
 const LESSON_DATA = [
-    {
-        id: 1,
-        title: "Home Row Fundamentals",
-        description: "Master the foundation - ASDF JKL;",
-        focusKeys: "asdf jkl;",
-        unlocked: true,
-        minAccuracy: 90,
-        minWPM: 15,
-        xpReward: 100
-    },
-    {
-        id: 2,
-
-        title: "Top Row Basics",
-        description: "Expand upward - QWERT YUIOP",
-        focusKeys: "qwert yuiop",
-        unlocked: false,
-        minAccuracy: 90,
-        minWPM: 18,
-
-        xpReward: 150
-    },
-    {
-        id: 3,
-        title: "Bottom Row Training",
-        description: "Complete the alphabet - ZXCVBNM",
-        focusKeys: "zxcvbnm",
-        unlocked: false,
-        minAccuracy: 90,
-        minWPM: 20,
-
-        xpReward: 150
-    },
-    {
-        id: 4,
-        title: "Full Alphabet",
-        description: "Combine all letters with confidence",
-        focusKeys: "all letters",
-        unlocked: false,
-        minAccuracy: 92,
-        minWPM: 25,
-        xpReward: 200
-    },
-    {
-        id: 5,
-        title: "Numbers Integration",
-        description: "Add numeric proficiency",
-        focusKeys: "0-9",
-        unlocked: false,
-        minAccuracy: 90,
-        minWPM: 25,
-        xpReward: 200
-    },
-    {
-        id: 6,
-        title: "Symbols Mastery",
-        description: "Complete typing - symbols & punctuation",
-        focusKeys: "! @ # $ % & * + - ?",
-        unlocked: false,
-        minAccuracy: 88,
-        minWPM: 30,
-        xpReward: 250
-    }
+    { id: 1, title: "Home Row Fundamentals", description: "Master the foundation - ASDF JKL;",        focusKeys: "asdf jkl;",           unlocked: true,  minAccuracy: 90, minWPM: 15, xpReward: 100 },
+    { id: 2, title: "Top Row Basics",        description: "Expand upward - QWERT YUIOP",              focusKeys: "qwert yuiop",         unlocked: false, minAccuracy: 90, minWPM: 18, xpReward: 150 },
+    { id: 3, title: "Bottom Row Training",   description: "Complete the alphabet - ZXCVBNM",          focusKeys: "zxcvbnm",             unlocked: false, minAccuracy: 90, minWPM: 20, xpReward: 150 },
+    { id: 4, title: "Full Alphabet",         description: "Combine all letters with confidence",      focusKeys: "all letters",         unlocked: false, minAccuracy: 92, minWPM: 25, xpReward: 200 },
+    { id: 5, title: "Numbers Integration",   description: "Add numeric proficiency",                  focusKeys: "0-9",                 unlocked: false, minAccuracy: 90, minWPM: 25, xpReward: 200 },
+    { id: 6, title: "Symbols Mastery",       description: "Complete typing - symbols & punctuation",  focusKeys: "! @ # $ % & * + - ?", unlocked: false, minAccuracy: 88, minWPM: 30, xpReward: 250 }
 ];
 
 const LEVEL_THRESHOLDS = [
@@ -141,24 +52,6 @@ const LEVEL_THRESHOLDS = [
 // ============ STATE MANAGEMENT ============
 
 class ProgressManager {
-        hasAchievement(id) {
-            return (this.data.achievements || []).includes(id);
-        }
-
-        unlockAchievement(id) {
-            if (!this.data.achievements) this.data.achievements = [];
-            if (!this.data.achievements.includes(id)) {
-                this.data.achievements.push(id);
-                this.save();
-                // Show popup notification for new achievement
-                if (typeof ACHIEVEMENTS !== 'undefined') {
-                    const ach = ACHIEVEMENTS.find(a => a.id === id);
-                    if (ach) {
-                        showToast(`🏆 Achievement unlocked: ${ach.icon} ${ach.name}`, 'success', 4000);
-                    }
-                }
-            }
-        }
     constructor() {
         this.loadProgress();
     }
@@ -169,44 +62,41 @@ class ProgressManager {
             this.data = JSON.parse(saved);
         } else {
             this.data = {
-                bestWPM: 0,
-                averageAccuracy: 0,
-                totalPracticeTime: 0,
-                completedLessons: [],
-                weakKeys: {},
-                streakDays: 0,
-                lastPracticeDate: null,
-                testsTaken: 0,
-                totalTests: 0,
-                xp: 0,
-                level: 1
+                bestWPM: 0, averageAccuracy: 0, totalPracticeTime: 0,
+                completedLessons: [], weakKeys: {}, streakDays: 0,
+                lastPracticeDate: null, testsTaken: 0, totalTests: 0,
+                xp: 0, level: 1, achievements: []
             };
         }
     }
 
-    save() {
-        localStorage.setItem('typeflow-progress', JSON.stringify(this.data));
+    save() { localStorage.setItem('typeflow-progress', JSON.stringify(this.data)); }
+
+    hasAchievement(id) { return (this.data.achievements || []).includes(id); }
+
+    unlockAchievement(id) {
+        if (!this.data.achievements) this.data.achievements = [];
+        if (!this.data.achievements.includes(id)) {
+            this.data.achievements.push(id);
+            this.save();
+            const ach = ACHIEVEMENTS.find(a => a.id === id);
+            if (ach) showToast(`🏆 Achievement unlocked: ${ach.icon} ${ach.name}`, 'success', 4000);
+        }
     }
 
     updateTestStats(wpm, accuracy, duration, mistakes) {
         if (wpm > this.data.bestWPM) this.data.bestWPM = wpm;
-
         const totalTests = this.data.totalTests || 0;
         const currentAvg = this.data.averageAccuracy || 0;
-        this.data.averageAccuracy = Math.round(
-            (currentAvg * totalTests + accuracy) / (totalTests + 1)
-        );
-
+        this.data.averageAccuracy = Math.round((currentAvg * totalTests + accuracy) / (totalTests + 1));
         this.data.totalPracticeTime += duration;
         this.data.testsTaken  = (this.data.testsTaken  || 0) + 1;
         this.data.totalTests  = (this.data.totalTests  || 0) + 1;
-
         if (mistakes && typeof mistakes === 'object') {
             Object.keys(mistakes).forEach(key => {
                 this.data.weakKeys[key] = (this.data.weakKeys[key] || 0) + mistakes[key];
             });
         }
-
         this.updateStreak();
         this.save();
     }
@@ -214,41 +104,28 @@ class ProgressManager {
     updateStreak() {
         const today    = new Date().toDateString();
         const lastDate = this.data.lastPracticeDate;
-
         if (!lastDate) {
             this.data.streakDays = 1;
         } else if (lastDate !== today) {
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
-            this.data.streakDays = lastDate === yesterday.toDateString()
-                ? this.data.streakDays + 1
-                : 1;
+            this.data.streakDays = lastDate === yesterday.toDateString() ? this.data.streakDays + 1 : 1;
         }
-
         this.data.lastPracticeDate = today;
     }
 
     completeLesson(lessonId) {
-        if (!this.data.completedLessons.includes(lessonId)) {
-            this.data.completedLessons.push(lessonId);
-        }
+        if (!this.data.completedLessons.includes(lessonId)) this.data.completedLessons.push(lessonId);
         const lesson = LESSON_DATA.find(l => l.id === lessonId);
         if (lesson) this.addXP(lesson.xpReward);
         this.save();
     }
 
-    addXP(amount) {
-        this.data.xp += amount;
-        this.updateLevel();
-        this.save();
-    }
+    addXP(amount) { this.data.xp += amount; this.updateLevel(); this.save(); }
 
     updateLevel() {
         for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
-            if (this.data.xp >= LEVEL_THRESHOLDS[i].minXP) {
-                this.data.level = LEVEL_THRESHOLDS[i].level;
-                break;
-            }
+            if (this.data.xp >= LEVEL_THRESHOLDS[i].minXP) { this.data.level = LEVEL_THRESHOLDS[i].level; break; }
         }
     }
 
@@ -259,26 +136,24 @@ class ProgressManager {
             .slice(0, count);
     }
 
-    getCurrentLevel() {
-        return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0];
-    }
-
-    getNextLevel() {
-        return LEVEL_THRESHOLDS.find(l => l.level === this.data.level + 1);
-    }
+    getCurrentLevel() { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0]; }
+    getNextLevel()    { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level + 1); }
 
     getXPProgress() {
         const current = this.getCurrentLevel();
         const next    = this.getNextLevel();
         if (!next) return 100;
-        return Math.min(Math.round(
-            ((this.data.xp - current.minXP) / (next.minXP - current.minXP)) * 100
-        ), 100);
+        return Math.min(Math.round(((this.data.xp - current.minXP) / (next.minXP - current.minXP)) * 100), 100);
     }
 
-    getXPToNextLevel() {
-        const next = this.getNextLevel();
-        return next ? next.minXP - this.data.xp : 0;
+    getXPToNextLevel() { const next = this.getNextLevel(); return next ? next.minXP - this.data.xp : 0; }
+
+    resetAllProgress() {
+        localStorage.removeItem('typeflow-progress');
+        localStorage.removeItem('typeflow-wpm-history');
+        localStorage.removeItem('typeflow-key-stats');
+        LESSON_DATA.forEach((_, i) => { if (i > 0) LESSON_DATA[i].unlocked = false; });
+        this.loadProgress();
     }
 }
 
@@ -286,12 +161,14 @@ class ProgressManager {
 
 const baseWords = [
     "design","typing","focus","rhythm","steady","clarity","flow","precision","practice","balance",
-    "signal","detail","craft","gentle","future","method","energy","motion","value",
-    "quality","simple","quiet","progress","intent","context","pattern","tempo","memory","logic",
-    "system","layout","screen","accent","measure","stable","vision","reason","result",
-    "build","learn","trust","align","repeat","refine","polish","deliver"
+    "signal","detail","craft","gentle","future","method","energy","motion","value","quality",
+    "simple","quiet","progress","intent","context","pattern","tempo","memory","logic","system",
+    "layout","screen","accent","measure","stable","vision","reason","result","build","learn",
+    "trust","align","repeat","refine","polish","deliver","create","impact","growth","change",
+    "thought","listen","write","speak","reach","drive","shape","guide","solve","connect"
 ];
 
+// FIX: Expanded quote bank (was only 10)
 const famousQuotes = [
     "The only way to do great work is to love what you do. — Steve Jobs",
     "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
@@ -302,9 +179,25 @@ const famousQuotes = [
     "Whether you think you can or you think you can't, you're right. — Henry Ford",
     "The journey of a thousand miles begins with one step. — Lao Tzu",
     "It always seems impossible until it's done. — Nelson Mandela",
-    "In the middle of difficulty lies opportunity. — Albert Einstein"
+    "In the middle of difficulty lies opportunity. — Albert Einstein",
+    "Simplicity is the ultimate sophistication. — Leonardo da Vinci",
+    "Be yourself; everyone else is already taken. — Oscar Wilde",
+    "Two things are infinite: the universe and human stupidity. — Albert Einstein",
+    "A room without books is like a body without a soul. — Marcus Tullius Cicero",
+    "You only live once, but if you do it right, once is enough. — Mae West",
+    "In three words I can sum up everything I've learned about life: it goes on. — Robert Frost",
+    "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment. — Ralph Waldo Emerson",
+    "It is better to be hated for what you are than to be loved for what you are not. — Andre Gide",
+    "Good friends, good books, and a sleepy conscience: this is the ideal life. — Mark Twain",
+    "Darkness cannot drive out darkness; only light can do that. — Martin Luther King Jr.",
+    "We accept the love we think we deserve. — Stephen Chbosky",
+    "Not all those who wander are lost. — J.R.R. Tolkien",
+    "There is no greater agony than bearing an untold story inside you. — Maya Angelou",
+    "Without music, life would be a mistake. — Friedrich Nietzsche",
+    "I am not afraid of storms, for I am learning how to sail my ship. — Louisa May Alcott"
 ];
 
+// FIX: Expanded code snippets (was only 10)
 const codeSnippets = [
     `for (let i = 0; i < 10; i++) {\n    console.log(i);\n}`,
     `def greet(name):\n    print(f"Hello, {name}!")`,
@@ -315,70 +208,73 @@ const codeSnippets = [
     `let total = 0;\nfor (const num of numbers) {\n    total += num;\n}`,
     `try {\n    riskyOperation();\n} catch (e) {\n    handleError(e);\n}`,
     `public static void main(String[] args) {\n    System.out.println("Hello World");\n}`,
-    `SELECT * FROM users WHERE active = 1;`
+    `SELECT * FROM users WHERE active = 1;`,
+    `const fetchData = async (url) => {\n    const res = await fetch(url);\n    return res.json();\n};`,
+    `[1, 2, 3].map(x => x * 2).filter(x => x > 2);`,
+    `const obj = { name: "Alice", age: 30 };\nconst { name, age } = obj;`,
+    `setTimeout(() => {\n    console.log("delayed");\n}, 1000);`,
+    `const nums = Array.from({ length: 5 }, (_, i) => i + 1);`,
+    `def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)`,
+    `git commit -m "fix: resolve null pointer in auth module"`,
+    `npm install --save-dev eslint prettier`,
+    `const sorted = [...arr].sort((a, b) => a - b);`,
+    `Object.keys(data).forEach(key => {\n    console.log(key, data[key]);\n});`
 ];
 
 const symbols = ["!","@","#","$","%","&","*","+","-","?"];
-
-const homeRowWords   = ["as","sad","dad","lad","fad","ask","flask","sass","lass","fall","hall","salad","alaska","alas","adds","fall"];
+const homeRowWords   = ["as","sad","dad","lad","fad","ask","flask","sass","lass","fall","hall","salad","alaska","alas","adds"];
 const topRowWords    = ["we","were","where","quiet","quit","quote","rope","tire","wire","power","tower","your","pure","true","type"];
 const bottomRowWords = ["can","van","ban","man","cab","nab","venom","cabin","cannot","banana","zinc","mix"];
 
 // ============ FINGER TRAINING DATA ============
 
 const FINGER_MAP = {
-    'a':'left-pinky','q':'left-pinky','z':'left-pinky','1':'left-pinky','`':'left-pinky','~':'left-pinky','!':'left-pinky',
-    's':'left-ring','w':'left-ring','x':'left-ring','2':'left-ring','@':'left-ring',
-    'd':'left-middle','e':'left-middle','c':'left-middle','3':'left-middle','#':'left-middle',
-    'f':'left-index','r':'left-index','v':'left-index','t':'left-index','g':'left-index','b':'left-index','4':'left-index','5':'left-index','$':'left-index','%':'left-index',
-    'j':'right-index','u':'right-index','m':'right-index','y':'right-index','h':'right-index','n':'right-index','6':'right-index','7':'right-index','^':'right-index','&':'right-index',
-    'k':'right-middle','i':'right-middle',',':'right-middle','8':'right-middle','*':'right-middle','<':'right-middle',
-    'l':'right-ring','o':'right-ring','.':'right-ring','9':'right-ring','(':'right-ring','>':'right-ring',
-    ';':'right-pinky','p':'right-pinky','/':'right-pinky','0':'right-pinky','-':'right-pinky','=':'right-pinky','[':'right-pinky',']':'right-pinky','\\':'right-pinky',"'":'right-pinky',':':'right-pinky','?':'right-pinky',')':'right-pinky','_':'right-pinky','+':'right-pinky','{':'right-pinky','}':'right-pinky','|':'right-pinky','"':'right-pinky',
+    'a':'left-pinky','q':'left-pinky','z':'left-pinky','1':'left-pinky','`':'left-pinky',
+    's':'left-ring','w':'left-ring','x':'left-ring','2':'left-ring',
+    'd':'left-middle','e':'left-middle','c':'left-middle','3':'left-middle',
+    'f':'left-index','r':'left-index','v':'left-index','t':'left-index','g':'left-index','b':'left-index','4':'left-index','5':'left-index',
+    'j':'right-index','u':'right-index','m':'right-index','y':'right-index','h':'right-index','n':'right-index','6':'right-index','7':'right-index',
+    'k':'right-middle','i':'right-middle',',':'right-middle','8':'right-middle',
+    'l':'right-ring','o':'right-ring','.':'right-ring','9':'right-ring',
+    ';':'right-pinky','p':'right-pinky','/':'right-pinky','0':'right-pinky','-':'right-pinky','=':'right-pinky','[':'right-pinky',']':'right-pinky','\\':'right-pinky',"'":'right-pinky',
     ' ':'thumb'
 };
 
-const FINGER_NAMES = {
-    'left-pinky':'Left Pinky','left-ring':'Left Ring','left-middle':'Left Middle','left-index':'Left Index',
-    'right-index':'Right Index','right-middle':'Right Middle','right-ring':'Right Ring','right-pinky':'Right Pinky','thumb':'Thumb'
-};
-
-const FINGER_EMOJIS = {
-    'left-pinky':'🤙','left-ring':'💍','left-middle':'🖕','left-index':'☝️',
-    'right-index':'☝️','right-middle':'🖕','right-ring':'💍','right-pinky':'🤙','thumb':'👍'
-};
-
+const FINGER_NAMES  = { 'left-pinky':'Left Pinky','left-ring':'Left Ring','left-middle':'Left Middle','left-index':'Left Index','right-index':'Right Index','right-middle':'Right Middle','right-ring':'Right Ring','right-pinky':'Right Pinky','thumb':'Thumb' };
+const FINGER_EMOJIS = { 'left-pinky':'🤙','left-ring':'💍','left-middle':'🖕','left-index':'☝️','right-index':'☝️','right-middle':'🖕','right-ring':'💍','right-pinky':'🤙','thumb':'👍' };
 const PRACTICE_KEYS = Object.keys(FINGER_MAP).filter(k => k.length === 1 && k !== ' ');
 
 // ============ TEST ENGINE ============
 
 class TestEngine {
     constructor() {
-        this.currentText   = "";
+        this.currentText     = "";
         this.currentPosition = 0;
-        this.correctChars  = 0;
-        this.incorrectChars = 0;
-        this.isActive      = false;
-        this.startTime     = null;
-        this.timerInterval = null;
-        this.timeLimit     = 15;
-        this.timeLeft      = 15;
-        this.mistakesByChar = {};
+        this.correctChars    = 0;
+        this.incorrectChars  = 0;
+        this.isActive        = false;
+        this.startTime       = null;
+        this.timerInterval   = null;
+        this.timeLimit       = 15;
+        this.timeLeft        = 15;
+        this.mistakesByChar  = {};
         this.waitingForFirstInput = false;
+        // FIX: track whether we're in timed or word-count mode
+        this.wordCountMode   = false;
 
-        this.textDisplay   = document.getElementById("text-display");
-        this.input         = document.getElementById("typing-input");
-        this.wpmDisplay    = document.getElementById("wpm");
+        this.textDisplay     = document.getElementById("text-display");
+        this.input           = document.getElementById("typing-input");
+        this.wpmDisplay      = document.getElementById("wpm");
         this.accuracyDisplay = document.getElementById("accuracy");
-        this.timerDisplay  = document.getElementById("timer");
+        this.timerDisplay    = document.getElementById("timer");
 
         this.setupEventListeners();
     }
 
     setupEventListeners() {
-        this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
-        this.input.addEventListener("keydown",(e) => this.handleKeydown(e));
-        this.input.addEventListener("paste",  (e) => e.preventDefault());
+        this.input.addEventListener("input",   (e) => this.handleTyping(e));
+        this.input.addEventListener("keydown", (e) => this.handleKeydown(e));
+        this.input.addEventListener("paste",   (e) => e.preventDefault());
         this.textDisplay.addEventListener("click", () => this.input.focus());
     }
 
@@ -387,19 +283,26 @@ class TestEngine {
         return lastSpace + 1;
     }
 
+    // FIX: quote/code modes don't use timer — they end when text is complete
+    getCurrentMode() {
+        return document.querySelector('.mode-tab.active')?.dataset.mode || 'test';
+    }
+
+    isTimedMode() {
+        const mode = this.getCurrentMode();
+        // Timed only if timer button active AND no word count button active
+        return (mode === 'test') && !document.querySelector('.word-count-btn.active');
+    }
+
     generateText() {
-        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
-        if (mode === 'quote') {
-            return famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
-        }
-        if (mode === 'code') {
-            return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
-        }
+        const mode = this.getCurrentMode();
+        if (mode === 'quote') return famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
+        if (mode === 'code')  return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+
         let wordCount = this.getWordCountForTime(this.timeLimit);
         const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
-        if (wordCountMode) {
-            wordCount = parseInt(wordCountMode, 10);
-        }
+        if (wordCountMode) wordCount = parseInt(wordCountMode, 10);
+
         const includeCaps    = document.getElementById("toggle-caps").checked;
         const includeNumbers = document.getElementById("toggle-numbers").checked;
         const includeSymbols = document.getElementById("toggle-symbols").checked;
@@ -420,13 +323,8 @@ class TestEngine {
         return this.randomBetween(base + 6, base + 14);
     }
 
-    randomBetween(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
-
-    capitalize(word) {
-        return word.length ? word[0].toUpperCase() + word.slice(1) : word;
-    }
+    randomBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    capitalize(word) { return word.length ? word[0].toUpperCase() + word.slice(1) : word; }
 
     loadNewText() {
         this.currentText     = this.generateText();
@@ -435,8 +333,8 @@ class TestEngine {
     }
 
     displayText() {
-        const typedText  = this.input.value;
-        const hideUntil  = this.getHideUntilIndex(typedText);
+        const typedText = this.input.value;
+        const hideUntil = this.getHideUntilIndex(typedText);
         const html = this.currentText.split("").map((char, i) => {
             let cls = "char";
             if (i < this.currentPosition) {
@@ -462,24 +360,20 @@ class TestEngine {
     }
 
     start(preserveInput = false) {
-        this.isActive      = true;
+        this.isActive        = true;
         this.currentPosition = 0;
-        this.correctChars  = 0;
-        this.incorrectChars = 0;
-        this.mistakesByChar = {};
-        this.startTime     = null;
-        this.timeLeft      = this.timeLimit;
+        this.correctChars    = 0;
+        this.incorrectChars  = 0;
+        this.mistakesByChar  = {};
+        this.startTime       = null;
+        this.timeLeft        = this.timeLimit;
 
         if (!preserveInput) this.input.value = "";
         this.input.disabled = false;
         this.input.focus();
 
-        if (preserveInput) {
-            this.recalculateFromInput();
-            this.updateStats();
-        } else {
-            this.updateStats(true);
-        }
+        if (preserveInput) { this.recalculateFromInput(); this.updateStats(); }
+        else               { this.updateStats(true); }
 
         clearInterval(this.timerInterval);
         this.displayText();
@@ -488,20 +382,27 @@ class TestEngine {
     }
 
     startTimer() {
+        // FIX: Only start countdown timer in timed mode
+        if (!this.isTimedMode()) return;
         clearInterval(this.timerInterval);
         this.timerInterval = setInterval(() => {
             this.timeLeft -= 1;
             this.updateTimerDisplay();
-            // === Achievements (only those that don't require wpm/accuracy) ===
             if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
             if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
-            if ((progressManager.data.streakDays || 0) >= 7 && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
+            if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
             if (this.timeLeft <= 0) this.end();
         }, 1000);
     }
 
     updateTimerDisplay() {
-        this.timerDisplay.textContent = Math.max(this.timeLeft, 0);
+        const mode = this.getCurrentMode();
+        // FIX: In quote/code/word-count mode show elapsed chars or hide timer
+        if (!this.isTimedMode()) {
+            this.timerDisplay.textContent = "∞";
+        } else {
+            this.timerDisplay.textContent = Math.max(this.timeLeft, 0);
+        }
     }
 
     handleTyping() {
@@ -516,25 +417,21 @@ class TestEngine {
             this.waitingForFirstInput = false;
         }
 
-        const typedText  = this.input.value;
-        const lockIndex  = this.getLockIndex();
+        const typedText = this.input.value;
+        const lockIndex = this.getLockIndex();
 
-        if (this.input.selectionStart < lockIndex) {
-            this.input.setSelectionRange(lockIndex, lockIndex);
-        }
+        if (this.input.selectionStart < lockIndex) this.input.setSelectionRange(lockIndex, lockIndex);
         if (typedText.length < lockIndex) {
             this.input.value = typedText.slice(0, lockIndex);
             this.input.setSelectionRange(lockIndex, lockIndex);
         }
 
-        // --- Track key stats for each new character typed ---
+        // Track key stats
         if (typedText.length > this.currentPosition) {
             const newChar = typedText[this.currentPosition];
             if (newChar && newChar.length === 1) {
                 let keyStats = {};
-                try {
-                    keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}');
-                } catch { keyStats = {}; }
+                try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
                 const k = newChar.toLowerCase();
                 keyStats[k] = (keyStats[k] || 0) + 1;
                 localStorage.setItem('typeflow-key-stats', JSON.stringify(keyStats));
@@ -543,10 +440,7 @@ class TestEngine {
 
         this.currentPosition = this.input.value.length;
 
-        if (this.currentPosition >= this.currentText.length) {
-            this.end();
-            return;
-        }
+        if (this.currentPosition >= this.currentText.length) { this.end(); return; }
 
         this.recalculateFromInput();
         this.updateStats();
@@ -557,17 +451,12 @@ class TestEngine {
     handleKeydown(e) {
         const lockIndex = this.getLockIndex();
         const cursor    = this.input.selectionStart;
-
         if ((e.key === "Backspace" || e.key === "ArrowLeft") && cursor <= lockIndex) {
             e.preventDefault();
             this.input.setSelectionRange(lockIndex, lockIndex);
         }
         if (["ArrowUp","ArrowDown","Home","PageUp"].includes(e.key)) {
-            setTimeout(() => {
-                if (this.input.selectionStart < lockIndex) {
-                    this.input.setSelectionRange(lockIndex, lockIndex);
-                }
-            }, 0);
+            setTimeout(() => { if (this.input.selectionStart < lockIndex) this.input.setSelectionRange(lockIndex, lockIndex); }, 0);
         }
     }
 
@@ -576,11 +465,9 @@ class TestEngine {
         this.currentPosition = typedText.length;
         this.correctChars    = 0;
         this.incorrectChars  = 0;
-
         for (let i = 0; i < typedText.length; i++) {
-            if (typedText[i] === this.currentText[i]) {
-                this.correctChars++;
-            } else {
+            if (typedText[i] === this.currentText[i]) this.correctChars++;
+            else {
                 this.incorrectChars++;
                 const expected = this.currentText[i];
                 this.mistakesByChar[expected] = (this.mistakesByChar[expected] || 0) + 1;
@@ -589,17 +476,11 @@ class TestEngine {
     }
 
     updateStats(reset = false) {
-        if (reset) {
-            this.wpmDisplay.textContent      = "0";
-            this.accuracyDisplay.textContent = "100%";
-            return;
-        }
+        if (reset) { this.wpmDisplay.textContent = "0"; this.accuracyDisplay.textContent = "100%"; return; }
         const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1 / 60);
         this.wpmDisplay.textContent = Math.round((this.correctChars / 5) / elapsed) || 0;
-
         const total = this.correctChars + this.incorrectChars;
-        this.accuracyDisplay.textContent =
-            `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
+        this.accuracyDisplay.textContent = `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
     }
 
     end() {
@@ -611,28 +492,29 @@ class TestEngine {
 
         const wpm      = parseInt(this.wpmDisplay.textContent);
         const accuracy = parseInt(this.accuracyDisplay.textContent);
-        const duration = this.timeLimit - this.timeLeft;
+        const duration = this.isTimedMode() ? (this.timeLimit - this.timeLeft) : Math.floor((Date.now() - this.startTime) / 1000);
+
+        // FIX: Check for new personal best
+        const isNewBest = wpm > (progressManager.data.bestWPM || 0);
 
         progressManager.updateTestStats(wpm, accuracy, duration, this.mistakesByChar);
         const xpGained = this.calculateXP(wpm, accuracy);
         progressManager.addXP(xpGained);
 
-        // === Achievements (moved from timer to here for reliability) ===
+        // Achievements
         if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
-        if (wpm >= 50 && !progressManager.hasAchievement('50wpm')) progressManager.unlockAchievement('50wpm');
+        if (wpm >= 50      && !progressManager.hasAchievement('50wpm'))         progressManager.unlockAchievement('50wpm');
         if (accuracy === 100 && !progressManager.hasAchievement('100accuracy')) progressManager.unlockAchievement('100accuracy');
         if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
-        if ((progressManager.data.streakDays || 0) >= 7 && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
+        if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
 
-        // --- Save WPM history ---
+        // Save WPM history
         let wpmHistory = [];
-        try {
-            wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]');
-        } catch { wpmHistory = []; }
+        try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
         wpmHistory.push({ date: new Date().toLocaleDateString(), wpm });
         localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory.slice(-30)));
 
-        this.showResults(wpm, accuracy, xpGained);
+        this.showResults(wpm, accuracy, xpGained, isNewBest);
     }
 
     calculateXP(wpm, accuracy) {
@@ -643,9 +525,14 @@ class TestEngine {
         return xp;
     }
 
-    showResults(wpm, accuracy, xpGained) {
+    // FIX: Added isNewBest parameter
+    showResults(wpm, accuracy, xpGained, isNewBest = false) {
         const modal = document.getElementById("results");
         modal.classList.remove("hidden");
+
+        // FIX: Show "New Best!" indicator
+        const title = modal.querySelector('h2');
+        title.textContent = isNewBest ? '🎉 New Personal Best!' : 'Test Complete';
 
         document.getElementById("result-wpm").textContent       = `${wpm} WPM`;
         document.getElementById("result-accuracy").textContent  = `${accuracy}%`;
@@ -654,17 +541,13 @@ class TestEngine {
         document.getElementById("xp-amount").textContent        = xpGained;
 
         const badge = document.getElementById("rating-badge");
-        if (accuracy >= 95 && wpm >= 40) {
-            badge.textContent = "Excellent"; badge.className = "rating-badge excellent";
-        } else if (accuracy >= 85 && wpm >= 30) {
-            badge.textContent = "Good";      badge.className = "rating-badge good";
-        } else {
-            badge.textContent = "Needs Work"; badge.className = "rating-badge needs-work";
-        }
+        if (accuracy >= 95 && wpm >= 40) { badge.textContent = "Excellent"; badge.className = "rating-badge excellent"; }
+        else if (accuracy >= 85 && wpm >= 30) { badge.textContent = "Good"; badge.className = "rating-badge good"; }
+        else { badge.textContent = "Needs Work"; badge.className = "rating-badge needs-work"; }
     }
 
     reset(newText = false) {
-        this.isActive = false;
+        this.isActive        = false;
         clearInterval(this.timerInterval);
         this.currentPosition = 0;
         this.correctChars    = 0;
@@ -691,7 +574,6 @@ class LessonEngine {
         this.incorrectChars  = 0;
         this.isActive        = false;
         this.startTime       = null;
-        // FIX: store bound handler so we can remove it between lessons
         this._boundHandler   = null;
 
         this.textDisplay     = document.getElementById("lesson-text-display");
@@ -708,25 +590,14 @@ class LessonEngine {
             case 2: words = this.pick(topRowWords,    30); break;
             case 3: words = this.pick(bottomRowWords, 30); break;
             case 4: words = this.pick(baseWords,      40); break;
-            case 5:
-                words = this.pick(baseWords, 25).map(w =>
-                    Math.random() < 0.4 ? w + this.rand(0, 99) : w);
-                break;
-            case 6:
-                words = this.pick(baseWords, 25).map(w =>
-                    Math.random() < 0.3 ? w + symbols[Math.floor(Math.random() * symbols.length)] : w);
-                break;
+            case 5: words = this.pick(baseWords, 25).map(w => Math.random() < 0.4 ? w + this.rand(0, 99) : w); break;
+            case 6: words = this.pick(baseWords, 25).map(w => Math.random() < 0.3 ? w + symbols[Math.floor(Math.random() * symbols.length)] : w); break;
         }
         return words.join(" ") + ".";
     }
 
-    pick(arr, n) {
-        return Array.from({ length: n }, () => arr[Math.floor(Math.random() * arr.length)]);
-    }
-
-    rand(min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    }
+    pick(arr, n) { return Array.from({ length: n }, () => arr[Math.floor(Math.random() * arr.length)]); }
+    rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
 
     startLesson(lesson) {
         this.currentLesson   = lesson;
@@ -748,11 +619,8 @@ class LessonEngine {
         this.displayText();
         this.updateStats(true);
 
-        // FIX: Remove old listener before adding new one to prevent stacking
-        if (this._boundHandler) {
-            this.input.removeEventListener("input", this._boundHandler);
-        }
-        this._boundHandler = () => { this.handleTyping(); };
+        if (this._boundHandler) this.input.removeEventListener("input", this._boundHandler);
+        this._boundHandler = () => this.handleTyping();
         this.input.addEventListener("input", this._boundHandler);
     }
 
@@ -760,7 +628,7 @@ class LessonEngine {
         const typedText = this.input.value;
         const html = this.currentText.split("").map((char, i) => {
             let cls = "char";
-            if (i < this.currentPosition)      cls += typedText[i] === char ? " correct" : " incorrect";
+            if (i < this.currentPosition)       cls += typedText[i] === char ? " correct" : " incorrect";
             else if (i === this.currentPosition) cls += " current";
             return `<span class="${cls}">${char === " " ? " " : char}</span>`;
         }).join("");
@@ -768,24 +636,13 @@ class LessonEngine {
     }
 
     handleTyping() {
-        if (!this.isActive && this.input.value.length > 0) {
-            this.isActive  = true;
-            this.startTime = Date.now();
-        }
-
+        if (!this.isActive && this.input.value.length > 0) { this.isActive = true; this.startTime = Date.now(); }
         this.currentPosition = this.input.value.length;
-
-        // Save progress for progress bar
         if (this.currentLesson && !progressManager.data.completedLessons.includes(this.currentLesson.id)) {
             const percent = Math.round((this.currentPosition / this.currentText.length) * 100);
             localStorage.setItem(`lesson-progress-${this.currentLesson.id}`, percent);
         }
-
-        if (this.currentPosition >= this.currentText.length) {
-            this.completeLesson();
-            return;
-        }
-
+        if (this.currentPosition >= this.currentText.length) { this.completeLesson(); return; }
         this.recalculateFromInput();
         this.updateStats();
         this.displayText();
@@ -793,8 +650,7 @@ class LessonEngine {
 
     recalculateFromInput() {
         const typedText = this.input.value;
-        this.correctChars   = 0;
-        this.incorrectChars = 0;
+        this.correctChars = 0; this.incorrectChars = 0;
         for (let i = 0; i < typedText.length; i++) {
             if (typedText[i] === this.currentText[i]) this.correctChars++;
             else this.incorrectChars++;
@@ -802,56 +658,32 @@ class LessonEngine {
     }
 
     updateStats(reset = false) {
-        if (reset) {
-            this.wpmDisplay.textContent      = "0";
-            this.accuracyDisplay.textContent = "100%";
-            this.progressDisplay.textContent = "0%";
-            return;
-        }
+        if (reset) { this.wpmDisplay.textContent = "0"; this.accuracyDisplay.textContent = "100%"; this.progressDisplay.textContent = "0%"; return; }
         if (this.startTime) {
             const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1/60);
             this.wpmDisplay.textContent = Math.round((this.correctChars / 5) / elapsed) || 0;
         }
         const total = this.correctChars + this.incorrectChars;
-        this.accuracyDisplay.textContent =
-            `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
-        this.progressDisplay.textContent =
-            `${Math.round((this.currentPosition / this.currentText.length) * 100)}%`;
+        this.accuracyDisplay.textContent = `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
+        this.progressDisplay.textContent = `${Math.round((this.currentPosition / this.currentText.length) * 100)}%`;
     }
 
     completeLesson() {
-        this.isActive       = false;
+        this.isActive = false;
         this.input.disabled = true;
-
         const wpm      = parseInt(this.wpmDisplay.textContent);
         const accuracy = parseInt(this.accuracyDisplay.textContent);
         const duration = Math.floor((Date.now() - this.startTime) / 1000);
-
-        // Clear progress bar on completion
-        if (this.currentLesson) {
-            localStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
-        }
+        if (this.currentLesson) localStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
 
         if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
             progressManager.completeLesson(this.currentLesson.id);
             this.showLessonComplete(wpm, accuracy, duration, this.currentLesson.xpReward);
-
-            // Unlock next lesson
-            if (this.currentLesson.id < LESSON_DATA.length) {
-                LESSON_DATA[this.currentLesson.id].unlocked = true;
-            }
-            // Achievement: all lessons complete
-            if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) {
-                progressManager.unlockAchievement('all-lessons');
-            }
+            if (this.currentLesson.id < LESSON_DATA.length) LESSON_DATA[this.currentLesson.id].unlocked = true;
+            if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) progressManager.unlockAchievement('all-lessons');
             renderLessons();
         } else {
-            // FIX: toast instead of alert
-            showToast(
-                `Need ${this.currentLesson.minAccuracy}% accuracy & ${this.currentLesson.minWPM} WPM. Keep going!`,
-                'warning',
-                4000
-            );
+            showToast(`Need ${this.currentLesson.minAccuracy}% accuracy & ${this.currentLesson.minWPM} WPM. Keep going!`, 'warning', 4000);
             this.reset();
         }
     }
@@ -866,16 +698,11 @@ class LessonEngine {
     }
 
     reset() {
-        this.currentPosition = 0;
-        this.correctChars    = 0;
-        this.incorrectChars  = 0;
-        this.isActive        = false;
-        this.startTime       = null;
-        this.input.value     = "";
-        this.input.disabled  = false;
-        this.currentText     = this.generateLessonText(this.currentLesson);
-        this.displayText();
-        this.updateStats(true);
+        this.currentPosition = 0; this.correctChars = 0; this.incorrectChars = 0;
+        this.isActive = false; this.startTime = null;
+        this.input.value = ""; this.input.disabled = false;
+        this.currentText = this.generateLessonText(this.currentLesson);
+        this.displayText(); this.updateStats(true);
     }
 }
 
@@ -900,21 +727,12 @@ class PracticeEngine {
 
     generatePracticeText() {
         const weakKeys = progressManager.getTopWeakKeys(5).filter(([c]) => c && c.trim() !== "");
-        if (weakKeys.length === 0) {
-            return "Practice makes perfect. Keep typing to improve your skills.";
-        }
+        if (weakKeys.length === 0) return "Practice makes perfect. Keep typing to improve your skills.";
         const targetChars = weakKeys.map(([c]) => c);
         const words = [];
         for (let i = 0; i < 40; i++) {
-            let word = Math.random() < 0.7
-                ? this.findWordWithChars(targetChars)
-                : baseWords[Math.floor(Math.random() * baseWords.length)];
-            // Highlight weak keys in the word (character by character)
-            let highlighted = word.split("").map(char => {
-                return targetChars.includes(char)
-                    ? `<span class='weak-highlight'>${char}</span>`
-                    : char;
-            }).join("");
+            let word = Math.random() < 0.7 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
+            let highlighted = word.split("").map(char => targetChars.includes(char) ? `<span class='weak-highlight'>${char}</span>` : char).join("");
             words.push(highlighted);
         }
         return words.join(" ") + ".";
@@ -922,50 +740,28 @@ class PracticeEngine {
 
     findWordWithChars(targetChars) {
         const candidates = baseWords.filter(w => targetChars.some(c => w.includes(c)));
-        return candidates.length > 0
-            ? candidates[Math.floor(Math.random() * candidates.length)]
-            : baseWords[Math.floor(Math.random() * baseWords.length)];
+        return candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : baseWords[Math.floor(Math.random() * baseWords.length)];
     }
 
     start() {
         this.currentText     = this.generatePracticeText();
-        this.currentPosition = 0;
-        this.correctChars    = 0;
-        this.incorrectChars  = 0;
-        this.isActive        = false;
-        this.startTime       = null;
-
-        this.input.value    = "";
-        this.input.disabled = false;
-        this.input.focus();
-        this.displayText();
-        this.updateStats(true);
-
-        // FIX: remove old listener before adding new
-        if (this._boundHandler) {
-            this.input.removeEventListener("input", this._boundHandler);
-        }
-        this._boundHandler = () => { this.handleTyping(); };
+        this.currentPosition = 0; this.correctChars = 0; this.incorrectChars = 0;
+        this.isActive = false; this.startTime = null;
+        this.input.value = ""; this.input.disabled = false;
+        this.input.focus(); this.displayText(); this.updateStats(true);
+        if (this._boundHandler) this.input.removeEventListener("input", this._boundHandler);
+        this._boundHandler = () => this.handleTyping();
         this.input.addEventListener("input", this._boundHandler);
     }
 
     displayText() {
-        // Combine weak-highlight and typing state classes
         const typedText = this.input.value;
-        // Parse the currentText as HTML, but reconstruct spans with typing state
-        let idx = 0;
-        let html = "";
-        // Use a regex to match either a weak-highlight span or a normal character
+        let idx = 0, html = "";
         const regex = /<span class='weak-highlight'>(.*?)<\/span>|./g;
         let match;
         while ((match = regex.exec(this.currentText)) !== null) {
             let char, isWeak = false;
-            if (match[1]) {
-                char = match[1];
-                isWeak = true;
-            } else {
-                char = match[0];
-            }
+            if (match[1]) { char = match[1]; isWeak = true; } else { char = match[0]; }
             let cls = "char";
             if (isWeak) cls += " weak-highlight";
             if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
@@ -977,24 +773,15 @@ class PracticeEngine {
     }
 
     handleTyping() {
-        if (!this.isActive && this.input.value.length > 0) {
-            this.isActive  = true;
-            this.startTime = Date.now();
-        }
+        if (!this.isActive && this.input.value.length > 0) { this.isActive = true; this.startTime = Date.now(); }
         this.currentPosition = this.input.value.length;
-        if (this.currentPosition >= this.currentText.length) {
-            this.complete();
-            return;
-        }
-        this.recalculateFromInput();
-        this.updateStats();
-        this.displayText();
+        if (this.currentPosition >= this.currentText.length) { this.complete(); return; }
+        this.recalculateFromInput(); this.updateStats(); this.displayText();
     }
 
     recalculateFromInput() {
         const typedText = this.input.value;
-        this.correctChars   = 0;
-        this.incorrectChars = 0;
+        this.correctChars = 0; this.incorrectChars = 0;
         for (let i = 0; i < typedText.length; i++) {
             if (typedText[i] === this.currentText[i]) this.correctChars++;
             else this.incorrectChars++;
@@ -1002,32 +789,21 @@ class PracticeEngine {
     }
 
     updateStats(reset = false) {
-        if (reset) {
-            this.wpmDisplay.textContent      = "0";
-            this.accuracyDisplay.textContent = "100%";
-            this.errorsDisplay.textContent   = "0";
-            return;
-        }
+        if (reset) { this.wpmDisplay.textContent = "0"; this.accuracyDisplay.textContent = "100%"; this.errorsDisplay.textContent = "0"; return; }
         if (this.startTime) {
             const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1/60);
             this.wpmDisplay.textContent = Math.round((this.correctChars / 5) / elapsed) || 0;
         }
         const total = this.correctChars + this.incorrectChars;
-        this.accuracyDisplay.textContent =
-            `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
+        this.accuracyDisplay.textContent = `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
         this.errorsDisplay.textContent = this.incorrectChars;
     }
 
     complete() {
-        this.isActive       = false;
-        this.input.disabled = true;
+        this.isActive = false; this.input.disabled = true;
         const accuracy = parseInt(this.accuracyDisplay.textContent);
-        // FIX: toast instead of alert, with contextual message
-        if (accuracy >= 90) {
-            showToast("Great job! Starting next round...", 'success', 2000);
-        } else {
-            showToast("Practice complete! Focus on accuracy. Starting again...", '', 2500);
-        }
+        if (accuracy >= 90) showToast("Great job! Starting next round...", 'success', 2000);
+        else showToast("Practice complete! Focus on accuracy. Starting again...", '', 2500);
         setTimeout(() => this.start(), 2600);
     }
 }
@@ -1055,12 +831,10 @@ class FingerTrainingEngine {
 
     setupEventListeners() {
         this.keyboardKeys.forEach(key => {
-            key.addEventListener('click', () => this.showKeyInfo(key.dataset.key));
-            // Highlight finger on hover
+            key.addEventListener('click',      () => this.showKeyInfo(key.dataset.key));
             key.addEventListener('mouseenter', () => this.highlightFingerForKey(key.dataset.key));
             key.addEventListener('mouseleave', () => this.clearFingerHighlight());
         });
-
         document.addEventListener('keydown', (e) => {
             if (document.getElementById('finger-training-mode').hasAttribute('hidden')) return;
             this.handleKeyPress(e);
@@ -1070,10 +844,8 @@ class FingerTrainingEngine {
     highlightFingerForKey(keyChar) {
         const finger = FINGER_MAP[keyChar.toLowerCase()];
         if (!finger) return;
-        // Add highlight to finger icon and name
         this.targetFingerIcon.classList.add('finger-highlight');
         this.targetFingerName.classList.add('finger-highlight');
-        // Optionally, show which finger in text/icon
         this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
         this.targetFingerName.textContent = FINGER_NAMES[finger];
     }
@@ -1081,7 +853,6 @@ class FingerTrainingEngine {
     clearFingerHighlight() {
         this.targetFingerIcon.classList.remove('finger-highlight');
         this.targetFingerName.classList.remove('finger-highlight');
-        // Optionally, reset to currentKey or default
         if (this.currentKey) {
             const finger = FINGER_MAP[this.currentKey];
             this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
@@ -1115,21 +886,10 @@ class FingerTrainingEngine {
     handleKeyPress(e) {
         if (e.key === 'Tab' || e.key === 'Enter') e.preventDefault();
         const pressedKey = e.key.toLowerCase();
-
-        if (FINGER_MAP[pressedKey] && !this.drillActive) {
-            this.showKeyInfo(pressedKey);
-        }
-
+        if (FINGER_MAP[pressedKey] && !this.drillActive) this.showKeyInfo(pressedKey);
         if (this.drillActive && this.currentKey) {
-            if (pressedKey === this.currentKey) {
-                this.correctCount++;
-                this.updateStats();
-                this.nextRandomKey();
-            } else {
-                this.wrongCount++;
-                this.updateStats();
-                if (FINGER_MAP[pressedKey]) this.flashWrongKey(pressedKey);
-            }
+            if (pressedKey === this.currentKey) { this.correctCount++; this.updateStats(); this.nextRandomKey(); }
+            else { this.wrongCount++; this.updateStats(); if (FINGER_MAP[pressedKey]) this.flashWrongKey(pressedKey); }
         }
     }
 
@@ -1149,20 +909,16 @@ class FingerTrainingEngine {
         this.fingerDrillStats.style.display = 'grid';
         this.updateStats();
         this.nextRandomKey();
-        document.getElementById('finger-instruction').textContent =
-            'Press the highlighted key with the correct finger!';
+        document.getElementById('finger-instruction').textContent = 'Press the highlighted key with the correct finger!';
     }
 
-    nextRandomKey() {
-        this.showKeyInfo(PRACTICE_KEYS[Math.floor(Math.random() * PRACTICE_KEYS.length)]);
-    }
+    nextRandomKey() { this.showKeyInfo(PRACTICE_KEYS[Math.floor(Math.random() * PRACTICE_KEYS.length)]); }
 
     updateStats() {
         this.fingerCorrect.textContent = this.correctCount;
         this.fingerWrong.textContent   = this.wrongCount;
         const total = this.correctCount + this.wrongCount;
-        this.fingerAccuracy.textContent =
-            `${total > 0 ? Math.round((this.correctCount / total) * 100) : 100}%`;
+        this.fingerAccuracy.textContent = `${total > 0 ? Math.round((this.correctCount / total) * 100) : 100}%`;
     }
 
     reset() {
@@ -1170,12 +926,11 @@ class FingerTrainingEngine {
         this.currentKey   = null;
         this.correctCount = 0;
         this.wrongCount   = 0;
-        this.fingerDrillStats.style.display = 'none';
+        this.fingerDrillStats.style.display = 'none'; // FIX: was setting to none then immediately grid
         this.targetKeyChar.textContent    = '-';
         this.targetFingerIcon.textContent = '👆';
         this.targetFingerName.textContent = 'Waiting...';
-        document.getElementById('finger-instruction').textContent =
-            'Press any key to see which finger to use!';
+        document.getElementById('finger-instruction').textContent = 'Press any key to see which finger to use!';
     }
 }
 
@@ -1184,7 +939,6 @@ class FingerTrainingEngine {
 function renderLessons() {
     const grid = document.getElementById("lessons-grid");
     grid.innerHTML = "";
-
     LESSON_DATA.forEach((lesson, idx) => {
         const isCompleted = progressManager.data.completedLessons.includes(lesson.id);
         const isLocked    = !lesson.unlocked && !isCompleted;
@@ -1192,11 +946,8 @@ function renderLessons() {
         card.className = `lesson-card ${isLocked ? "locked" : ""} ${isCompleted ? "completed" : ""}`;
 
         if (isLocked) {
-            // Tooltip with required score for next lesson
             let prevLesson = LESSON_DATA[idx - 1];
-            let tooltip = prevLesson
-                ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM`
-                : "Complete previous lesson to unlock";
+            let tooltip = prevLesson ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM` : "Complete previous lesson to unlock";
             let tooltipClass = "lesson-tooltip";
             if (lesson.id === 5) tooltipClass += " tooltip-left";
             if (lesson.id === 6) tooltipClass += " tooltip-right";
@@ -1208,16 +959,11 @@ function renderLessons() {
                 <div class="${tooltipClass}">${tooltip}</div>`;
             card.setAttribute("tabindex", "0");
         } else {
-            // Progress indicator for unlocked lessons
             let progress = 0;
             if (!isCompleted) {
-                // Estimate progress by last attempt (if available)
-                const progressKey = `lesson-progress-${lesson.id}`;
-                const lastProgress = localStorage.getItem(progressKey);
+                const lastProgress = localStorage.getItem(`lesson-progress-${lesson.id}`);
                 progress = lastProgress ? parseInt(lastProgress) : 0;
-            } else {
-                progress = 100;
-            }
+            } else { progress = 100; }
             card.innerHTML = `
                 <div class="lesson-number">Lesson ${lesson.id}</div>
                 <h3 class="lesson-card-title">${lesson.title}</h3>
@@ -1247,14 +993,10 @@ function hideLessonPractice() {
 function renderWeakKeys() {
     const container = document.getElementById("weak-keys-list");
     const weakKeys  = progressManager.getTopWeakKeys(5);
-
-    if (weakKeys.length === 0) {
-        container.innerHTML = '<p class="empty-state">Complete some typing tests to identify weak keys</p>';
-        return;
-    }
+    if (weakKeys.length === 0) { container.innerHTML = '<p class="empty-state">Complete some typing tests to identify weak keys</p>'; return; }
     container.innerHTML = "";
     weakKeys.forEach(([char, count]) => {
-        if (!char || char.trim() === "") return; // skip empty keys
+        if (!char || char.trim() === "") return;
         const item = document.createElement("div");
         item.className = "weak-key-item";
         item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${count} errors</span>`;
@@ -1262,79 +1004,16 @@ function renderWeakKeys() {
     });
 }
 
-function renderDashboard() {
-    const data = progressManager.data;
-
-    const currentLevel = progressManager.getCurrentLevel();
-    document.getElementById("level-badge").textContent     = currentLevel.name;
-    document.getElementById("xp-value").textContent        = `${data.xp} XP`;
-    document.getElementById("xp-progress").style.width     = `${progressManager.getXPProgress()}%`;
-    const xpToNext = progressManager.getXPToNextLevel();
-    document.getElementById("xp-next").textContent =
-        xpToNext > 0 ? `${xpToNext} XP to next level` : "Max level reached!";
-
-    document.getElementById("best-wpm-display").textContent = data.bestWPM;
-    document.getElementById("streak-value").textContent     = data.streakDays;
-    document.getElementById("avg-accuracy").textContent     = `${data.averageAccuracy}%`;
-    document.getElementById("total-time").textContent       = `${Math.floor(data.totalPracticeTime / 60)}m`;
-    document.getElementById("completed-lessons").textContent =
-        `${data.completedLessons.length}/${LESSON_DATA.length}`;
-    document.getElementById("tests-taken").textContent = data.testsTaken || 0;
-
-    const weakKeysChart = document.getElementById("dashboard-weak-keys");
-    const weakKeys      = progressManager.getTopWeakKeys(8);
-    if (weakKeys.length === 0) {
-        weakKeysChart.innerHTML = '<p class="empty-state">No data yet - start practicing!</p>';
-    } else {
-        weakKeysChart.innerHTML = "";
-        weakKeys.forEach(([char, count]) => {
-            const item = document.createElement("div");
-            item.className = "weak-key-item";
-            item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${count} errors</span>`;
-            weakKeysChart.appendChild(item);
-        });
-    }
-
-    // --- Achievements/Badges ---
-    const achWrap = document.getElementById('dashboard-achievements');
-    if (achWrap) {
-        achWrap.innerHTML = '';
-        const unlocked = (data.achievements || []);
-        if (unlocked.length === 0) {
-            achWrap.innerHTML = '<p class="empty-state">No achievements yet</p>';
-        } else {
-            unlocked.forEach(id => {
-                const ach = ACHIEVEMENTS.find(a => a.id === id);
-                if (!ach) return;
-                const badge = document.createElement('div');
-                badge.className = 'achievement-badge';
-                badge.title = ach.desc;
-                badge.innerHTML = `<span class="badge-icon">${ach.icon}</span><span class="badge-name">${ach.name}</span>`;
-                achWrap.appendChild(badge);
-            });
-        }
-    }
-
-    // --- WPM Over Time Chart ---
-    renderWPMLineChart();
-
-    // --- Key Heatmap ---
-    renderKeyHeatmap();
-// --- WPM Over Time Chart ---
+// FIX: renderWPMLineChart and renderKeyHeatmap are now top-level functions (not nested)
 function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    // Get WPM history from localStorage or dummy data
     let wpmHistory = [];
-    try {
-        wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]');
-    } catch { wpmHistory = []; }
+    try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
     if (!Array.isArray(wpmHistory)) wpmHistory = [];
-    // Only keep last 14 entries for chart
     wpmHistory = wpmHistory.slice(-14);
 
-    // Remove previous chart instance if exists
     if (window._wpmChart) { window._wpmChart.destroy(); }
     window._wpmChart = new Chart(ctx, {
         type: 'line',
@@ -1353,55 +1032,96 @@ function renderWPMLineChart() {
         },
         options: {
             responsive: true,
-            plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true }
-            },
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
             scales: {
                 x: { display: true, grid: { display: false } },
-                y: { display: true, beginAtZero: true, grid: { color: '#eee' }, ticks: { stepSize: 10 } }
+                y: { display: true, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { stepSize: 10 } }
             }
         }
     });
 }
 
-// --- Key Heatmap ---
-function renderKeyHeatmap() {
+// FIX: weakKeys now correctly scoped — passed in from renderDashboard
+function renderKeyHeatmap(weakKeys) {
     const grid = document.getElementById('key-heatmap-grid');
     if (!grid) return;
-    // Get key stats from localStorage
     let keyStats = {};
-    try {
-        keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}');
-    } catch { keyStats = {}; }
-    const allKeys = '1234567890qwertyuiopasdfghjklzxcvbnm'.split('').concat([';',',','.','/','[',']','-','=','!','@','#','$','%','&','*','?']);
-
-    // Find max for color scaling
-    const max = Math.max(...Object.values(keyStats));
+    try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
+    const allKeys = '1234567890qwertyuiopasdfghjklzxcvbnm'.split('').concat([';',',','.','/','[',']','-','=']);
+    const max = Math.max(...Object.values(keyStats), 1);
     grid.innerHTML = '';
-    // Layout: 14 columns, fill row by row
-    let row = [];
-    allKeys.forEach((k, i) => {
+    allKeys.forEach(k => {
         let freq = keyStats[k] || 0;
-        let cls = 'heatmap-key-cell';
-        if (freq === 0) cls += '';
-        else if (freq < max*0.33) cls += ' low';
-        else if (freq < max*0.66) cls += ' mid';
-        else cls += ' high';
-        // Optionally, highlight weak keys
+        let cls  = 'heatmap-key-cell';
+        if      (freq === 0)          cls += '';
+        else if (freq < max * 0.33)   cls += ' low';
+        else if (freq < max * 0.66)   cls += ' mid';
+        else                          cls += ' high';
         if (weakKeys && weakKeys.some(([wk]) => wk === k)) cls += ' weak';
         grid.innerHTML += `<div class="${cls}">${k}<span class="heatmap-tooltip">${freq} times</span></div>`;
     });
 }
+
+function renderDashboard() {
+    const data = progressManager.data;
+    const currentLevel = progressManager.getCurrentLevel();
+
+    document.getElementById("level-badge").textContent     = currentLevel.name;
+    document.getElementById("xp-value").textContent        = `${data.xp} XP`;
+    document.getElementById("xp-progress").style.width     = `${progressManager.getXPProgress()}%`;
+    const xpToNext = progressManager.getXPToNextLevel();
+    document.getElementById("xp-next").textContent = xpToNext > 0 ? `${xpToNext} XP to next level` : "Max level reached!";
+    document.getElementById("best-wpm-display").textContent = data.bestWPM;
+    document.getElementById("streak-value").textContent     = data.streakDays;
+    document.getElementById("avg-accuracy").textContent     = `${data.averageAccuracy}%`;
+    document.getElementById("total-time").textContent       = `${Math.floor(data.totalPracticeTime / 60)}m`;
+    document.getElementById("completed-lessons").textContent = `${data.completedLessons.length}/${LESSON_DATA.length}`;
+    document.getElementById("tests-taken").textContent      = data.testsTaken || 0;
+
+    // Weak keys section
+    const weakKeysChart = document.getElementById("dashboard-weak-keys");
+    const weakKeys      = progressManager.getTopWeakKeys(8);
+    if (weakKeys.length === 0) {
+        weakKeysChart.innerHTML = '<p class="empty-state">No data yet - start practicing!</p>';
+    } else {
+        weakKeysChart.innerHTML = "";
+        weakKeys.forEach(([char, count]) => {
+            const item = document.createElement("div");
+            item.className = "weak-key-item";
+            item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${count} errors</span>`;
+            weakKeysChart.appendChild(item);
+        });
+    }
+
+    // Achievements
+    const achWrap = document.getElementById('dashboard-achievements');
+    if (achWrap) {
+        achWrap.innerHTML = '';
+        const unlocked = (data.achievements || []);
+        if (unlocked.length === 0) {
+            achWrap.innerHTML = '<p class="empty-state">No achievements yet — keep typing!</p>';
+        } else {
+            unlocked.forEach(id => {
+                const ach = ACHIEVEMENTS.find(a => a.id === id);
+                if (!ach) return;
+                const badge = document.createElement('div');
+                badge.className = 'achievement-badge';
+                badge.title = ach.desc;
+                badge.innerHTML = `<span class="badge-icon">${ach.icon}</span><span class="badge-name">${ach.name}</span>`;
+                achWrap.appendChild(badge);
+            });
+        }
+    }
+
+    // FIX: Call top-level functions with correct scope
+    renderWPMLineChart();
+    renderKeyHeatmap(weakKeys); // FIX: pass weakKeys so heatmap can highlight them
 }
 
 // ============ MODE SWITCHING ============
 
 function switchMode(mode) {
-    document.querySelectorAll(".mode-tab").forEach(tab => {
-        tab.classList.remove("active");
-        tab.setAttribute("aria-selected", "false");
-    });
+    document.querySelectorAll(".mode-tab").forEach(tab => { tab.classList.remove("active"); tab.setAttribute("aria-selected", "false"); });
     const activeTab = document.querySelector(`[data-mode="${mode}"]`);
     if (activeTab) { activeTab.classList.add("active"); activeTab.setAttribute("aria-selected", "true"); }
 
@@ -1410,48 +1130,29 @@ function switchMode(mode) {
     const activeSection = document.getElementById(`${sectionMode}-mode`);
     if (activeSection) { activeSection.classList.add("active"); activeSection.hidden = false; }
 
-    // Hide options row in quote/code mode, show in test mode
-    const optionsRow = document.querySelector('.options-row');
-    if (optionsRow) {
-        if (mode === 'quote' || mode === 'code') {
-            optionsRow.style.display = 'none';
-        } else {
-            optionsRow.style.display = '';
-        }
+    // Hide options row and timer/word-count groups in quote/code mode
+    const optionsRow    = document.querySelector('.options-row');
+    const timerGroup    = document.querySelector('.timer-group');
+    const wordCountGroup = document.querySelector('.word-count-group');
+
+    if (mode === 'quote' || mode === 'code') {
+        if (optionsRow)     optionsRow.style.display     = 'none';
+        if (timerGroup)     timerGroup.style.display     = 'none';
+        if (wordCountGroup) wordCountGroup.style.display = 'none';
+    } else {
+        if (optionsRow)     optionsRow.style.display     = '';
+        if (timerGroup)     timerGroup.style.display     = '';
+        if (wordCountGroup) wordCountGroup.style.display = '';
     }
 
-    if (mode === "lessons")         renderLessons();
-    else if (mode === "practice")   { renderWeakKeys(); practiceEngine.start(); }
-    else if (mode === "dashboard")  renderDashboard();
+    if      (mode === "lessons")        renderLessons();
+    else if (mode === "practice")       { renderWeakKeys(); practiceEngine.start(); }
+    else if (mode === "dashboard")      renderDashboard();
     else if (mode === "finger-training") fingerTrainingEngine.reset();
-    else if (mode === "test" || mode === "quote" || mode === "code") {
-        // For test/quote/code, regenerate text
-        testEngine.reset(true);
-    }
-    // Save mode
+    else if (mode === "test" || mode === "quote" || mode === "code") testEngine.reset(true);
+
     localStorage.setItem('typeflow-mode', mode);
 }
-
-// --- Mode tab click handlers ---
-document.querySelectorAll('.mode-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-        switchMode(tab.dataset.mode);
-    });
-});
-
-// --- Word count button handlers ---
-document.querySelectorAll('.word-count-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.word-count-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        // Regenerate text if in test/quote/code mode
-        const mode = document.querySelector('.mode-tab.active').dataset.mode;
-        if (mode === 'test' || mode === 'quote' || mode === 'code') {
-            testEngine.reset(true);
-        }
-    });
-});
-
 
 // ============ THEME MANAGEMENT ============
 
@@ -1461,16 +1162,8 @@ function getInitialTheme() {
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function applyTheme(theme) {
-    document.body.setAttribute("data-theme", theme);
-    localStorage.setItem("typeflow-theme", theme);
-    updateThemeToggle(theme);
-}
-
-function toggleTheme() {
-    const next = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    applyTheme(next);
-}
+function applyTheme(theme) { document.body.setAttribute("data-theme", theme); localStorage.setItem("typeflow-theme", theme); updateThemeToggle(theme); }
+function toggleTheme()     { applyTheme(document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"); }
 
 function updateThemeToggle(theme) {
     const toggle = document.getElementById("theme-toggle");
@@ -1483,7 +1176,6 @@ function updateThemeToggle(theme) {
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
-    
     progressManager      = new ProgressManager();
     testEngine           = new TestEngine();
     lessonEngine         = new LessonEngine();
@@ -1494,13 +1186,11 @@ document.addEventListener("DOMContentLoaded", () => {
     testEngine.loadNewText();
     testEngine.start(false);
 
-    // Prevent test input focus/typing when feedback modal is open
     function isFeedbackModalOpen() {
         const modal = document.getElementById('feedback-modal');
         return modal && !modal.classList.contains('hidden');
     }
 
-    // Auto-focus input when typing in test mode
     document.addEventListener("keydown", (e) => {
         if (isFeedbackModalOpen()) return;
         const testSection = document.getElementById("test-mode");
@@ -1517,35 +1207,38 @@ document.addEventListener("DOMContentLoaded", () => {
         tab.addEventListener("click", e => switchMode(e.currentTarget.dataset.mode));
     });
 
-    // Timer buttons
+    // Timer buttons — FIX: deactivate word count buttons when timer selected
     document.querySelectorAll(".timer-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const time = parseInt(e.target.dataset.time, 10);
             testEngine.timeLimit = time;
-            testEngine.timeLeft = time;
+            testEngine.timeLeft  = time;
+            document.querySelectorAll(".timer-btn").forEach(b => b.classList.remove("active"));
+            document.querySelectorAll(".word-count-btn").forEach(b => b.classList.remove("active")); // FIX
+            e.target.classList.add("active");
             testEngine.reset(false);
             testEngine.loadNewText();
             testEngine.updateTimerDisplay();
-            document.querySelectorAll(".timer-btn").forEach(b => b.classList.remove("active"));
-            e.target.classList.add("active");
         });
     });
 
-    document.getElementById("start-btn").addEventListener("click", () => {
-        testEngine.reset(false);
-        testEngine.start(false);
+    // Word count buttons — FIX: deactivate timer buttons when word count selected
+    document.querySelectorAll('.word-count-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.word-count-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active')); // FIX
+            btn.classList.add('active');
+            testEngine.reset(true);
+        });
     });
 
-    document.getElementById("new-text-btn").addEventListener("click", () => {
-        testEngine.reset(true);
-    });
-
+    document.getElementById("start-btn").addEventListener("click", () => { testEngine.reset(false); testEngine.start(false); });
+    document.getElementById("new-text-btn").addEventListener("click", () => testEngine.reset(true));
     document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
 
     document.getElementById("results-restart").addEventListener("click", () => {
         document.getElementById("results").classList.add("hidden");
-        testEngine.reset(false);
-        testEngine.start(false);
+        testEngine.reset(false); testEngine.start(false);
     });
 
     document.getElementById("results-new-text").addEventListener("click", () => {
@@ -1567,7 +1260,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("practice-restart").addEventListener("click", () => practiceEngine.start());
-
     document.getElementById("start-finger-drill").addEventListener("click", () => fingerTrainingEngine.startDrill());
     document.getElementById("random-key-practice").addEventListener("click", () => fingerTrainingEngine.nextRandomKey());
 
@@ -1580,78 +1272,55 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Option toggles
     ["toggle-caps","toggle-numbers","toggle-symbols"].forEach(id => {
-        document.getElementById(id).addEventListener("change", () => {
-            if (!testEngine.isActive) testEngine.loadNewText();
-        });
+        document.getElementById(id).addEventListener("change", () => { if (!testEngine.isActive) testEngine.loadNewText(); });
     });
+
+    // FIX: Reset progress button
+    const resetBtn = document.getElementById('reset-progress-btn');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset ALL progress? This cannot be undone.')) {
+                progressManager.resetAllProgress();
+                renderDashboard();
+                showToast('Progress reset successfully.', '', 3000);
+            }
+        });
+    }
+
     // Feedback system
-    const feedbackBtn = document.getElementById('feedback-btn');
+    const feedbackBtn   = document.getElementById('feedback-btn');
     const feedbackModal = document.getElementById('feedback-modal');
     const closeFeedback = document.getElementById('close-feedback');
-    const feedbackForm = document.getElementById('feedback-form');
+    const feedbackForm  = document.getElementById('feedback-form');
     const feedbackSuccess = document.getElementById('feedback-success');
 
-    if (feedbackBtn) {
-        feedbackBtn.addEventListener('click', () => {
-            feedbackModal.classList.remove('hidden');
-        });
-    }
-
-    if (closeFeedback) {
-        closeFeedback.addEventListener('click', () => {
-            feedbackModal.classList.add('hidden');
-        });
-    }
-
-    feedbackModal?.addEventListener('click', (e) => {
-        if (e.target === feedbackModal) {
-            feedbackModal.classList.add('hidden');
-        }
-    });
+    if (feedbackBtn)    feedbackBtn.addEventListener('click', () => feedbackModal.classList.remove('hidden'));
+    if (closeFeedback)  closeFeedback.addEventListener('click', () => feedbackModal.classList.add('hidden'));
+    feedbackModal?.addEventListener('click', (e) => { if (e.target === feedbackModal) feedbackModal.classList.add('hidden'); });
 
     if (feedbackForm) {
         feedbackForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
             const formData = new FormData(feedbackForm);
             const feedback = {
                 timestamp: new Date().toISOString(),
-                liked: formData.get('liked'),
-                improve: formData.get('improve'),
-                bugs: formData.get('bugs'),
-                email: formData.get('email'),
+                liked: formData.get('liked'), improve: formData.get('improve'),
+                bugs: formData.get('bugs'), email: formData.get('email'),
                 userAgent: navigator.userAgent
             };
-
-            // Store locally as backup
             const allFeedback = JSON.parse(localStorage.getItem('typeflow-feedback') || '[]');
             allFeedback.push(feedback);
             localStorage.setItem('typeflow-feedback', JSON.stringify(allFeedback));
-
-            // Send to Google Sheets
             try {
-                const response = await fetch('https://script.google.com/macros/s/AKfycbxKKwSQQsqe6o8ktYl6GvCZALpsHGB0AqWmEeYdM079o2VUha-Gpp9z0PmmeIh5oLIC/exec', {
-                    method: 'POST',
-                    mode: 'no-cors', // Important for Google Apps Script
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                await fetch('https://script.google.com/macros/s/AKfycbxKKwSQQsqe6o8ktYl6GvCZALpsHGB0AqWmEeYdM079o2VUha-Gpp9z0PmmeIh5oLIC/exec', {
+                    method: 'POST', mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(feedback)
                 });
-                
-                console.log('Feedback sent successfully!');
-            } catch (error) {
-                console.error('Error sending feedback:', error);
-                // Still show success to user since we have local backup
-            }
-
-            // Show success message
+            } catch (error) { console.error('Error sending feedback:', error); }
             feedbackForm.classList.add('hidden');
             feedbackSuccess.classList.remove('hidden');
-
-            // Reset after 2 seconds
             setTimeout(() => {
                 feedbackModal.classList.add('hidden');
                 feedbackForm.classList.remove('hidden');
