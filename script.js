@@ -340,6 +340,11 @@ class TestEngine {
     }
 
     generateText() {
+        // Custom text mode
+        if (this.useCustomText && this.customText && this.customText.trim().length > 0) {
+            this.currentAuthor = '';
+            return this.customText.trim();
+        }
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
             // Pick a quote and split author
@@ -375,7 +380,55 @@ class TestEngine {
         }
         this.currentAuthor = '';
         return `${words.join(" ")}.`;
+
+}
+
+// ============ CUSTOM TEXT INPUT ============
+// Add support for custom text input in Test mode
+
+// (moved to after class definition)
+}
+
+// Custom text mode properties must be set after the class definition
+TestEngine.prototype.useCustomText = false;
+TestEngine.prototype.customText = "";
+TestEngine.prototype.useCustomText = false;
+TestEngine.prototype.customText = "";
+
+// DOMContentLoaded logic for custom text
+document.addEventListener("DOMContentLoaded", () => {
+    const customTextarea = document.getElementById("custom-textarea");
+    const useCustomBtn = document.getElementById("use-custom-text-btn");
+    if (customTextarea && useCustomBtn) {
+        useCustomBtn.addEventListener("click", () => {
+            const text = customTextarea.value.trim();
+            if (text.length > 0) {
+                testEngine.useCustomText = true;
+                testEngine.customText = text;
+                testEngine.reset(true);
+                testEngine.start(false);
+                // Optionally, visually indicate custom mode
+                useCustomBtn.textContent = "Custom Text Active";
+                setTimeout(() => { useCustomBtn.textContent = "Use Custom Text"; }, 1200);
+            }
+        });
+        // If user edits textarea, disable custom mode
+        customTextarea.addEventListener("input", () => {
+            if (!customTextarea.value.trim()) {
+                testEngine.useCustomText = false;
+                testEngine.customText = "";
+            }
+        });
     }
+
+    // If user switches mode, disable custom text mode
+    document.querySelectorAll(".mode-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+            testEngine.useCustomText = false;
+            testEngine.customText = "";
+        });
+    });
+});
 
     getWordCountForTime(seconds) {
         const base = Math.max(Math.round((seconds / 60) * 45), 12);
