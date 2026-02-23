@@ -3,6 +3,24 @@
    Modular JavaScript Architecture
    ========================================= */
 
+// --- Caps Lock warning UI ---
+function showCapsWarning(show) {
+    let warn = document.getElementById('caps-warning');
+    if (!warn) {
+        const inputCard = document.querySelector('.input-card');
+        warn = document.createElement('div');
+        warn.id = 'caps-warning';
+        warn.textContent = 'Caps Lock is ON';
+        warn.style.color = '#e07a5f';
+        warn.style.fontWeight = 'bold';
+        warn.style.fontSize = '1em';
+        warn.style.marginTop = '6px';
+        warn.style.display = 'none';
+        if (inputCard) inputCard.appendChild(warn);
+    }
+    warn.style.display = show ? '' : 'none';
+}
+
 // ============ TOAST UTILITY ============
 
 function showToast(message, type = '', duration = 3000) {
@@ -688,12 +706,19 @@ class LessonEngine {
 
     displayText() {
         const typedText = this.input.value;
-        const html = this.currentText.split("").map((char, i) => {
+        let idx = 0, html = "";
+        const regex = /<span class='weak-highlight'>(.*?)<\/span>|./g;
+        let match;
+        while ((match = regex.exec(this.currentText)) !== null) {
+            let char, isWeak = false;
+            if (match[1]) { char = match[1]; isWeak = true; } else { char = match[0]; }
             let cls = "char";
-            if (i < this.currentPosition)       cls += typedText[i] === char ? " correct" : " incorrect";
-            else if (i === this.currentPosition) cls += " current";
-            return `<span class="${cls}">${char === " " ? " " : char}</span>`;
-        }).join("");
+            if (isWeak) cls += " weak-highlight";
+            if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
+            else if (idx === this.currentPosition) cls += " current";
+            html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
+            idx++;
+        }
         this.textDisplay.innerHTML = html;
     }
 
