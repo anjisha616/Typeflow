@@ -11,14 +11,23 @@ function showCapsWarning(show) {
         warn = document.createElement('div');
         warn.id = 'caps-warning';
         warn.textContent = 'Caps Lock is ON';
-        warn.style.color = '#e07a5f';
-        warn.style.fontWeight = 'bold';
-        warn.style.fontSize = '1em';
-        warn.style.marginTop = '6px';
+        warn.className = '';
         warn.style.display = 'none';
         if (inputCard) inputCard.appendChild(warn);
     }
-    warn.style.display = show ? '' : 'none';
+    if (show) {
+        warn.classList.add('visible');
+        warn.style.display = 'block';
+    } else {
+        warn.classList.remove('visible');
+        // Wait for fade-out, then hide
+        warn.addEventListener('transitionend', function handler() {
+            if (!warn.classList.contains('visible')) {
+                warn.style.display = 'none';
+            }
+            warn.removeEventListener('transitionend', handler);
+        });
+    }
 }
 
 // ============ TOAST UTILITY ============
