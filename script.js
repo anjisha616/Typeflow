@@ -1474,3 +1474,45 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+// --- Today's Goal Logic ---
+const DAILY_GOAL = 3;
+function getTodayKey() {
+    const d = new Date();
+    return `goal-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+function getTodayProgress() {
+    return parseInt(localStorage.getItem(getTodayKey()) || '0', 10);
+}
+function incrementTodayProgress() {
+    const key = getTodayKey();
+    let val = getTodayProgress();
+    val++;
+    localStorage.setItem(key, val);
+    updateGoalWidget();
+}
+function updateGoalWidget() {
+    const count = getTodayProgress();
+    const bar = document.getElementById('goal-progress-bar');
+    const label = document.getElementById('goal-progress-count');
+    const total1 = document.getElementById('goal-total');
+    const total2 = document.getElementById('goal-total-2');
+    if (bar) bar.style.width = Math.min(100, (count/DAILY_GOAL)*100) + '%';
+    if (label) label.textContent = count;
+    if (total1) total1.textContent = DAILY_GOAL;
+    if (total2) total2.textContent = DAILY_GOAL;
+}
+// Call updateGoalWidget on dashboard load
+const dashboardSection = document.getElementById('dashboard-mode');
+if (dashboardSection) {
+    const observer = new MutationObserver(() => {
+        if (!dashboardSection.hidden) updateGoalWidget();
+    });
+    observer.observe(dashboardSection, { attributes: true, attributeFilter: ['hidden'] });
+}
+// Increment progress when a test is completed today
+const origUpdateTestStats = ProgressManager.prototype.updateTestStats;
+ProgressManager.prototype.updateTestStats = function(wpm, accuracy, duration, mistakes) {
+    origUpdateTestStats.call(this, wpm, accuracy, duration, mistakes);
+    // Only increment if today
+    incrementTodayProgress();
+};
