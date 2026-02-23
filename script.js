@@ -293,12 +293,8 @@ class TestEngine {
         this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
         this.input.addEventListener("keydown", (e) => {
             this.handleKeydown(e);
-            // Caps Lock warning
-            if (e.getModifierState && e.getModifierState('CapsLock')) {
-                showCapsWarning(true);
-            } else {
-                showCapsWarning(false);
-            }
+            // Always check current Caps Lock state
+            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
             // Tab to restart
             if (e.key === 'Tab') {
                 e.preventDefault();
@@ -307,17 +303,12 @@ class TestEngine {
             }
         });
         this.input.addEventListener("keyup", (e) => {
-            if (e.getModifierState && !e.getModifierState('CapsLock')) {
-                showCapsWarning(false);
-            }
+            // Always check current Caps Lock state
+            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
         });
         this.input.addEventListener("focus", (e) => {
             // Check Caps Lock state on focus
-            if (e.getModifierState && e.getModifierState('CapsLock')) {
-                showCapsWarning(true);
-            } else {
-                showCapsWarning(false);
-            }
+            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
         });
         this.input.addEventListener("blur", () => {
             // Always hide warning on blur
