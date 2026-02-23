@@ -378,22 +378,15 @@ class TestEngine {
             if (includeSymbols && Math.random() < 0.1)  word += symbols[Math.floor(Math.random() * symbols.length)];
             words.push(word);
         }
+
         this.currentAuthor = '';
         return `${words.join(" ")}.`;
+        }
+    }
 
-}
-
-// ============ CUSTOM TEXT INPUT ============
-// Add support for custom text input in Test mode
-
-// (moved to after class definition)
-}
-
-// Custom text mode properties must be set after the class definition
-TestEngine.prototype.useCustomText = false;
-TestEngine.prototype.customText = "";
-TestEngine.prototype.useCustomText = false;
-TestEngine.prototype.customText = "";
+    // Custom text mode properties must be set after the class definition
+    TestEngine.prototype.useCustomText = false;
+    TestEngine.prototype.customText = "";
 
 // DOMContentLoaded logic for custom text
 document.addEventListener("DOMContentLoaded", () => {
@@ -429,11 +422,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 });
-
-    getWordCountForTime(seconds) {
-        const base = Math.max(Math.round((seconds / 60) * 45), 12);
-        return this.randomBetween(base + 6, base + 14);
-    }
 
     randomBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     capitalize(word) { return word.length ? word[0].toUpperCase() + word.slice(1) : word; }
