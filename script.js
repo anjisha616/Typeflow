@@ -7,7 +7,58 @@
 function showCapsWarning(show) {
     let warn = document.getElementById('caps-warning');
     if (!warn) {
+        const inputCard = document.querySelector('.input-card');
+        warn = document.createElement('div');
+        warn.id = 'caps-warning';
+        warn.textContent = 'Caps Lock is ON';
+        warn.className = '';
+        warn.style.display = 'none';
+        if (inputCard) inputCard.appendChild(warn);
+    }
+    if (show) {
+        warn.classList.add('visible');
+        warn.style.display = 'block';
+        warn.style.opacity = '1';
+    } else {
+        warn.classList.remove('visible');
+        warn.style.display = 'none';
+        warn.style.opacity = '1';
+    }
+}
+
+    setupEventListeners() {
+        this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
+        this.input.addEventListener("keydown", (e) => {
+            this.handleKeydown(e);
+            // Always check current Caps Lock state
+            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
+            // Tab to restart
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                this.reset(false);
+                this.start(false);
+            }
         });
+        this.input.addEventListener("keyup", (e) => {
+            // Always check current Caps Lock state
+            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
+        });
+        this.input.addEventListener("focus", (e) => {
+            // Check Caps Lock state on focus
+            showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
+        });
+        this.input.addEventListener("blur", () => {
+            // Always hide warning on blur
+            showCapsWarning(false);
+        });
+        this.input.addEventListener("paste",  (e) => e.preventDefault());
+        this.textDisplay.addEventListener("click", () => this.input.focus());
+    }
+
+    getLockIndex() {
+        const lastSpace = this.input.value.lastIndexOf(" ");
+class TestEngine {
+    constructor() {
         this.startTime       = null;
         this.timerInterval   = null;
         this.timeLimit       = 15;
@@ -78,55 +129,6 @@ function showCapsWarning(show) {
             const raw = famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
             const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
             if (match) {
-                this.currentAuthor = match[2];
-                return match[1];
-            } else {
-                this.currentAuthor = '';
-                return raw;
-            }
-        }
-        if (mode === 'code') {
-            this.currentAuthor = '';
-            return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
-        }
-        let wordCount = this.getWordCountForTime(this.timeLimit);
-        const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
-        if (wordCountMode) {
-            wordCount = parseInt(wordCountMode, 10);
-        }
-        const includeCaps    = document.getElementById("toggle-caps").checked;
-        const includeNumbers = document.getElementById("toggle-numbers").checked;
-        const includeSymbols = document.getElementById("toggle-symbols").checked;
-        const words = [];
-        for (let i = 0; i < wordCount; i++) {
-            let word = baseWords[Math.floor(Math.random() * baseWords.length)];
-            if (includeCaps    && Math.random() < 0.18) word = this.capitalize(word);
-            if (includeNumbers && Math.random() < 0.14) word += this.randomBetween(0, 99);
-            if (includeSymbols && Math.random() < 0.1)  word += symbols[Math.floor(Math.random() * symbols.length)];
-            words.push(word);
-        }
-        this.currentAuthor = '';
-        return `${words.join(" ")}.`;
-    }
-
-    getWordCountForTime(seconds) {
-        const base = Math.max(Math.round((seconds / 60) * 45), 12);
-        return this.randomBetween(base + 6, base + 14);
-    }
-
-    randomBetween(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
-    capitalize(word) { return word.length ? word[0].toUpperCase() + word.slice(1) : word; }
-
-    loadNewText() {
-        this.currentText     = this.generateText();
-        this.currentPosition = 0;
-        this.displayText();
-    }
-
-    displayText() {
-        const typedText = this.input.value;
-        const hideUntil = this.getHideUntilIndex(typedText);
-        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
             // Show quote and author separately
             const html = this.currentText.split("").map((char, i) => {
