@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,8 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-        <!-- Chart.js for WPM line chart -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Header -->
@@ -66,6 +64,7 @@
                         <button class="timer-btn" data-time="30">30s</button>
                         <button class="timer-btn" data-time="60">60s</button>
                     </div>
+                    <!-- FIX: word count and timer groups are mutually exclusive -->
                     <div class="word-count-group" role="group" aria-label="Word count options" style="margin-left: 1.5em;">
                         <button class="word-count-btn" data-count="25">25 words</button>
                         <button class="word-count-btn" data-count="50">50 words</button>
@@ -132,22 +131,17 @@
                     <h2 class="section-title">Progressive Lessons</h2>
                     <p class="section-subtitle">Master touch typing step by step</p>
                 </div>
-
-                <div class="lessons-grid" id="lessons-grid">
-                    <!-- Lessons will be dynamically generated -->
-                </div>
+                <div class="lessons-grid" id="lessons-grid"></div>
             </div>
 
-            <!-- Lesson Practice View (Hidden by default) -->
+            <!-- Lesson Practice View -->
             <div class="panel lesson-practice hidden" id="lesson-practice">
                 <button class="back-btn" id="back-to-lessons">← Back to Lessons</button>
-                
                 <div class="lesson-info">
                     <h3 class="lesson-title" id="lesson-title">Lesson Title</h3>
                     <p class="lesson-description" id="lesson-description">Description</p>
                     <div class="focus-keys" id="focus-keys">Focus: <span></span></div>
                 </div>
-
                 <div class="lesson-stats">
                     <div class="stat-card">
                         <span class="stat-label">WPM</span>
@@ -162,22 +156,13 @@
                         <span class="stat-value" id="lesson-progress">0%</span>
                     </div>
                 </div>
-
                 <div class="text-card" aria-live="polite">
                     <div class="text-display" id="lesson-text-display"></div>
                 </div>
-
                 <div class="input-card">
-                    <input
-                        type="text"
-                        id="lesson-input"
-                        placeholder="Start typing..."
-                        autocomplete="off"
-                        spellcheck="false"
-                    >
+                    <input type="text" id="lesson-input" placeholder="Start typing..." autocomplete="off" spellcheck="false">
                     <p class="hint">Complete with 90%+ accuracy to unlock next lesson</p>
                 </div>
-
                 <div class="actions">
                     <button class="btn primary" id="lesson-restart">Restart Lesson</button>
                 </div>
@@ -191,7 +176,6 @@
                     <h2 class="section-title">Weak Key Practice</h2>
                     <p class="section-subtitle">Focus on your most challenging keys</p>
                 </div>
-
                 <div class="weak-keys-display" id="weak-keys-display">
                     <div class="weak-keys-card">
                         <h3>Your Weakest Keys</h3>
@@ -200,7 +184,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="practice-stats">
                     <div class="stat-card">
                         <span class="stat-label">WPM</span>
@@ -215,22 +198,13 @@
                         <span class="stat-value" id="practice-errors">0</span>
                     </div>
                 </div>
-
                 <div class="text-card" aria-live="polite">
                     <div class="text-display" id="practice-text-display"></div>
                 </div>
-
                 <div class="input-card">
-                    <input
-                        type="text"
-                        id="practice-input"
-                        placeholder="Start typing..."
-                        autocomplete="off"
-                        spellcheck="false"
-                    >
+                    <input type="text" id="practice-input" placeholder="Start typing..." autocomplete="off" spellcheck="false">
                     <p class="hint">Practice makes perfect - focus on accuracy first</p>
                 </div>
-
                 <div class="actions">
                     <button class="btn primary" id="practice-restart">New Practice</button>
                 </div>
@@ -245,7 +219,6 @@
                     <p class="section-subtitle">Learn proper finger positioning with visual guidance</p>
                 </div>
 
-                <!-- Finger Position Guide -->
                 <div class="finger-guide-card">
                     <h3>Hand Position Guide</h3>
                     <div class="hand-positions">
@@ -309,7 +282,6 @@
                 <!-- Visual Keyboard -->
                 <div class="keyboard-container">
                     <div class="keyboard-visual" id="keyboard-visual">
-                        <!-- Number Row -->
                         <div class="keyboard-row">
                             <div class="key" data-key="`" data-finger="left-pinky">~<br>`</div>
                             <div class="key" data-key="1" data-finger="left-pinky">!<br>1</div>
@@ -325,8 +297,6 @@
                             <div class="key" data-key="-" data-finger="right-pinky">_<br>-</div>
                             <div class="key" data-key="=" data-finger="right-pinky">+<br>=</div>
                         </div>
-
-                        <!-- Top Row (QWERTY) -->
                         <div class="keyboard-row">
                             <div class="key" data-key="q" data-finger="left-pinky">Q</div>
                             <div class="key" data-key="w" data-finger="left-ring">W</div>
@@ -342,8 +312,6 @@
                             <div class="key" data-key="]" data-finger="right-pinky">}<br>]</div>
                             <div class="key" data-key="\\" data-finger="right-pinky">|<br>\</div>
                         </div>
-
-                        <!-- Home Row (ASDF) -->
                         <div class="keyboard-row">
                             <div class="key home-key" data-key="a" data-finger="left-pinky">A</div>
                             <div class="key home-key" data-key="s" data-finger="left-ring">S</div>
@@ -357,8 +325,6 @@
                             <div class="key home-key" data-key=";" data-finger="right-pinky">:<br>;</div>
                             <div class="key" data-key="'" data-finger="right-pinky">"<br>'</div>
                         </div>
-
-                        <!-- Bottom Row (ZXCV) -->
                         <div class="keyboard-row">
                             <div class="key" data-key="z" data-finger="left-pinky">Z</div>
                             <div class="key" data-key="x" data-finger="left-ring">X</div>
@@ -371,8 +337,6 @@
                             <div class="key" data-key="." data-finger="right-ring">&gt;<br>.</div>
                             <div class="key" data-key="/" data-finger="right-pinky">?<br>/</div>
                         </div>
-
-                        <!-- Spacebar -->
                         <div class="keyboard-row">
                             <div class="key spacebar" data-key=" " data-finger="thumb">Space</div>
                         </div>
@@ -395,7 +359,6 @@
                 <div class="finger-practice-section">
                     <h3>Interactive Practice</h3>
                     <p class="practice-instruction" id="finger-instruction">Press any key to see which finger to use!</p>
-                    
                     <div class="current-key-display" id="current-key-display">
                         <div class="key-to-press">
                             <span class="key-char" id="target-key-char">-</span>
@@ -406,12 +369,10 @@
                             <span class="finger-label" id="target-finger-name">Waiting...</span>
                         </div>
                     </div>
-
                     <div class="practice-controls">
                         <button class="btn primary" id="start-finger-drill">Start Finger Drill</button>
                         <button class="btn ghost" id="random-key-practice">Random Key</button>
                     </div>
-
                     <div class="finger-stats" id="finger-drill-stats" style="display: none;">
                         <div class="stat-card">
                             <span class="stat-label">Correct</span>
@@ -432,16 +393,16 @@
 
         <!-- Dashboard Mode -->
         <section class="mode-section" id="dashboard-mode" role="tabpanel" hidden>
-
             <div class="panel">
                 <div class="dashboard-header">
                     <h2 class="section-title">Your Progress</h2>
                     <p class="section-subtitle">Track your typing journey</p>
                 </div>
-                <!-- Achievements/Badges Section in Dashboard (now truly inside dashboard) -->
+
+                <!-- Achievements -->
                 <section id="dashboard-achievements-section" class="dashboard-chart-section" style="margin-bottom:1.5em;">
-                  <h3>Achievements</h3>
-                  <div id="dashboard-achievements"></div>
+                    <h3>Achievements</h3>
+                    <div id="dashboard-achievements"></div>
                 </section>
 
                 <div class="level-card">
@@ -490,12 +451,33 @@
                     </div>
                 </div>
 
+                <!-- FIX: WPM Chart — canvas element was missing from HTML -->
+                <div class="dashboard-chart-section" style="margin-top: 1.5em;">
+                    <h3 class="dashboard-chart-title">WPM Over Time</h3>
+                    <canvas id="wpm-line-chart" height="120"></canvas>
+                </div>
+
                 <div class="dashboard-weak-keys">
                     <h3>Keys to Improve</h3>
                     <div class="weak-keys-chart" id="dashboard-weak-keys">
                         <p class="empty-state">No data yet - start practicing!</p>
                     </div>
                 </div>
+
+                <!-- FIX: Key Heatmap — div element was missing from HTML -->
+                <div class="dashboard-heatmap-section" style="margin-top: 1.5em;">
+                    <h3 class="dashboard-chart-title">Key Frequency Heatmap</h3>
+                    <p style="font-size:0.85rem; color: var(--muted); margin-bottom: 10px;">Darker = typed more. Red border = weak key.</p>
+                    <div id="key-heatmap-grid"></div>
+                </div>
+
+                <!-- FIX: Reset Progress button -->
+                <div style="margin-top: 2em; padding-top: 1.5em; border-top: 1px solid rgba(0,0,0,0.08);">
+                    <button class="btn ghost" id="reset-progress-btn" style="color: var(--danger); border-color: var(--danger);">
+                        🗑️ Reset All Progress
+                    </button>
+                </div>
+
             </div>
         </section>
     </div>
@@ -504,12 +486,10 @@
     <div class="results hidden" id="results" role="dialog" aria-modal="true">
         <div class="results-card">
             <h2>Test Complete</h2>
-            
             <div class="performance-rating" id="performance-rating">
                 <span class="rating-label">Performance</span>
                 <span class="rating-badge" id="rating-badge">Excellent</span>
             </div>
-
             <div class="results-grid">
                 <div class="result-main">
                     <span>Typing Speed</span>
@@ -528,12 +508,10 @@
                     <strong id="result-incorrect">0</strong>
                 </div>
             </div>
-
             <div class="xp-gained" id="xp-gained">
                 <span class="xp-icon">✨</span>
                 <span class="xp-text">+<span id="xp-amount">0</span> XP</span>
             </div>
-
             <div class="results-actions">
                 <button class="btn primary" id="results-restart">Restart</button>
                 <button class="btn ghost" id="results-new-text">New Text</button>
@@ -545,7 +523,6 @@
     <div class="results hidden" id="lesson-complete-modal" role="dialog" aria-modal="true">
         <div class="results-card">
             <h2>Lesson Complete!</h2>
-            
             <div class="results-grid">
                 <div class="result-main">
                     <span>Final Speed</span>
@@ -560,60 +537,53 @@
                     <strong id="lesson-result-time">0s</strong>
                 </div>
             </div>
-
             <div class="xp-gained">
                 <span class="xp-icon">✨</span>
                 <span class="xp-text">+<span id="lesson-xp-amount">0</span> XP</span>
             </div>
-
             <div class="results-actions">
                 <button class="btn primary" id="next-lesson-btn">Next Lesson</button>
                 <button class="btn ghost" id="back-to-lessons-modal">Back to Lessons</button>
             </div>
         </div>
     </div>
-    <!-- Feedback Button (Fixed Position) -->
-<button class="feedback-button" id="feedback-btn" aria-label="Give Feedback">
-    💬 Feedback
-</button>
 
-<!-- Feedback Modal -->
-<div class="feedback-modal hidden" id="feedback-modal">
-    <div class="feedback-card">
-        <button class="close-modal" id="close-feedback">✕</button>
-        <h2>Help Us Improve!</h2>
-        <p>Your feedback helps make Typeflow better for everyone.</p>
-        
-        <form id="feedback-form">
-            <div class="form-group">
-                <label>What did you like?</label>
-                <textarea name="liked" rows="3" placeholder="e.g., The finger training mode was really helpful..."></textarea>
+    <!-- Feedback Button -->
+    <button class="feedback-button" id="feedback-btn" aria-label="Give Feedback">
+        💬 Feedback
+    </button>
+
+    <!-- Feedback Modal -->
+    <div class="feedback-modal hidden" id="feedback-modal">
+        <div class="feedback-card">
+            <button class="close-modal" id="close-feedback">✕</button>
+            <h2>Help Us Improve!</h2>
+            <p>Your feedback helps make Typeflow better for everyone.</p>
+            <form id="feedback-form">
+                <div class="form-group">
+                    <label>What did you like?</label>
+                    <textarea name="liked" rows="3" placeholder="e.g., The finger training mode was really helpful..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>What needs improvement?</label>
+                    <textarea name="improve" rows="3" placeholder="e.g., It would be great if..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Any bugs or issues?</label>
+                    <textarea name="bugs" rows="2" placeholder="e.g., The timer didn't work when..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Your email (optional)</label>
+                    <input type="email" name="email" placeholder="student@university.edu">
+                </div>
+                <button type="submit" class="btn primary">Submit Feedback</button>
+            </form>
+            <div class="feedback-success hidden" id="feedback-success">
+                <span class="success-icon">✅</span>
+                <p>Thank you! Your feedback has been recorded.</p>
             </div>
-            
-            <div class="form-group">
-                <label>What needs improvement?</label>
-                <textarea name="improve" rows="3" placeholder="e.g., It would be great if..."></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Any bugs or issues?</label>
-                <textarea name="bugs" rows="2" placeholder="e.g., The timer didn't work when..."></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label>Your email (optional)</label>
-                <input type="email" name="email" placeholder="student@university.edu">
-            </div>
-            
-            <button type="submit" class="btn primary">Submit Feedback</button>
-        </form>
-        
-        <div class="feedback-success hidden" id="feedback-success">
-            <span class="success-icon">✅</span>
-            <p>Thank you! Your feedback has been recorded.</p>
         </div>
     </div>
-</div>
 
     <script src="script.js"></script>
 </body>
