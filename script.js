@@ -973,7 +973,8 @@ class FingerTrainingEngine {
         this.keyboardKeys.forEach(key => {
             if (key.dataset.key === keyChar) {
                 key.classList.add('highlight');
-                setTimeout(() => key.classList.remove('highlight'), 500);
+                // REMOVE: setTimeout(() => key.classList.remove('highlight'), 500);
+                // Now highlight stays until correct key is pressed
             }
         });
     }
@@ -983,8 +984,17 @@ class FingerTrainingEngine {
         const pressedKey = e.key.toLowerCase();
         if (FINGER_MAP[pressedKey] && !this.drillActive) this.showKeyInfo(pressedKey);
         if (this.drillActive && this.currentKey) {
-            if (pressedKey === this.currentKey) { this.correctCount++; this.updateStats(); this.nextRandomKey(); }
-            else { this.wrongCount++; this.updateStats(); if (FINGER_MAP[pressedKey]) this.flashWrongKey(pressedKey); }
+            if (pressedKey === this.currentKey) {
+                this.correctCount++;
+                this.updateStats();
+                // Remove highlight from previous key
+                this.keyboardKeys.forEach(k => k.classList.remove('highlight'));
+                this.nextRandomKey();
+            } else {
+                this.wrongCount++;
+                this.updateStats();
+                if (FINGER_MAP[pressedKey]) this.flashWrongKey(pressedKey);
+            }
         }
     }
 
