@@ -196,7 +196,7 @@ const famousQuotes = [
     "The only way to do great work is to love what you do. — Steve Jobs",
     "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
     "Life is what happens when you're busy making other plans. — John Lennon",
-    "You miss 100% of the shots you don't take. — Wayne Gretzky",
+    "You miss 100% of the shots you don't take. — Wayne Gretzky",   
     "The best way to predict the future is to invent it. — Alan Kay",
     "Do not wait to strike till the iron is hot; but make it hot by striking. — William Butler Yeats",
     "Whether you think you can or you think you can't, you're right. — Henry Ford",
