@@ -34,7 +34,6 @@ function showCapsWarning(show) {
         warn.className = '';
         warn.style.display = 'none';
         if (inputCard) inputCard.appendChild(warn);
-    }
     if (show) {
         warn.classList.add('visible');
         warn.style.display = 'block';
