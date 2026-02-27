@@ -291,6 +291,12 @@ class TestEngine {
         this.accuracyDisplay = document.getElementById("accuracy");
         this.timerDisplay    = document.getElementById("timer");
 
+        // Mini WPM Graph
+        this.miniWPMGraphCanvas = document.getElementById("mini-wpm-graph");
+        this.miniWPMChart = null;
+        this.liveWPMHistory = [];
+        this.liveWPMInterval = null;
+
         this.setupEventListeners();
     }
 
@@ -458,6 +464,19 @@ class TestEngine {
         this.displayText();
         this.updateTimerDisplay();
         this.waitingForFirstInput = true;
+
+        // Reset live WPM graph
+        this.liveWPMHistory = [];
+        this.updateMiniWPMChart();
+        clearInterval(this.liveWPMInterval);
+        this.liveWPMInterval = setInterval(() => {
+            if (!this.isActive) return;
+            const elapsed = Math.max((Date.now() - (this.startTime || Date.now())) / 60000, 1 / 60);
+            const wpm = Math.round((this.correctChars / 5) / elapsed) || 0;
+            this.liveWPMHistory.push(wpm);
+            if (this.liveWPMHistory.length > 30) this.liveWPMHistory.shift();
+            this.updateMiniWPMChart();
+        }, 500);
     }
 
     startTimer() {
@@ -575,6 +594,7 @@ class TestEngine {
         if (!this.isActive) return;
         this.isActive = false;
         clearInterval(this.timerInterval);
+        clearInterval(this.liveWPMInterval);
         this.input.disabled = true;
         this.updateStats();
 
@@ -602,7 +622,39 @@ class TestEngine {
         wpmHistory.push({ date: new Date().toLocaleDateString(), wpm });
         localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory.slice(-30)));
 
+        this.updateMiniWPMChart();
         this.showResults(wpm, accuracy, xpGained, isNewBest);
+    }
+
+    updateMiniWPMChart() {
+        if (!this.miniWPMGraphCanvas) return;
+        const ctx = this.miniWPMGraphCanvas.getContext('2d');
+        if (this.miniWPMChart) this.miniWPMChart.destroy();
+        this.miniWPMChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: this.liveWPMHistory.map((_, i) => ''),
+                datasets: [{
+                    label: 'Live WPM',
+                    data: this.liveWPMHistory,
+                    borderColor: '#e07a5f',
+                    backgroundColor: 'rgba(224,122,95,0.10)',
+                    tension: 0.3,
+                    pointRadius: 0,
+                    borderWidth: 2,
+                    fill: true,
+                }]
+            },
+            options: {
+                responsive: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                animation: false,
+                scales: {
+                    x: { display: false },
+                    y: { display: true, beginAtZero: true, grid: { display: false }, ticks: { stepSize: 10, font: { size: 10 } } }
+                }
+            }
+        });
     }
 
     calculateXP(wpm, accuracy) {
