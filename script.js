@@ -173,10 +173,23 @@ class ProgressManager {
     }
 
     getTopWeakKeys(count = 5) {
-        return Object.entries(this.data.weakKeys)
+        // Load key press stats from localStorage
+        let keyStats = {};
+        try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
+        // Compute error rate for each key
+        const rates = Object.entries(this.data.weakKeys)
             .filter(([c]) => c && c.trim() !== "" && c !== " ")
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, count);
+            .map(([c, errors]) => {
+                const presses = keyStats[c] || 0;
+                const rate = presses > 0 ? errors / presses : 0;
+                return [c, rate, errors, presses];
+            })
+            .filter(([_c, _rate, _errors, presses]) => presses > 0);
+        // Sort by error rate descending, then by error count descending
+        rates.sort((a, b) => b[1] - a[1] || b[2] - a[2]);
+        // Return top N as [char, rate, errors, presses]
+        return rates.slice(0, count);
+    }
     }
 
     getCurrentLevel() { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0]; }
@@ -1250,11 +1263,12 @@ function renderWeakKeys() {
     const weakKeys  = progressManager.getTopWeakKeys(5);
     if (weakKeys.length === 0) { container.innerHTML = '<p class="empty-state">Complete some typing tests to identify weak keys</p>'; return; }
     container.innerHTML = "";
-    weakKeys.forEach(([char, count]) => {
+    weakKeys.forEach(([char, rate, errors, presses]) => {
         if (!char || char.trim() === "") return;
         const item = document.createElement("div");
         item.className = "weak-key-item";
-        item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${count} errors</span>`;
+        const percent = Math.round(rate * 100);
+        item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${percent}% error rate (${errors}/${presses})</span>`;
         container.appendChild(item);
     });
 }
@@ -1348,7 +1362,16 @@ function renderKeyHeatmap(weakKeys) {
             const cell = document.createElement('div');
             cell.className = 'heatmap-key-cell';
             cell.style.cssText = `background:${bg}; color:${color}; border-color:${isWeak ? '#ff6b6b' : 'transparent'};`;
-            cell.innerHTML = `${k}<span class="heatmap-tooltip">${freq} times</span>`;
+            // Show error rate if weak
+            let weakInfo = '';
+            if (isWeak && weakKeys) {
+                const wk = weakKeys.find(([wk]) => wk === k);
+                if (wk) {
+                    const percent = Math.round(wk[1] * 100);
+                    weakInfo = `\n${percent}% error rate (${wk[2]}/${wk[3]})`;
+                }
+            }
+            cell.innerHTML = `${k}<span class="heatmap-tooltip">${freq} times${weakInfo}</span>`;
             rowEl.appendChild(cell);
         });
 
@@ -1381,10 +1404,11 @@ function renderDashboard() {
         weakKeysChart.innerHTML = '<p class="empty-state">No data yet - start practicing!</p>';
     } else {
         weakKeysChart.innerHTML = "";
-        weakKeys.forEach(([char, count]) => {
+        weakKeys.forEach(([char, rate, errors, presses]) => {
             const item = document.createElement("div");
             item.className = "weak-key-item";
-            item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${count} errors</span>`;
+            const percent = Math.round(rate * 100);
+            item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${percent}% error rate (${errors}/${presses})</span>`;
             weakKeysChart.appendChild(item);
         });
     }
