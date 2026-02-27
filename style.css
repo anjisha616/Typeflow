@@ -1,3 +1,13 @@
+/* === Confetti Celebration === */
+#confetti-canvas {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 3000;
+}
 /* === Mini Live WPM Graph === */
 .mini-wpm-graph-container {
     display: flex;
