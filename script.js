@@ -670,7 +670,7 @@ class TestEngine {
         const modal = document.getElementById("results");
         modal.classList.remove("hidden");
 
-        // FIX: Show "New Best!" indicator
+        // Show "New Best!" indicator
         const title = modal.querySelector('h2');
         title.textContent = isNewBest ? '🎉 New Personal Best!' : 'Test Complete';
 
@@ -684,6 +684,84 @@ class TestEngine {
         if (accuracy >= 95 && wpm >= 40) { badge.textContent = "Excellent"; badge.className = "rating-badge excellent"; }
         else if (accuracy >= 85 && wpm >= 30) { badge.textContent = "Good"; badge.className = "rating-badge good"; }
         else { badge.textContent = "Needs Work"; badge.className = "rating-badge needs-work"; }
+
+        // Confetti celebration for new personal best
+        if (isNewBest) {
+            launchConfettiOverModal(modal);
+        }
+    }
+
+// Confetti animation for personal best (standalone function)
+function launchConfettiOverModal(modal) {
+    // Remove existing confetti canvas if present
+    let confettiCanvas = document.getElementById('confetti-canvas');
+    if (confettiCanvas) confettiCanvas.remove();
+
+    confettiCanvas = document.createElement('canvas');
+    confettiCanvas.id = 'confetti-canvas';
+    confettiCanvas.style.position = 'fixed';
+    confettiCanvas.style.left = 0;
+    confettiCanvas.style.top = 0;
+    confettiCanvas.style.width = '100vw';
+    confettiCanvas.style.height = '100vh';
+    confettiCanvas.style.pointerEvents = 'none';
+    confettiCanvas.style.zIndex = 3000;
+    document.body.appendChild(confettiCanvas);
+
+    // Set canvas size
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+
+    // Simple confetti particles
+    const ctx = confettiCanvas.getContext('2d');
+    const colors = ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a', '#264653', '#fff'];
+    const particles = [];
+    const count = 80;
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * confettiCanvas.width,
+            y: Math.random() * -confettiCanvas.height * 0.5,
+            r: 6 + Math.random() * 8,
+            d: 2 + Math.random() * 2,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            tilt: Math.random() * 10 - 5,
+            tiltAngle: 0,
+            tiltAngleInc: (Math.random() * 0.07) + 0.05
+        });
+    }
+
+    let frame = 0;
+    function drawConfetti() {
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        for (let p of particles) {
+            ctx.beginPath();
+            ctx.ellipse(p.x, p.y, p.r, p.r * 0.4, p.tilt, 0, 2 * Math.PI);
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = 0.85;
+            ctx.fill();
+            ctx.globalAlpha = 1;
+        }
+        updateParticles();
+        frame++;
+        if (frame < 90) {
+            requestAnimationFrame(drawConfetti);
+        } else {
+            confettiCanvas.remove();
+        }
+    }
+    function updateParticles() {
+        for (let p of particles) {
+            p.y += p.d * 3 + Math.sin(frame / 8) * 0.5;
+            p.x += Math.sin(frame / 10 + p.tilt) * 2;
+            p.tilt += p.tiltAngleInc;
+            if (p.y > confettiCanvas.height + 20) {
+                p.y = Math.random() * -40;
+                p.x = Math.random() * confettiCanvas.width;
+            }
+        }
+    }
+    drawConfetti();
+}
     }
 
     reset(newText = false) {
