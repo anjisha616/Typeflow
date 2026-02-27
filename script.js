@@ -343,6 +343,7 @@ class TestEngine {
                 e.preventDefault();
                 this.reset(false);
                 this.start(false);
+            }
         });
         this.input.addEventListener("keyup", (e) => {
             // Always check current Caps Lock state
