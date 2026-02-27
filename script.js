@@ -1,3 +1,23 @@
+// === TODAY'S GOAL WIDGET ===
+const DAILY_GOAL = 3;
+function updateGoalWidget() {
+    // Get today's date
+    const today = new Date().toDateString();
+    let testsToday = 0;
+    // Get WPM history and count tests for today
+    let wpmHistory = [];
+    try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
+    testsToday = wpmHistory.filter(e => e.date === today).length;
+    // Update DOM
+    const goalTotal = document.getElementById('goal-total');
+    const goalTotal2 = document.getElementById('goal-total-2');
+    const goalProgressCount = document.getElementById('goal-progress-count');
+    const goalBar = document.getElementById('goal-progress-bar');
+    if (goalTotal) goalTotal.textContent = DAILY_GOAL;
+    if (goalTotal2) goalTotal2.textContent = DAILY_GOAL;
+    if (goalProgressCount) goalProgressCount.textContent = testsToday;
+    if (goalBar) goalBar.style.width = Math.min(100, (testsToday / DAILY_GOAL) * 100) + '%';
+}
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
    Modular JavaScript Architecture
@@ -624,6 +644,7 @@ class TestEngine {
 
         this.updateMiniWPMChart();
         this.showResults(wpm, accuracy, xpGained, isNewBest);
+        updateGoalWidget();
     }
 
     updateMiniWPMChart() {
@@ -1351,6 +1372,8 @@ function renderDashboard() {
     document.getElementById("completed-lessons").textContent = `${data.completedLessons.length}/${LESSON_DATA.length}`;
     document.getElementById("tests-taken").textContent      = data.testsTaken || 0;
 
+    // Update today's goal widget
+    updateGoalWidget();
     // Weak keys section
     const weakKeysChart = document.getElementById("dashboard-weak-keys");
     const weakKeys      = progressManager.getTopWeakKeys(8);
