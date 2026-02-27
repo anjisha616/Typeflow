@@ -1678,4 +1678,8 @@ document.addEventListener("DOMContentLoaded", () => {
             const allFeedback = JSON.parse(localStorage.getItem('typeflow-feedback') || '[]');
             allFeedback.push(feedback);
             localStorage.setItem('typeflow-feedback', JSON.stringify(allFeedback));
-            }
+            feedbackForm.reset();
+            feedbackSuccess.classList.remove('hidden');
+            setTimeout(() => feedbackSuccess.classList.add('hidden'), 3000);
+        });
+    }
