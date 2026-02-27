@@ -14,7 +14,7 @@
     color: var(--muted);
     font-weight: 600;
     font-size: 1.05em;
-    padding: 12px 32px;
+    padding: 10px 32px;
     cursor: pointer;
     transition: background 0.18s, color 0.18s;
     outline: none;
