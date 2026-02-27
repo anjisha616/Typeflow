@@ -1472,6 +1472,52 @@ function updateThemeToggle(theme) {
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
+        // Segmented control logic for mutually exclusive timer/word-count selection
+        const segmentedControl = document.getElementById('mode-segmented-control');
+        const timerGroup = document.getElementById('timer-group');
+        const wordCountGroup = document.getElementById('word-count-group');
+        // Default: Timed mode active
+        function setModeSegmented(mode) {
+            if (mode === 'timed') {
+                timerGroup.style.display = '';
+                wordCountGroup.style.display = 'none';
+                // Set first timer button active if none is
+                let active = false;
+                document.querySelectorAll('.timer-btn').forEach((btn, i) => {
+                    if (btn.classList.contains('active')) active = true;
+                });
+                if (!active) document.querySelector('.timer-btn').classList.add('active');
+                document.querySelectorAll('.word-count-btn').forEach(btn => btn.classList.remove('active'));
+                // Reset test engine to timed mode
+                testEngine.reset(false);
+                testEngine.loadNewText();
+            } else {
+                timerGroup.style.display = 'none';
+                wordCountGroup.style.display = '';
+                // Set first word count button active if none is
+                let active = false;
+                document.querySelectorAll('.word-count-btn').forEach((btn, i) => {
+                    if (btn.classList.contains('active')) active = true;
+                });
+                if (!active) document.querySelector('.word-count-btn').classList.add('active');
+                document.querySelectorAll('.timer-btn').forEach(btn => btn.classList.remove('active'));
+                // Reset test engine to word count mode
+                testEngine.reset(true);
+                testEngine.loadNewText();
+            }
+            // Update segmented control button styling
+            document.querySelectorAll('.segmented-btn').forEach(btn => {
+                if (btn.dataset.mode === mode) btn.classList.add('active');
+                else btn.classList.remove('active');
+            });
+        }
+
+        // Attach event listeners to segmented control buttons
+        document.getElementById('segmented-timed').addEventListener('click', () => setModeSegmented('timed'));
+        document.getElementById('segmented-words').addEventListener('click', () => setModeSegmented('words'));
+
+        // On load, ensure correct group is shown
+        setModeSegmented('timed');
     progressManager      = new ProgressManager();
     testEngine           = new TestEngine();
     lessonEngine         = new LessonEngine();
