@@ -691,6 +691,23 @@ class TestEngine {
         }
     }
 
+    reset(newText = false) {
+        this.isActive        = false;
+        clearInterval(this.timerInterval);
+        this.currentPosition = 0;
+        this.correctChars    = 0;
+        this.incorrectChars  = 0;
+        this.mistakesByChar  = {};
+        this.timeLeft        = this.timeLimit;
+        this.input.value     = "";
+        this.input.disabled  = false;
+        this.updateStats(true);
+        this.updateTimerDisplay();
+        if (newText) this.loadNewText();
+        else         this.displayText();
+    }
+}
+
 // Confetti animation for personal best (standalone function)
 function launchConfettiOverModal(modal) {
     // Remove existing confetti canvas if present
@@ -761,24 +778,6 @@ function launchConfettiOverModal(modal) {
         }
     }
     drawConfetti();
-}
-    }
-
-    reset(newText = false) {
-        this.isActive        = false;
-        clearInterval(this.timerInterval);
-        this.currentPosition = 0;
-        this.correctChars    = 0;
-        this.incorrectChars  = 0;
-        this.mistakesByChar  = {};
-        this.timeLeft        = this.timeLimit;
-        this.input.value     = "";
-        this.input.disabled  = false;
-        this.updateStats(true);
-        this.updateTimerDisplay();
-        if (newText) this.loadNewText();
-        else         this.displayText();
-    }
 }
 
 // ============ LESSON ENGINE ============
