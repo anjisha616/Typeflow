@@ -59,13 +59,16 @@
         <section class="mode-section active" id="test-mode" role="tabpanel">
             <div class="panel">
                 <div class="controls-row">
-                    <div class="timer-group" role="group" aria-label="Timer options">
+                    <div class="mode-segmented-control" id="mode-segmented-control" role="group" aria-label="Test mode">
+                        <button class="segmented-btn active" data-mode="timed" id="segmented-timed">Timed</button>
+                        <button class="segmented-btn" data-mode="words" id="segmented-words">Words</button>
+                    </div>
+                    <div class="timer-group" id="timer-group" role="group" aria-label="Timer options" style="margin-left: 1.5em;">
                         <button class="timer-btn active" data-time="15">15s</button>
                         <button class="timer-btn" data-time="30">30s</button>
                         <button class="timer-btn" data-time="60">60s</button>
                     </div>
-                    <!-- FIX: word count and timer groups are mutually exclusive -->
-                    <div class="word-count-group" role="group" aria-label="Word count options" style="margin-left: 1.5em;">
+                    <div class="word-count-group" id="word-count-group" role="group" aria-label="Word count options" style="margin-left: 1.5em; display:none;">
                         <button class="word-count-btn" data-count="25">25 words</button>
                         <button class="word-count-btn" data-count="50">50 words</button>
                         <button class="word-count-btn" data-count="100">100 words</button>
