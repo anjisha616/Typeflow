@@ -1679,21 +1679,26 @@ document.addEventListener("DOMContentLoaded", () => {
             const allFeedback = JSON.parse(localStorage.getItem('typeflow-feedback') || '[]');
             allFeedback.push(feedback);
             localStorage.setItem('typeflow-feedback', JSON.stringify(allFeedback));
-            try {
-                await fetch('https://script.google.com/macros/s/AKfycbxKKwSQQsqe6o8ktYl6GvCZALpsHGB0AqWmEeYdM079o2VUha-Gpp9z0PmmeIh5oLIC/exec', {
-                    method: 'POST', mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(feedback)
-                });
-            } catch (error) { console.error('Error sending feedback:', error); }
-            feedbackForm.classList.add('hidden');
-            feedbackSuccess.classList.remove('hidden');
-            setTimeout(() => {
-                feedbackModal.classList.add('hidden');
-                feedbackForm.classList.remove('hidden');
-                feedbackSuccess.classList.add('hidden');
-                feedbackForm.reset();
-            }, 2000);
-        });
-    }
+            }
+
+            getCurrentLevel() { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0]; }
+
+            getNextLevel()    { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level + 1); }
+
+            getXPProgress() {
+                const current = this.getCurrentLevel();
+                const next    = this.getNextLevel();
+                if (!next) return 100;
+                return Math.min(Math.round(((this.data.xp - current.minXP) / (next.minXP - current.minXP)) * 100), 100);
+            }
+
+            getXPToNextLevel() { const next = this.getNextLevel(); return next ? next.minXP - this.data.xp : 0; }
+
+            resetAllProgress() {
+                localStorage.removeItem('typeflow-progress');
+                localStorage.removeItem('typeflow-wpm-history');
+                localStorage.removeItem('typeflow-key-stats');
+                LESSON_DATA.forEach((_, i) => { if (i > 0) LESSON_DATA[i].unlocked = false; });
+                this.loadProgress();
+            }
 });
