@@ -53,4 +53,4 @@ Typeflow is a modern touch typing learning platform designed to help users impro
 Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
-This project is open source and available under the MIT License.
+This project is open source and available under the MIT License. (But use only after letting me know)
