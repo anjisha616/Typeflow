@@ -1472,6 +1472,12 @@ function updateThemeToggle(theme) {
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
+    progressManager      = new ProgressManager();
+    testEngine           = new TestEngine();
+    lessonEngine         = new LessonEngine();
+    practiceEngine       = new PracticeEngine();
+    fingerTrainingEngine = new FingerTrainingEngine();
+
     // Segmented control logic for mutually exclusive timer/word-count selection (must be after testEngine is initialized)
     const segmentedControl = document.getElementById('mode-segmented-control');
     const timerGroup = document.getElementById('timer-group');
