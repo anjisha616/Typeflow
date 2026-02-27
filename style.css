@@ -1,3 +1,32 @@
+/* === Segmented Control for Test Mode === */
+.mode-segmented-control {
+    display: inline-flex;
+    border-radius: 999px;
+    background: var(--surface-elev, #f7f7fa);
+    box-shadow: 0 1.5px 8px 0 #e07a5f11;
+    border: 1.5px solid #e07a5f22;
+    overflow: hidden;
+    margin-right: 1.5em;
+}
+.segmented-btn {
+    border: none;
+    background: none;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 1.05em;
+    padding: 12px 32px;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    outline: none;
+}
+.segmented-btn.active {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 12px 0 rgba(224, 122, 95, 0.18);
+}
+.segmented-btn:not(:last-child) {
+    border-right: 1.5px solid #e07a5f22;
+}
 /* === Confetti Celebration === */
 #confetti-canvas {
     position: fixed;
