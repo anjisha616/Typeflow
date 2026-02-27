@@ -217,7 +217,7 @@ const famousQuotes = [
     "Not all those who wander are lost. — J.R.R. Tolkien",
     "There is no greater agony than bearing an untold story inside you. — Maya Angelou",
     "Without music, life would be a mistake. — Friedrich Nietzsche",
-    "I am not afraid of storms, for I am learning how to sail my ship. — Louisa May Alcott"
+    "I am not afraid of storms, for I am learning how to sail my ship. — Louisa May Alcott",
 ];
 
 // FIX: Expanded code snippets (was only 10)
