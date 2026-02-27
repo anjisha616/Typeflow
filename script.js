@@ -190,7 +190,6 @@ class ProgressManager {
         // Return top N as [char, rate, errors, presses]
         return rates.slice(0, count);
     }
-    }
 
     getCurrentLevel() { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0]; }
     getNextLevel()    { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level + 1); }
@@ -1680,25 +1679,3 @@ document.addEventListener("DOMContentLoaded", () => {
             allFeedback.push(feedback);
             localStorage.setItem('typeflow-feedback', JSON.stringify(allFeedback));
             }
-
-            getCurrentLevel() { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0]; }
-
-            getNextLevel()    { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level + 1); }
-
-            getXPProgress() {
-                const current = this.getCurrentLevel();
-                const next    = this.getNextLevel();
-                if (!next) return 100;
-                return Math.min(Math.round(((this.data.xp - current.minXP) / (next.minXP - current.minXP)) * 100), 100);
-            }
-
-            getXPToNextLevel() { const next = this.getNextLevel(); return next ? next.minXP - this.data.xp : 0; }
-
-            resetAllProgress() {
-                localStorage.removeItem('typeflow-progress');
-                localStorage.removeItem('typeflow-wpm-history');
-                localStorage.removeItem('typeflow-key-stats');
-                LESSON_DATA.forEach((_, i) => { if (i > 0) LESSON_DATA[i].unlocked = false; });
-                this.loadProgress();
-            }
-});
