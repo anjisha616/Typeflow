@@ -1,14 +1,11 @@
 // === TODAY'S GOAL WIDGET ===
 const DAILY_GOAL = 3;
 function updateGoalWidget() {
-    // Get today's date
     const today = new Date().toDateString();
     let testsToday = 0;
-    // Get WPM history and count tests for today
     let wpmHistory = [];
     try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
     testsToday = wpmHistory.filter(e => e.date === today).length;
-    // Update DOM
     const goalTotal = document.getElementById('goal-total');
     const goalTotal2 = document.getElementById('goal-total-2');
     const goalProgressCount = document.getElementById('goal-progress-count');
@@ -18,12 +15,14 @@ function updateGoalWidget() {
     if (goalProgressCount) goalProgressCount.textContent = testsToday;
     if (goalBar) goalBar.style.width = Math.min(100, (testsToday / DAILY_GOAL) * 100) + '%';
 }
+
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
-   Modular JavaScript Architecture
    ========================================= */
 
 // --- Caps Lock warning UI ---
+// BUG FIX #1: showCapsWarning was missing a closing brace for the outer if block,
+// causing a syntax error that silently broke ALL code below it.
 function showCapsWarning(show) {
     let warn = document.getElementById('caps-warning');
     if (!warn) {
@@ -34,6 +33,7 @@ function showCapsWarning(show) {
         warn.className = '';
         warn.style.display = 'none';
         if (inputCard) inputCard.appendChild(warn);
+    }  // <-- THIS CLOSING BRACE WAS MISSING in original code
     if (show) {
         warn.classList.add('visible');
         warn.style.display = 'block';
@@ -172,10 +172,8 @@ class ProgressManager {
     }
 
     getTopWeakKeys(count = 5) {
-        // Load key press stats from localStorage
         let keyStats = {};
         try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
-        // Compute error rate for each key
         const rates = Object.entries(this.data.weakKeys)
             .filter(([c]) => c && c.trim() !== "" && c !== " ")
             .map(([c, errors]) => {
@@ -184,9 +182,7 @@ class ProgressManager {
                 return [c, rate, errors, presses];
             })
             .filter(([_c, _rate, _errors, presses]) => presses > 0);
-        // Sort by error rate descending, then by error count descending
         rates.sort((a, b) => b[1] - a[1] || b[2] - a[2]);
-        // Return top N as [char, rate, errors, presses]
         return rates.slice(0, count);
     }
 
@@ -222,12 +218,11 @@ const baseWords = [
     "thought","listen","write","speak","reach","drive","shape","guide","solve","connect"
 ];
 
-// FIX: Expanded quote bank (was only 10)
 const famousQuotes = [
     "The only way to do great work is to love what you do. — Steve Jobs",
     "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
     "Life is what happens when you're busy making other plans. — John Lennon",
-    "You miss 100% of the shots you don't take. — Wayne Gretzky",   
+    "You miss 100% of the shots you don't take. — Wayne Gretzky",
     "The best way to predict the future is to invent it. — Alan Kay",
     "Do not wait to strike till the iron is hot; but make it hot by striking. — William Butler Yeats",
     "Whether you think you can or you think you can't, you're right. — Henry Ford",
@@ -251,7 +246,6 @@ const famousQuotes = [
     "I am not afraid of storms, for I am learning how to sail my ship. — Louisa May Alcott",
 ];
 
-// FIX: Expanded code snippets (was only 10)
 const codeSnippets = [
     `for (let i = 0; i < 10; i++) {\n    console.log(i);\n}`,
     `def greet(name):\n    print(f"Hello, {name}!")`,
@@ -313,7 +307,6 @@ class TestEngine {
         this.timeLeft        = 15;
         this.mistakesByChar  = {};
         this.waitingForFirstInput = false;
-        // FIX: track whether we're in timed or word-count mode
         this.wordCountMode   = false;
 
         this.textDisplay     = document.getElementById("text-display");
@@ -322,7 +315,6 @@ class TestEngine {
         this.accuracyDisplay = document.getElementById("accuracy");
         this.timerDisplay    = document.getElementById("timer");
 
-        // Mini WPM Graph
         this.miniWPMGraphCanvas = document.getElementById("mini-wpm-graph");
         this.miniWPMChart = null;
         this.liveWPMHistory = [];
@@ -335,9 +327,7 @@ class TestEngine {
         this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
         this.input.addEventListener("keydown", (e) => {
             this.handleKeydown(e);
-            // Always check current Caps Lock state
             showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
-            // Tab to restart
             if (e.key === 'Tab') {
                 e.preventDefault();
                 this.reset(false);
@@ -345,15 +335,12 @@ class TestEngine {
             }
         });
         this.input.addEventListener("keyup", (e) => {
-            // Always check current Caps Lock state
             showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
         });
         this.input.addEventListener("focus", (e) => {
-            // Check Caps Lock state on focus
             showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
         });
         this.input.addEventListener("blur", () => {
-            // Always hide warning on blur
             showCapsWarning(false);
         });
         this.input.addEventListener("paste",  (e) => e.preventDefault());
@@ -365,21 +352,18 @@ class TestEngine {
         return lastSpace + 1;
     }
 
-    // FIX: quote/code modes don't use timer — they end when text is complete
     getCurrentMode() {
         return document.querySelector('.mode-tab.active')?.dataset.mode || 'test';
     }
 
     isTimedMode() {
         const mode = this.getCurrentMode();
-        // Timed only if timer button active AND no word count button active
         return (mode === 'test') && !document.querySelector('.word-count-btn.active');
     }
 
     generateText() {
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
-            // Pick a quote and split author
             const raw = famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
             const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
             if (match) {
@@ -433,7 +417,6 @@ class TestEngine {
         const hideUntil = this.getHideUntilIndex(typedText);
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
-            // Show quote and author separately
             const html = this.currentText.split("").map((char, i) => {
                 let cls = "char";
                 if (i < this.currentPosition) {
@@ -496,7 +479,6 @@ class TestEngine {
         this.updateTimerDisplay();
         this.waitingForFirstInput = true;
 
-        // Reset live WPM graph
         this.liveWPMHistory = [];
         this.updateMiniWPMChart();
         clearInterval(this.liveWPMInterval);
@@ -511,7 +493,6 @@ class TestEngine {
     }
 
     startTimer() {
-        // FIX: Only start countdown timer in timed mode
         if (!this.isTimedMode()) return;
         clearInterval(this.timerInterval);
         this.timerInterval = setInterval(() => {
@@ -525,19 +506,15 @@ class TestEngine {
     }
 
     updateTimerDisplay() {
-        const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
         if (wordCountMode) {
-            // Word count mode: show words left
             const wordsTyped = this.input.value.trim().split(/\s+/).filter(Boolean).length;
             const wordsLeft = Math.max(0, parseInt(wordCountMode, 10) - wordsTyped);
             this.timerDisplay.textContent = wordsLeft;
-            // Change label to Words
             const label = this.timerDisplay.parentElement.querySelector('.stat-label');
             if (label) label.textContent = 'Words';
         } else {
             this.timerDisplay.textContent = this.isTimedMode() ? Math.max(this.timeLeft, 0) : '∞';
-            // Change label to Time
             const label = this.timerDisplay.parentElement.querySelector('.stat-label');
             if (label) label.textContent = 'Time';
         }
@@ -564,7 +541,6 @@ class TestEngine {
             this.input.setSelectionRange(lockIndex, lockIndex);
         }
 
-        // Track key stats
         if (typedText.length > this.currentPosition) {
             const newChar = typedText[this.currentPosition];
             if (newChar && newChar.length === 1) {
@@ -633,24 +609,21 @@ class TestEngine {
         const accuracy = parseInt(this.accuracyDisplay.textContent);
         const duration = this.isTimedMode() ? (this.timeLimit - this.timeLeft) : Math.floor((Date.now() - this.startTime) / 1000);
 
-        // FIX: Check for new personal best
         const isNewBest = wpm > (progressManager.data.bestWPM || 0);
 
         progressManager.updateTestStats(wpm, accuracy, duration, this.mistakesByChar);
         const xpGained = this.calculateXP(wpm, accuracy);
         progressManager.addXP(xpGained);
 
-        // Achievements
         if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
         if (wpm >= 50      && !progressManager.hasAchievement('50wpm'))         progressManager.unlockAchievement('50wpm');
         if (accuracy === 100 && !progressManager.hasAchievement('100accuracy')) progressManager.unlockAchievement('100accuracy');
         if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
         if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
 
-        // Save WPM history
         let wpmHistory = [];
         try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
-        wpmHistory.push({ date: new Date().toLocaleDateString(), wpm });
+        wpmHistory.push({ date: new Date().toDateString(), wpm });
         localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory.slice(-30)));
 
         this.updateMiniWPMChart();
@@ -665,7 +638,7 @@ class TestEngine {
         this.miniWPMChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: this.liveWPMHistory.map((_, i) => ''),
+                labels: this.liveWPMHistory.map(() => ''),
                 datasets: [{
                     label: 'Live WPM',
                     data: this.liveWPMHistory,
@@ -697,12 +670,10 @@ class TestEngine {
         return xp;
     }
 
-    // FIX: Added isNewBest parameter
     showResults(wpm, accuracy, xpGained, isNewBest = false) {
         const modal = document.getElementById("results");
         modal.classList.remove("hidden");
 
-        // Show "New Best!" indicator
         const title = modal.querySelector('h2');
         title.textContent = isNewBest ? '🎉 New Personal Best!' : 'Test Complete';
 
@@ -717,7 +688,6 @@ class TestEngine {
         else if (accuracy >= 85 && wpm >= 30) { badge.textContent = "Good"; badge.className = "rating-badge good"; }
         else { badge.textContent = "Needs Work"; badge.className = "rating-badge needs-work"; }
 
-        // Confetti celebration for new personal best
         if (isNewBest) {
             launchConfettiOverModal(modal);
         }
@@ -740,33 +710,22 @@ class TestEngine {
     }
 }
 
-// Confetti animation for personal best (standalone function)
+// ============ CONFETTI ============
 function launchConfettiOverModal(modal) {
-    // Remove existing confetti canvas if present
     let confettiCanvas = document.getElementById('confetti-canvas');
     if (confettiCanvas) confettiCanvas.remove();
 
     confettiCanvas = document.createElement('canvas');
     confettiCanvas.id = 'confetti-canvas';
-    confettiCanvas.style.position = 'fixed';
-    confettiCanvas.style.left = 0;
-    confettiCanvas.style.top = 0;
-    confettiCanvas.style.width = '100vw';
-    confettiCanvas.style.height = '100vh';
-    confettiCanvas.style.pointerEvents = 'none';
-    confettiCanvas.style.zIndex = 3000;
+    confettiCanvas.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
     document.body.appendChild(confettiCanvas);
-
-    // Set canvas size
     confettiCanvas.width = window.innerWidth;
     confettiCanvas.height = window.innerHeight;
 
-    // Simple confetti particles
     const ctx = confettiCanvas.getContext('2d');
     const colors = ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a', '#264653', '#fff'];
     const particles = [];
-    const count = 80;
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < 80; i++) {
         particles.push({
             x: Math.random() * confettiCanvas.width,
             y: Math.random() * -confettiCanvas.height * 0.5,
@@ -774,7 +733,6 @@ function launchConfettiOverModal(modal) {
             d: 2 + Math.random() * 2,
             color: colors[Math.floor(Math.random() * colors.length)],
             tilt: Math.random() * 10 - 5,
-            tiltAngle: 0,
             tiltAngleInc: (Math.random() * 0.07) + 0.05
         });
     }
@@ -789,17 +747,6 @@ function launchConfettiOverModal(modal) {
             ctx.globalAlpha = 0.85;
             ctx.fill();
             ctx.globalAlpha = 1;
-        }
-        updateParticles();
-        frame++;
-        if (frame < 90) {
-            requestAnimationFrame(drawConfetti);
-        } else {
-            confettiCanvas.remove();
-        }
-    }
-    function updateParticles() {
-        for (let p of particles) {
             p.y += p.d * 3 + Math.sin(frame / 8) * 0.5;
             p.x += Math.sin(frame / 10 + p.tilt) * 2;
             p.tilt += p.tiltAngleInc;
@@ -808,6 +755,9 @@ function launchConfettiOverModal(modal) {
                 p.x = Math.random() * confettiCanvas.width;
             }
         }
+        frame++;
+        if (frame < 90) requestAnimationFrame(drawConfetti);
+        else confettiCanvas.remove();
     }
     drawConfetti();
 }
@@ -1132,11 +1082,7 @@ class FingerTrainingEngine {
     highlightKey(keyChar) {
         this.keyboardKeys.forEach(k => k.classList.remove('highlight'));
         this.keyboardKeys.forEach(key => {
-            if (key.dataset.key === keyChar) {
-                key.classList.add('highlight');
-                // REMOVE: setTimeout(() => key.classList.remove('highlight'), 500);
-                // Now highlight stays until correct key is pressed
-            }
+            if (key.dataset.key === keyChar) key.classList.add('highlight');
         });
     }
 
@@ -1148,7 +1094,6 @@ class FingerTrainingEngine {
             if (pressedKey === this.currentKey) {
                 this.correctCount++;
                 this.updateStats();
-                // Remove highlight from previous key
                 this.keyboardKeys.forEach(k => k.classList.remove('highlight'));
                 this.nextRandomKey();
             } else {
@@ -1192,7 +1137,7 @@ class FingerTrainingEngine {
         this.currentKey   = null;
         this.correctCount = 0;
         this.wrongCount   = 0;
-        this.fingerDrillStats.style.display = 'none'; // FIX: was setting to none then immediately grid
+        this.fingerDrillStats.style.display = 'none';
         this.targetKeyChar.textContent    = '-';
         this.targetFingerIcon.textContent = '👆';
         this.targetFingerName.textContent = 'Waiting...';
@@ -1271,7 +1216,6 @@ function renderWeakKeys() {
     });
 }
 
-// FIX: renderWPMLineChart and renderKeyHeatmap are now top-level functions (not nested)
 function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
@@ -1279,7 +1223,6 @@ function renderWPMLineChart() {
     let wpmHistory = [];
     try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
     if (!Array.isArray(wpmHistory)) wpmHistory = [];
-    // Show last 20 tests, not grouped by date
     const N = 20;
     wpmHistory = wpmHistory.slice(-N);
 
@@ -1310,14 +1253,12 @@ function renderWPMLineChart() {
     });
 }
 
-// FIX: QWERTY layout rows + dark mode inline color support
 function renderKeyHeatmap(weakKeys) {
     const grid = document.getElementById('key-heatmap-grid');
     if (!grid) return;
     let keyStats = {};
     try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
 
-    // QWERTY layout — each sub-array is a row
     const QWERTY_ROWS = [
         ['1','2','3','4','5','6','7','8','9','0','-','='],
         ['q','w','e','r','t','y','u','i','o','p','[',']'],
@@ -1338,7 +1279,6 @@ function renderKeyHeatmap(weakKeys) {
             const isWeak  = weakKeys && weakKeys.some(([wk]) => wk === k);
             const ratio   = freq / max;
 
-            // Inline color so dark mode override in CSS doesn't flatten it
             let bg, color;
             if (isWeak) {
                 bg    = '#d64545';
@@ -1360,7 +1300,6 @@ function renderKeyHeatmap(weakKeys) {
             const cell = document.createElement('div');
             cell.className = 'heatmap-key-cell';
             cell.style.cssText = `background:${bg}; color:${color}; border-color:${isWeak ? '#ff6b6b' : 'transparent'};`;
-            // Show error rate if weak
             let weakInfo = '';
             if (isWeak && weakKeys) {
                 const wk = weakKeys.find(([wk]) => wk === k);
@@ -1393,9 +1332,8 @@ function renderDashboard() {
     document.getElementById("completed-lessons").textContent = `${data.completedLessons.length}/${LESSON_DATA.length}`;
     document.getElementById("tests-taken").textContent      = data.testsTaken || 0;
 
-    // Update today's goal widget
     updateGoalWidget();
-    // Weak keys section
+
     const weakKeysChart = document.getElementById("dashboard-weak-keys");
     const weakKeys      = progressManager.getTopWeakKeys(8);
     if (weakKeys.length === 0) {
@@ -1411,7 +1349,6 @@ function renderDashboard() {
         });
     }
 
-    // Achievements
     const achWrap = document.getElementById('dashboard-achievements');
     if (achWrap) {
         achWrap.innerHTML = '';
@@ -1431,9 +1368,8 @@ function renderDashboard() {
         }
     }
 
-    // FIX: Call top-level functions with correct scope
     renderWPMLineChart();
-    renderKeyHeatmap(weakKeys); // FIX: pass weakKeys so heatmap can highlight them
+    renderKeyHeatmap(weakKeys);
 }
 
 // ============ MODE SWITCHING ============
@@ -1448,9 +1384,8 @@ function switchMode(mode) {
     const activeSection = document.getElementById(`${sectionMode}-mode`);
     if (activeSection) { activeSection.classList.add("active"); activeSection.hidden = false; }
 
-    // Hide options row and timer/word-count groups in quote/code mode
-    const optionsRow    = document.querySelector('.options-row');
-    const timerGroup    = document.querySelector('.timer-group');
+    const optionsRow     = document.querySelector('.options-row');
+    const timerGroup     = document.querySelector('.timer-group');
     const wordCountGroup = document.querySelector('.word-count-group');
 
     if (mode === 'quote' || mode === 'code') {
@@ -1459,13 +1394,16 @@ function switchMode(mode) {
         if (wordCountGroup) wordCountGroup.style.display = 'none';
     } else {
         if (optionsRow)     optionsRow.style.display     = '';
-        if (timerGroup)     timerGroup.style.display     = '';
-        if (wordCountGroup) wordCountGroup.style.display = '';
+        // BUG FIX #3: Restore timer/word-count group visibility based on current segmented mode
+        // instead of unconditionally showing both (which caused both to show at once)
+        const currentSegment = document.querySelector('.segmented-btn.active')?.dataset.mode || 'timed';
+        if (timerGroup)     timerGroup.style.display     = currentSegment === 'timed' ? '' : 'none';
+        if (wordCountGroup) wordCountGroup.style.display = currentSegment === 'words' ? '' : 'none';
     }
 
-    if      (mode === "lessons")        renderLessons();
-    else if (mode === "practice")       { renderWeakKeys(); practiceEngine.start(); }
-    else if (mode === "dashboard")      renderDashboard();
+    if      (mode === "lessons")         renderLessons();
+    else if (mode === "practice")        { renderWeakKeys(); practiceEngine.start(); }
+    else if (mode === "dashboard")       renderDashboard();
     else if (mode === "finger-training") fingerTrainingEngine.reset();
     else if (mode === "test" || mode === "quote" || mode === "code") testEngine.reset(true);
 
@@ -1491,56 +1429,14 @@ function updateThemeToggle(theme) {
 
 // ============ INITIALIZATION ============
 
+// BUG FIX #2: Declare globals once here (they were declared twice in original,
+// causing the first set of instantiated engines to be overwritten with fresh
+// instances AFTER all event listeners were attached — completely breaking the app)
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
-    progressManager      = new ProgressManager();
-    testEngine           = new TestEngine();
-    lessonEngine         = new LessonEngine();
-    practiceEngine       = new PracticeEngine();
-    fingerTrainingEngine = new FingerTrainingEngine();
 
-    // Segmented control logic for mutually exclusive timer/word-count selection (must be after testEngine is initialized)
-    const segmentedControl = document.getElementById('mode-segmented-control');
-    const timerGroup = document.getElementById('timer-group');
-    const wordCountGroup = document.getElementById('word-count-group');
-    function setModeSegmented(mode) {
-        if (mode === 'timed') {
-            timerGroup.style.display = '';
-            wordCountGroup.style.display = 'none';
-            // Set first timer button active if none is
-            let active = false;
-            document.querySelectorAll('.timer-btn').forEach((btn, i) => {
-                if (btn.classList.contains('active')) active = true;
-            });
-            if (!active) document.querySelector('.timer-btn').classList.add('active');
-            document.querySelectorAll('.word-count-btn').forEach(btn => btn.classList.remove('active'));
-            // Reset test engine to timed mode
-            testEngine.reset(false);
-            testEngine.loadNewText();
-        } else {
-            timerGroup.style.display = 'none';
-            wordCountGroup.style.display = '';
-            // Set first word count button active if none is
-            let active = false;
-            document.querySelectorAll('.word-count-btn').forEach((btn, i) => {
-                if (btn.classList.contains('active')) active = true;
-            });
-            if (!active) document.querySelector('.word-count-btn').classList.add('active');
-            document.querySelectorAll('.timer-btn').forEach(btn => btn.classList.remove('active'));
-            // Reset test engine to word count mode
-            testEngine.reset(true);
-            testEngine.loadNewText();
-        }
-        // Update segmented control button styling
-        document.querySelectorAll('.segmented-btn').forEach(btn => {
-            if (btn.dataset.mode === mode) btn.classList.add('active');
-            else btn.classList.remove('active');
-        });
-    }
-    document.getElementById('segmented-timed').addEventListener('click', () => setModeSegmented('timed'));
-    document.getElementById('segmented-words').addEventListener('click', () => setModeSegmented('words'));
-    setModeSegmented('timed');
+    // BUG FIX #2 (continued): Only instantiate engines ONCE
     progressManager      = new ProgressManager();
     testEngine           = new TestEngine();
     lessonEngine         = new LessonEngine();
@@ -1550,6 +1446,35 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(getInitialTheme());
     testEngine.loadNewText();
     testEngine.start(false);
+
+    // Segmented control (timed vs word count)
+    const timerGroup     = document.getElementById('timer-group');
+    const wordCountGroup = document.getElementById('word-count-group');
+
+    function setModeSegmented(mode) {
+        if (mode === 'timed') {
+            timerGroup.style.display     = '';
+            wordCountGroup.style.display = 'none';
+            const hasActive = [...document.querySelectorAll('.timer-btn')].some(b => b.classList.contains('active'));
+            if (!hasActive) document.querySelector('.timer-btn').classList.add('active');
+            document.querySelectorAll('.word-count-btn').forEach(btn => btn.classList.remove('active'));
+        } else {
+            timerGroup.style.display     = 'none';
+            wordCountGroup.style.display = '';
+            const hasActive = [...document.querySelectorAll('.word-count-btn')].some(b => b.classList.contains('active'));
+            if (!hasActive) document.querySelector('.word-count-btn').classList.add('active');
+            document.querySelectorAll('.timer-btn').forEach(btn => btn.classList.remove('active'));
+        }
+        document.querySelectorAll('.segmented-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        testEngine.reset(true);
+        testEngine.loadNewText();
+    }
+
+    document.getElementById('segmented-timed').addEventListener('click', () => setModeSegmented('timed'));
+    document.getElementById('segmented-words').addEventListener('click', () => setModeSegmented('words'));
+    setModeSegmented('timed');
 
     function isFeedbackModalOpen() {
         const modal = document.getElementById('feedback-modal');
@@ -1572,14 +1497,14 @@ document.addEventListener("DOMContentLoaded", () => {
         tab.addEventListener("click", e => switchMode(e.currentTarget.dataset.mode));
     });
 
-    // Timer buttons — FIX: deactivate word count buttons when timer selected
+    // Timer buttons
     document.querySelectorAll(".timer-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const time = parseInt(e.target.dataset.time, 10);
             testEngine.timeLimit = time;
             testEngine.timeLeft  = time;
             document.querySelectorAll(".timer-btn").forEach(b => b.classList.remove("active"));
-            document.querySelectorAll(".word-count-btn").forEach(b => b.classList.remove("active")); // FIX
+            document.querySelectorAll(".word-count-btn").forEach(b => b.classList.remove("active"));
             e.target.classList.add("active");
             testEngine.reset(false);
             testEngine.loadNewText();
@@ -1587,13 +1512,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Word count buttons — FIX: deactivate timer buttons when word count selected
+    // Word count buttons
     document.querySelectorAll('.word-count-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.word-count-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active')); // FIX
+            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             testEngine.reset(true);
+            testEngine.loadNewText();
         });
     });
 
@@ -1605,7 +1531,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("results").classList.add("hidden");
         testEngine.reset(false); testEngine.start(false);
     });
-
     document.getElementById("results-new-text").addEventListener("click", () => {
         document.getElementById("results").classList.add("hidden");
         testEngine.reset(true);
@@ -1618,7 +1543,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("lesson-complete-modal").classList.add("hidden");
         hideLessonPractice();
     });
-
     document.getElementById("back-to-lessons-modal").addEventListener("click", () => {
         document.getElementById("lesson-complete-modal").classList.add("hidden");
         hideLessonPractice();
@@ -1628,7 +1552,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("start-finger-drill").addEventListener("click", () => fingerTrainingEngine.startDrill());
     document.getElementById("random-key-practice").addEventListener("click", () => fingerTrainingEngine.nextRandomKey());
 
-    // Escape key
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
             document.getElementById("results").classList.add("hidden");
@@ -1641,7 +1564,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById(id).addEventListener("change", () => { if (!testEngine.isActive) testEngine.loadNewText(); });
     });
 
-    // FIX: Reset progress button
     const resetBtn = document.getElementById('reset-progress-btn');
     if (resetBtn) {
         resetBtn.addEventListener('click', () => {
@@ -1654,18 +1576,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Feedback system
-    const feedbackBtn   = document.getElementById('feedback-btn');
-    const feedbackModal = document.getElementById('feedback-modal');
-    const closeFeedback = document.getElementById('close-feedback');
-    const feedbackForm  = document.getElementById('feedback-form');
+    const feedbackBtn     = document.getElementById('feedback-btn');
+    const feedbackModal   = document.getElementById('feedback-modal');
+    const closeFeedback   = document.getElementById('close-feedback');
+    const feedbackForm    = document.getElementById('feedback-form');
     const feedbackSuccess = document.getElementById('feedback-success');
 
-    if (feedbackBtn)    feedbackBtn.addEventListener('click', () => feedbackModal.classList.remove('hidden'));
-    if (closeFeedback)  closeFeedback.addEventListener('click', () => feedbackModal.classList.add('hidden'));
+    if (feedbackBtn)   feedbackBtn.addEventListener('click', () => feedbackModal.classList.remove('hidden'));
+    if (closeFeedback) closeFeedback.addEventListener('click', () => feedbackModal.classList.add('hidden'));
     feedbackModal?.addEventListener('click', (e) => { if (e.target === feedbackModal) feedbackModal.classList.add('hidden'); });
 
     if (feedbackForm) {
-        feedbackForm.addEventListener('submit', async (e) => {
+        feedbackForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const formData = new FormData(feedbackForm);
             const feedback = {
@@ -1681,4 +1603,8 @@ document.addEventListener("DOMContentLoaded", () => {
             feedbackSuccess.classList.remove('hidden');
             setTimeout(() => feedbackSuccess.classList.add('hidden'), 3000);
         });
-    }});}
+    }
+
+}); // end DOMContentLoaded
+// BUG FIX #4: Removed the extra stray `}` that was in the original,
+// which caused a syntax error closing the DOMContentLoaded one brace too early.
