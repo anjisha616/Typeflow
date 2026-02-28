@@ -142,6 +142,7 @@ body[data-theme="dark"] .achievement-badge {
     border: 2px solid #f4a261;
     color: #fff;
     box-shadow: 0 4px 16px 0 #f4a26133, 0 1.5px 8px 0 #232b3acc;
+}
 .achievement-badge.locked {
     opacity: 0.45;
     filter: grayscale(1);
