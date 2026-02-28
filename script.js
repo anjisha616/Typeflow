@@ -848,17 +848,28 @@ class LessonEngine {
     displayText() {
         const typedText = this.input.value;
         let idx = 0, html = "";
-        const regex = /<span class='weak-highlight'>(.*?)<\/span>|./g;
-        let match;
-        while ((match = regex.exec(this.currentText)) !== null) {
-            let char, isWeak = false;
-            if (match[1]) { char = match[1]; isWeak = true; } else { char = match[0]; }
-            let cls = "char";
-            if (isWeak) cls += " weak-highlight";
-            if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
-            else if (idx === this.currentPosition) cls += " current";
-            html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
-            idx++;
+        // Split on weak-highlight spans, then spread chars for Unicode safety
+        const parts = this.currentText.split(/(<span class='weak-highlight'>.*?<\/span>)/g).filter(Boolean);
+        for (const part of parts) {
+            if (part.startsWith("<span class='weak-highlight'>")) {
+                // Extract the highlighted text and spread it
+                const inner = part.replace(/^<span class='weak-highlight'>|<\/span>$/g, "");
+                for (const char of [...inner]) {
+                    let cls = "char weak-highlight";
+                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition) cls += " current";
+                    html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
+                    idx++;
+                }
+            } else {
+                for (const char of [...part]) {
+                    let cls = "char";
+                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition) cls += " current";
+                    html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
+                    idx++;
+                }
+            }
         }
         this.textDisplay.innerHTML = html;
     }
@@ -985,17 +996,28 @@ class PracticeEngine {
     displayText() {
         const typedText = this.input.value;
         let idx = 0, html = "";
-        const regex = /<span class='weak-highlight'>(.*?)<\/span>|./g;
-        let match;
-        while ((match = regex.exec(this.currentText)) !== null) {
-            let char, isWeak = false;
-            if (match[1]) { char = match[1]; isWeak = true; } else { char = match[0]; }
-            let cls = "char";
-            if (isWeak) cls += " weak-highlight";
-            if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
-            else if (idx === this.currentPosition) cls += " current";
-            html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
-            idx++;
+        // Split on weak-highlight spans, then spread chars for Unicode safety
+        const parts = this.currentText.split(/(<span class='weak-highlight'>.*?<\/span>)/g).filter(Boolean);
+        for (const part of parts) {
+            if (part.startsWith("<span class='weak-highlight'>")) {
+                // Extract the highlighted text and spread it
+                const inner = part.replace(/^<span class='weak-highlight'>|<\/span>$/g, "");
+                for (const char of [...inner]) {
+                    let cls = "char weak-highlight";
+                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition) cls += " current";
+                    html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
+                    idx++;
+                }
+            } else {
+                for (const char of [...part]) {
+                    let cls = "char";
+                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition) cls += " current";
+                    html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
+                    idx++;
+                }
+            }
         }
         this.textDisplay.innerHTML = html;
     }
