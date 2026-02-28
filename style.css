@@ -123,12 +123,40 @@ body[data-theme="dark"] .word-count-btn:hover {
 .achievement-badge {
     }
     .achievement-badge.locked {
-        opacity: 0.5;
-        filter: grayscale(0.7) brightness(0.85);
+        opacity: 0.72;
+        filter: grayscale(0.85) brightness(0.93);
         border-style: dashed;
         cursor: not-allowed;
         background: linear-gradient(90deg, #e0e0e0 0%, #f5f5f5 100%);
         color: #888 !important;
+        box-shadow: none;
+        pointer-events: none;
+        transition: none;
+    }
+    .achievement-badge.locked .badge-icon {
+        font-size: 1.4em;
+        margin-right: 0.7em;
+        color: #bbb !important;
+    }
+    .achievement-badge.locked .badge-name {
+        color: #888 !important;
+        font-weight: 600;
+    }
+    .achievement-badge.locked .badge-desc {
+        display: block;
+        font-size: 0.97em;
+        color: #aaa;
+        margin-left: 2.1em;
+        margin-top: 0.1em;
+        font-weight: 400;
+        letter-spacing: 0.01em;
+    }
+    body[data-theme="dark"] .achievement-badge.locked {
+        background: linear-gradient(90deg, #232b3a 0%, #232b3a 100%);
+        border: 2px dashed #444;
+        color: #888 !important;
+        box-shadow: none;
+    }
     }
     body[data-theme="dark"] .achievement-badge.locked {
         background: linear-gradient(90deg, #232b3a 0%, #232b3a 100%);
