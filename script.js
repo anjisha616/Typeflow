@@ -513,6 +513,10 @@ class TestEngine {
             this.timerDisplay.textContent = wordsLeft;
             const label = this.timerDisplay.parentElement.querySelector('.stat-label');
             if (label) label.textContent = 'Words';
+            // Auto-end test if words left is 0 and test is active
+            if (wordsLeft === 0 && this.isActive) {
+                this.end();
+            }
         } else {
             this.timerDisplay.textContent = this.isTimedMode() ? Math.max(this.timeLeft, 0) : '∞';
             const label = this.timerDisplay.parentElement.querySelector('.stat-label');
