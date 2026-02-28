@@ -157,7 +157,7 @@ body[data-theme="dark"] .word-count-btn:hover {
         color: #888 !important;
         box-shadow: none;
     }
-    }
+    
     body[data-theme="dark"] .achievement-badge.locked {
         background: linear-gradient(90deg, #232b3a 0%, #232b3a 100%);
         border: 2px dashed #444;
