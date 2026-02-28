@@ -142,18 +142,10 @@ body[data-theme="dark"] .achievement-badge {
     border: 2px solid #f4a261;
     color: #fff;
     box-shadow: 0 4px 16px 0 #f4a26133, 0 1.5px 8px 0 #232b3acc;
-/* removed stray curly brace */
-}
-.achievement-badge:hover {
-    box-shadow: 0 4px 16px 0 #e07a5f44;
-    border-color: #e07a5f;
-}
-.badge-icon {
-    font-size: 1.5em;
-    margin-right: 0.5em;
-}
-.badge-name {
-    font-size: 1em;
+.achievement-badge.locked {
+    opacity: 0.45;
+    filter: grayscale(1);
+    cursor: default;
 }
 /* Page transition animation */
 .mode-section {
