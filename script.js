@@ -155,7 +155,6 @@ class ProgressManager {
                 this.data.weakKeys[key] = (this.data.weakKeys[key] || 0) + mistakes[key];
             });
         }
-        this.updateStreak();
         this.save();
     }
 
@@ -634,6 +633,7 @@ class TestEngine {
         const isNewBest = wpm > (progressManager.data.bestWPM || 0);
 
         progressManager.updateTestStats(wpm, accuracy, duration, this.mistakesByChar);
+        progressManager.updateStreak();
         const xpGained = this.calculateXP(wpm, accuracy);
         progressManager.addXP(xpGained);
 
