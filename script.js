@@ -475,7 +475,7 @@ class TestEngine {
     }
 
     start(preserveInput = false) {
-        this.isActive        = true;
+        this.isActive        = false;
         this.currentPosition = 0;
         this.correctChars    = 0;
         this.incorrectChars  = 0;
@@ -542,14 +542,16 @@ class TestEngine {
 
     handleTyping() {
         if (!this.isActive) {
-            if (this.input.value.length > 0) this.start(true);
-            return;
-        }
-
-        if (this.waitingForFirstInput && this.input.value.length > 0) {
-            this.startTime = Date.now();
-            this.startTimer();
-            this.waitingForFirstInput = false;
+            if (this.input.value.length > 0) {
+                // First keypress: activate test
+                this.isActive = true;
+                this.startTime = Date.now();
+                this.startTimer();
+                this.waitingForFirstInput = false;
+            } else {
+                // If not started and no input, allow start(true) for paste recovery
+                return;
+            }
         }
 
         const typedText = this.input.value;
