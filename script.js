@@ -83,11 +83,19 @@ function showToast(message, type = '', duration = 3000) {
 // ============ ACHIEVEMENTS ============
 const ACHIEVEMENTS = [
     { id: 'first-test',    name: 'First Test',       desc: 'Complete your first typing test.',     icon: '🎉' },
-    { id: '50wpm',         name: 'Speedster',         desc: 'Achieve 50 WPM or higher in a test.', icon: '🚀' },
-    { id: '100accuracy',   name: 'Perfect Accuracy',  desc: 'Score 100% accuracy in a test.',      icon: '🎯' },
-    { id: '10tests',       name: 'Test Veteran',      desc: 'Complete 10 typing tests.',            icon: '🏅' },
-    { id: '7day-streak',   name: 'Streak Master',     desc: 'Practice for 7 days in a row.',       icon: '🔥' },
-    { id: 'all-lessons',   name: 'Lesson Legend',     desc: 'Complete all lessons.',               icon: '🌟' }
+    { id: '30wpm',         name: 'Getting Faster',   desc: 'Achieve 30 WPM or higher in a test.',  icon: '🏃' },
+    { id: '50wpm',         name: 'Speedster',        desc: 'Achieve 50 WPM or higher in a test.',  icon: '🚀' },
+    { id: '75wpm',         name: 'Blazing Fast',     desc: 'Achieve 75 WPM or higher in a test.',  icon: '⚡' },
+    { id: '100wpm',        name: 'Centurion',        desc: 'Achieve 100 WPM or higher in a test.', icon: '💯' },
+    { id: '100accuracy',   name: 'Perfect Accuracy', desc: 'Score 100% accuracy in a test.',       icon: '🎯' },
+    { id: '10tests',       name: 'Test Veteran',     desc: 'Complete 10 typing tests.',            icon: '🏅' },
+    { id: '50tests',       name: 'Test Pro',         desc: 'Complete 50 typing tests.',            icon: '🥈' },
+    { id: '100tests',      name: 'Test Master',      desc: 'Complete 100 typing tests.',           icon: '🥇' },
+    { id: '5day-streak',   name: 'Consistent',       desc: 'Practice for 5 days in a row.',        icon: '📅' },
+    { id: '7day-streak',   name: 'Streak Master',    desc: 'Practice for 7 days in a row.',        icon: '🔥' },
+    { id: '30day-streak',  name: 'Unstoppable',      desc: 'Practice for 30 days in a row.',       icon: '🏆' },
+    { id: 'speed-demon',   name: 'Speed Demon',      desc: 'Finish a 15s test with 0 errors.',     icon: '😈' },
+    { id: 'all-lessons',   name: 'Lesson Legend',    desc: 'Complete all lessons.',                icon: '🌟' }
 ];
 
 const LESSON_DATA = [
