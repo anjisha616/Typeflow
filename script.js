@@ -1397,19 +1397,20 @@ function renderDashboard() {
     if (achWrap) {
         achWrap.innerHTML = '';
         const unlocked = (data.achievements || []);
-        if (unlocked.length === 0) {
-            achWrap.innerHTML = '<p class="empty-state">No achievements yet — keep typing!</p>';
-        } else {
-            unlocked.forEach(id => {
-                const ach = ACHIEVEMENTS.find(a => a.id === id);
-                if (!ach) return;
-                const badge = document.createElement('div');
-                badge.className = 'achievement-badge';
-                badge.title = ach.desc;
-                badge.innerHTML = `<span class="badge-icon">${ach.icon}</span><span class="badge-name">${ach.name}</span>`;
-                achWrap.appendChild(badge);
-            });
-        }
+        ACHIEVEMENTS.forEach(ach => {
+            const isUnlocked = unlocked.includes(ach.id);
+            const badge = document.createElement('div');
+            badge.className = 'achievement-badge' + (isUnlocked ? '' : ' locked');
+            badge.title = ach.desc;
+            badge.innerHTML = `<span class="badge-icon">${isUnlocked ? ach.icon : '🔒'}</span><span class="badge-name">${ach.name}</span>`;
+            if (!isUnlocked) {
+                const desc = document.createElement('span');
+                desc.className = 'badge-desc';
+                desc.textContent = ach.desc;
+                badge.appendChild(desc);
+            }
+            achWrap.appendChild(badge);
+        });
     }
 
     renderWPMLineChart();
