@@ -1420,8 +1420,7 @@ function renderWPMLineChart() {
 function renderKeyHeatmap(weakKeys) {
     const grid = document.getElementById('key-heatmap-grid');
     if (!grid) return;
-    let keyStats = {};
-    try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
+    let keyStats = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-key-stats') || '{}', {});
 
     const QWERTY_ROWS = [
         ['1','2','3','4','5','6','7','8','9','0','-','='],
