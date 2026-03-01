@@ -1363,7 +1363,7 @@ function renderWPMLineChart() {
         const arr = wpmHistory;
         wpmHistory = {};
         arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
-        localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
+        safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
     }
     const allEntries = Object.entries(wpmHistory)
         .map(([idx, e]) => ({ ...e, idx: parseInt(idx, 10) }))
