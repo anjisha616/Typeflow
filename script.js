@@ -1635,7 +1635,6 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.classList.toggle('active', btn.dataset.mode === mode);
         });
         testEngine.reset(true);
-        testEngine.loadNewText();
     }
 
     document.getElementById('segmented-timed').addEventListener('click', () => setModeSegmented('timed'));
@@ -1673,7 +1672,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll(".word-count-btn").forEach(b => b.classList.remove("active"));
             e.target.classList.add("active");
             testEngine.reset(false);
-            testEngine.loadNewText();
             testEngine.updateTimerDisplay();
         });
     });
@@ -1685,7 +1683,6 @@ document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             testEngine.reset(true);
-            testEngine.loadNewText();
         });
     });
 
