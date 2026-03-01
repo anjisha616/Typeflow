@@ -1080,9 +1080,23 @@ class PracticeEngine {
     complete() {
         this.isActive = false; this.input.disabled = true;
         const accuracy = parseInt(this.accuracyDisplay.textContent);
-        if (accuracy >= 90) showToast("Great job! Starting next round...", 'success', 2000);
-        else showToast("Practice complete! Focus on accuracy. Starting again...", '', 2500);
-        setTimeout(() => this.start(), 2600);
+        const countdownEl = document.getElementById('practice-countdown');
+        let countdown = 3;
+        if (countdownEl) {
+            countdownEl.style.display = '';
+            countdownEl.textContent = `Well done! Starting next round in ${countdown}…`;
+        }
+        const tick = () => {
+            countdown--;
+            if (countdownEl && countdown > 0) {
+                countdownEl.textContent = `Well done! Starting next round in ${countdown}…`;
+                setTimeout(tick, 1000);
+            } else {
+                if (countdownEl) countdownEl.style.display = 'none';
+                this.start();
+            }
+        };
+        setTimeout(tick, 1000);
     }
 }
 
