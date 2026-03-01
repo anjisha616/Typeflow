@@ -139,12 +139,12 @@ const ACHIEVEMENTS = [
 ];
 
 const LESSON_DATA = [
-    { id: 1, title: "Home Row Fundamentals", description: "Master the foundation - ASDF JKL;",        focusKeys: "asdf jkl;",           unlocked: true,  minAccuracy: 90, minWPM: 15, xpReward: 100 },
-    { id: 2, title: "Top Row Basics",        description: "Expand upward - QWERT YUIOP",              focusKeys: "qwert yuiop",         unlocked: false, minAccuracy: 90, minWPM: 18, xpReward: 150 },
-    { id: 3, title: "Bottom Row Training",   description: "Complete the alphabet - ZXCVBNM",          focusKeys: "zxcvbnm",             unlocked: false, minAccuracy: 90, minWPM: 20, xpReward: 150 },
-    { id: 4, title: "Full Alphabet",         description: "Combine all letters with confidence",      focusKeys: "all letters",         unlocked: false, minAccuracy: 92, minWPM: 25, xpReward: 200 },
-    { id: 5, title: "Numbers Integration",   description: "Add numeric proficiency",                  focusKeys: "0-9",                 unlocked: false, minAccuracy: 90, minWPM: 25, xpReward: 200 },
-    { id: 6, title: "Symbols Mastery",       description: "Complete typing - symbols & punctuation",  focusKeys: "! @ # $ % & * + - ?", unlocked: false, minAccuracy: 88, minWPM: 30, xpReward: 250 }
+    { id: 1, title: "Home Row Fundamentals", description: "Master the foundation - ASDF JKL;",        focusKeys: "asdf jkl;",           minAccuracy: 90, minWPM: 15, xpReward: 100 },
+    { id: 2, title: "Top Row Basics",        description: "Expand upward - QWERT YUIOP",              focusKeys: "qwert yuiop",         minAccuracy: 90, minWPM: 18, xpReward: 150 },
+    { id: 3, title: "Bottom Row Training",   description: "Complete the alphabet - ZXCVBNM",          focusKeys: "zxcvbnm",             minAccuracy: 90, minWPM: 20, xpReward: 150 },
+    { id: 4, title: "Full Alphabet",         description: "Combine all letters with confidence",      focusKeys: "all letters",         minAccuracy: 92, minWPM: 25, xpReward: 200 },
+    { id: 5, title: "Numbers Integration",   description: "Add numeric proficiency",                  focusKeys: "0-9",                 minAccuracy: 90, minWPM: 25, xpReward: 200 },
+    { id: 6, title: "Symbols Mastery",       description: "Complete typing - symbols & punctuation",  focusKeys: "! @ # $ % & * + - ?", minAccuracy: 88, minWPM: 30, xpReward: 250 }
 ];
 
 const LEVEL_THRESHOLDS = [
@@ -265,7 +265,7 @@ class ProgressManager {
         safeLocalStorage.removeItem('typeflow-progress');
         safeLocalStorage.removeItem('typeflow-wpm-history');
         safeLocalStorage.removeItem('typeflow-key-stats');
-        LESSON_DATA.forEach((_, i) => { if (i > 0) LESSON_DATA[i].unlocked = false; });
+        // No mutation of LESSON_DATA; unlock logic is derived in renderLessons
         this.loadProgress();
     }
 }
@@ -996,7 +996,7 @@ class LessonEngine {
         if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
             progressManager.completeLesson(this.currentLesson.id);
             this.showLessonComplete(wpm, accuracy, duration, this.currentLesson.xpReward);
-            if (this.currentLesson.id < LESSON_DATA.length) LESSON_DATA[this.currentLesson.id].unlocked = true;
+            // No mutation of LESSON_DATA; unlock logic is derived in renderLessons
             if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) progressManager.unlockAchievement('all-lessons');
             renderLessons();
         } else {
@@ -1288,11 +1288,13 @@ function renderLessons() {
     grid.innerHTML = "";
     LESSON_DATA.forEach((lesson, idx) => {
         const isCompleted = progressManager.data.completedLessons.includes(lesson.id);
-        const isLocked    = !lesson.unlocked && !isCompleted;
+        // Unlocked if first lesson, or previous lesson is completed
+        const isUnlocked = (idx === 0) || progressManager.data.completedLessons.includes(LESSON_DATA[idx - 1]?.id);
+        const isLocked = !isUnlocked || isCompleted;
         const card = document.createElement("div");
-        card.className = `lesson-card ${isLocked ? "locked" : ""} ${isCompleted ? "completed" : ""}`;
+        card.className = `lesson-card ${isLocked && !isCompleted ? "locked" : ""} ${isCompleted ? "completed" : ""}`;
 
-        if (isLocked) {
+        if (isLocked && !isCompleted) {
             let prevLesson = LESSON_DATA[idx - 1];
             let tooltip = prevLesson ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM` : "Complete previous lesson to unlock";
             let tooltipClass = "lesson-tooltip";
