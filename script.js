@@ -26,32 +26,30 @@ function setDailyGoal(val) {
 function updateGoalWidget() {
     const DAILY_GOAL = getDailyGoal();
     const today = new Date().toDateString();
-    let testsToday = 0;
-        let wpmHistory = {};
-        try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
-        // MIGRATION: Convert old array format to object format if needed
-        if (Array.isArray(wpmHistory)) {
-            const arr = wpmHistory;
-            wpmHistory = {};
-            arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
-            localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
-        }
-        // MIGRATION: Convert any old date fields from toLocaleDateString() to toDateString() format
-        let migrated = false;
-        Object.values(wpmHistory).forEach(e => {
-            if (e.date && !isNaN(Date.parse(e.date)) && !/^\w{3} \w{3} \d{1,2} \d{4}$/.test(e.date)) {
-                const d = new Date(e.date);
-                const newDate = d.toDateString();
-                if (e.date !== newDate) {
-                    e.date = newDate;
-                    migrated = true;
-                }
+    let wpmHistory = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}', {});
+    // MIGRATION: Convert old array format to object format if needed
+    if (Array.isArray(wpmHistory)) {
+        const arr = wpmHistory;
+        wpmHistory = {};
+        arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
+        safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
+    }
+    // MIGRATION: Convert any old date fields from toLocaleDateString() to toDateString() format
+    let migrated = false;
+    Object.values(wpmHistory).forEach(e => {
+        if (e.date && !isNaN(Date.parse(e.date)) && !/^\w{3} \w{3} \d{1,2} \d{4}$/.test(e.date)) {
+            const d = new Date(e.date);
+            const newDate = d.toDateString();
+            if (e.date !== newDate) {
+                e.date = newDate;
+                migrated = true;
             }
-        });
-        if (migrated) {
-            localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
         }
-        testsToday = Object.values(wpmHistory).filter(e => e.date === today).length;
+    });
+    if (migrated) {
+        safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
+    }
+    let testsToday = Object.values(wpmHistory).filter(e => e.date === today).length;
     testsToday = wpmHistory.filter(e => e.date === today).length;
     const goalTotal = document.getElementById('goal-total');
     const goalTotal2 = document.getElementById('goal-total-2');
@@ -636,11 +634,10 @@ class TestEngine {
         if (typedText.length > this.currentPosition) {
             const newChar = typedText[this.currentPosition];
             if (newChar && newChar.length === 1) {
-                let keyStats = {};
-                try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
+                let keyStats = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-key-stats') || '{}', {});
                 const k = newChar.toLowerCase();
                 keyStats[k] = (keyStats[k] || 0) + 1;
-                localStorage.setItem('typeflow-key-stats', JSON.stringify(keyStats));
+                safeLocalStorage.setItem('typeflow-key-stats', safeLocalStorage.stringify(keyStats));
             }
         }
 
