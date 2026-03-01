@@ -991,7 +991,7 @@ class LessonEngine {
         const wpm      = parseInt(this.wpmDisplay.textContent);
         const accuracy = parseInt(this.accuracyDisplay.textContent);
         const duration = Math.floor((Date.now() - this.startTime) / 1000);
-        if (this.currentLesson) localStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
+        if (this.currentLesson) safeLocalStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
 
         if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
             progressManager.completeLesson(this.currentLesson.id);
@@ -1308,7 +1308,7 @@ function renderLessons() {
         } else {
             let progress = 0;
             if (!isCompleted) {
-                const lastProgress = localStorage.getItem(`lesson-progress-${lesson.id}`);
+                const lastProgress = safeLocalStorage.getItem(`lesson-progress-${lesson.id}`);
                 progress = lastProgress ? parseInt(lastProgress) : 0;
             } else { progress = 100; }
             card.innerHTML = `
