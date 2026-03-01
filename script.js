@@ -262,9 +262,9 @@ class ProgressManager {
     getXPToNextLevel() { const next = this.getNextLevel(); return next ? next.minXP - this.data.xp : 0; }
 
     resetAllProgress() {
-        localStorage.removeItem('typeflow-progress');
-        localStorage.removeItem('typeflow-wpm-history');
-        localStorage.removeItem('typeflow-key-stats');
+        safeLocalStorage.removeItem('typeflow-progress');
+        safeLocalStorage.removeItem('typeflow-wpm-history');
+        safeLocalStorage.removeItem('typeflow-key-stats');
         LESSON_DATA.forEach((_, i) => { if (i > 0) LESSON_DATA[i].unlocked = false; });
         this.loadProgress();
     }
@@ -1571,18 +1571,18 @@ function switchMode(mode) {
     else if (mode === "finger-training") fingerTrainingEngine.reset();
     else if (mode === "test" || mode === "quote" || mode === "code") testEngine.reset(true);
 
-    localStorage.setItem('typeflow-mode', mode);
+    safeLocalStorage.setItem('typeflow-mode', mode);
 }
 
 // ============ THEME MANAGEMENT ============
 
 function getInitialTheme() {
-    const stored = localStorage.getItem("typeflow-theme");
+    const stored = safeLocalStorage.getItem("typeflow-theme");
     if (stored === "light" || stored === "dark") return stored;
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function applyTheme(theme) { document.body.setAttribute("data-theme", theme); localStorage.setItem("typeflow-theme", theme); updateThemeToggle(theme); }
+function applyTheme(theme) { document.body.setAttribute("data-theme", theme); safeLocalStorage.setItem("typeflow-theme", theme); updateThemeToggle(theme); }
 function toggleTheme()     { applyTheme(document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"); }
 
 function updateThemeToggle(theme) {
