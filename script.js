@@ -1299,40 +1299,24 @@ function renderWPMLineChart() {
     wpmHistory = wpmHistory.slice(-N);
 
     if (window._wpmChart) { window._wpmChart.destroy(); }
-    // Find personal best
-    const pb = wpmHistory.reduce((max, e) => Math.max(max, e.wpm), 0);
     window._wpmChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: wpmHistory.map((e, i) => `Test #${wpmHistory.length - N + i + 1}`),
-            datasets: [
-                {
-                    label: 'WPM',
-                    data: wpmHistory.map(e => e.wpm),
-                    borderColor: '#e07a5f',
-                    backgroundColor: 'rgba(224,122,95,0.12)',
-                    tension: 0.3,
-                    pointRadius: 4,
-                    pointBackgroundColor: '#e07a5f',
-                    fill: true,
-                },
-                {
-                    label: 'Personal Best',
-                    data: wpmHistory.map(() => pb),
-                    borderColor: '#3b82f6',
-                    borderDash: [6, 6],
-                    pointRadius: 0,
-                    borderWidth: 2,
-                    fill: false,
-                    backgroundColor: 'rgba(0,0,0,0)',
-                    pointHitRadius: 0,
-                    order: 0,
-                }
-            ]
+            datasets: [{
+                label: 'WPM',
+                data: wpmHistory.map(e => e.wpm),
+                borderColor: '#e07a5f',
+                backgroundColor: 'rgba(224,122,95,0.12)',
+                tension: 0.3,
+                pointRadius: 4,
+                pointBackgroundColor: '#e07a5f',
+                fill: true,
+            }]
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: true }, tooltip: { enabled: true } },
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
             scales: {
                 x: { display: true, grid: { display: false } },
                 y: { display: true, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { stepSize: 10 } }
