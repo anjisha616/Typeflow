@@ -422,7 +422,14 @@ class TestEngine {
     generateText() {
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
-            const raw = famousQuotes[Math.floor(Math.random() * famousQuotes.length)];
+            // Filter for quotes with at least 120 chars (excluding author)
+            let candidates = famousQuotes.filter(q => {
+                const match = q.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
+                const text = match ? match[1] : q;
+                return text && text.length >= 120;
+            });
+            if (candidates.length === 0) candidates = famousQuotes; // fallback if all are short
+            const raw = candidates[Math.floor(Math.random() * candidates.length)];
             const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
             if (match) {
                 this.currentAuthor = match[2];
