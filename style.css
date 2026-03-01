@@ -1,3 +1,20 @@
+/* Code mode: preserve whitespace and monospace font */
+.code-block {
+    font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
+    font-size: 1.08em;
+    background: #f7f7fa;
+    color: #222;
+    padding: 0.7em 1em;
+    border-radius: 8px;
+    white-space: pre;
+    overflow-x: auto;
+    margin: 0.2em 0 0.5em 0;
+    line-height: 1.5;
+}
+body[data-theme="dark"] .code-block {
+    background: #232b3a;
+    color: #fff;
+}
 /* === MOBILE/TABLET SUPPORT === */
 @media (max-width: 700px) {
     .app, .panel, .mode-section, .practice-header, .practice-stats, .actions, .input-card, .text-card, .dashboard-chart-section, .dashboard-heatmap-section {
