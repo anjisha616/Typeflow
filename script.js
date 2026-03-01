@@ -1612,7 +1612,6 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(getInitialTheme());
     testEngine.loadNewText();
     testEngine.start(false);
-
     // Segmented control (timed vs word count)
     const timerGroup     = document.getElementById('timer-group');
     const wordCountGroup = document.getElementById('word-count-group');
