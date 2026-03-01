@@ -1,3 +1,18 @@
+// === MOBILE/TABLET TOUCH SUPPORT ===
+document.addEventListener('DOMContentLoaded', () => {
+    // Make text cards focus input on tap (for mobile)
+    function enableTouchFocus(cardSelector, inputSelector) {
+        const card = document.querySelector(cardSelector);
+        const input = document.querySelector(inputSelector);
+        if (card && input) {
+            card.addEventListener('touchstart', () => { input.focus(); }, {passive:true});
+            card.addEventListener('click', () => { input.focus(); });
+        }
+    }
+    enableTouchFocus('.text-card', '#typing-input');
+    enableTouchFocus('.text-card', '#practice-input');
+    enableTouchFocus('.text-card', '#lesson-input');
+});
 // === TODAY'S GOAL WIDGET ===
 function getDailyGoal() {
     return parseInt(localStorage.getItem('typeflow-daily-goal') || '3', 10);
