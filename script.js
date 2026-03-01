@@ -497,6 +497,20 @@ class TestEngine {
                 authorHtml = `<div class="quote-author">— ${this.currentAuthor}</div>`;
             }
             this.textDisplay.innerHTML = `<div class="quote-main">${html}</div>${authorHtml}`;
+        } else if (mode === 'code') {
+            // Render code with whitespace preserved and monospace font
+            const html = this.currentText.split("").map((char, i) => {
+                let cls = "char";
+                if (i < this.currentPosition) {
+                    cls += typedText[i] === char ? " correct" : " incorrect";
+                } else if (i === this.currentPosition) {
+                    cls += " current";
+                }
+                if (i < hideUntil) cls += " gone";
+                // Replace space with nbsp for visual clarity
+                return `<span class="${cls}">${char === ' ' ? '&nbsp;' : this.formatChar(char)}</span>`;
+            }).join("");
+            this.textDisplay.innerHTML = `<pre class="code-block">${html}</pre>`;
         } else {
             const html = this.currentText.split("").map((char, i) => {
                 let cls = "char";
