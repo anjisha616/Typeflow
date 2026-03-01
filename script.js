@@ -1764,9 +1764,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 bugs: formData.get('bugs'), email: formData.get('email'),
                 userAgent: navigator.userAgent
             };
-            const allFeedback = JSON.parse(localStorage.getItem('typeflow-feedback') || '[]');
+            const allFeedback = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-feedback') || '[]', []);
             allFeedback.push(feedback);
-            localStorage.setItem('typeflow-feedback', JSON.stringify(allFeedback));
+            safeLocalStorage.setItem('typeflow-feedback', safeLocalStorage.stringify(allFeedback));
             feedbackForm.reset();
             feedbackSuccess.classList.remove('hidden');
             setTimeout(() => feedbackSuccess.classList.add('hidden'), 3000);
