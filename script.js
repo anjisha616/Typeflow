@@ -27,24 +27,31 @@ function updateGoalWidget() {
     const DAILY_GOAL = getDailyGoal();
     const today = new Date().toDateString();
     let testsToday = 0;
-    let wpmHistory = [];
-    try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
-    // MIGRATION: Convert any old date fields from toLocaleDateString() to toDateString() format
-    let migrated = false;
-    wpmHistory.forEach(e => {
-        // If date is in MM/DD/YYYY or similar format, convert to toDateString
-        if (e.date && !isNaN(Date.parse(e.date)) && !/^\w{3} \w{3} \d{1,2} \d{4}$/.test(e.date)) {
-            const d = new Date(e.date);
-            const newDate = d.toDateString();
-            if (e.date !== newDate) {
-                e.date = newDate;
-                migrated = true;
-            }
+        let wpmHistory = {};
+        try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
+        // MIGRATION: Convert old array format to object format if needed
+        if (Array.isArray(wpmHistory)) {
+            const arr = wpmHistory;
+            wpmHistory = {};
+            arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
+            localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
         }
-    });
-    if (migrated) {
-        localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
-    }
+        // MIGRATION: Convert any old date fields from toLocaleDateString() to toDateString() format
+        let migrated = false;
+        Object.values(wpmHistory).forEach(e => {
+            if (e.date && !isNaN(Date.parse(e.date)) && !/^\w{3} \w{3} \d{1,2} \d{4}$/.test(e.date)) {
+                const d = new Date(e.date);
+                const newDate = d.toDateString();
+                if (e.date !== newDate) {
+                    e.date = newDate;
+                    migrated = true;
+                }
+            }
+        });
+        if (migrated) {
+            localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
+        }
+        testsToday = Object.values(wpmHistory).filter(e => e.date === today).length;
     testsToday = wpmHistory.filter(e => e.date === today).length;
     const goalTotal = document.getElementById('goal-total');
     const goalTotal2 = document.getElementById('goal-total-2');
@@ -707,10 +714,20 @@ class TestEngine {
         if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
         if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
 
-        let wpmHistory = [];
-        try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
-        wpmHistory.push({ date: new Date().toDateString(), wpm });
-        localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory.slice(-30)));
+        let wpmHistory = {};
+        try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
+        // MIGRATION: Convert old array format to object format if needed
+        if (Array.isArray(wpmHistory)) {
+            const arr = wpmHistory;
+            wpmHistory = {};
+            arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
+        }
+        // Find the next available test index (as a string)
+        let nextIndex = 1;
+        const indices = Object.keys(wpmHistory).map(Number).filter(n => !isNaN(n));
+        if (indices.length > 0) nextIndex = Math.max(...indices) + 1;
+        wpmHistory[nextIndex] = { date: new Date().toDateString(), wpm };
+        localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
 
         this.updateMiniWPMChart();
         this.showResults(wpm, accuracy, xpGained, isNewBest);
@@ -1342,11 +1359,20 @@ function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let wpmHistory = [];
-    try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '[]'); } catch { wpmHistory = []; }
-    if (!Array.isArray(wpmHistory)) wpmHistory = [];
+    let wpmHistory = {};
+    try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
+    // MIGRATION: Convert old array format to object format if needed
+    if (Array.isArray(wpmHistory)) {
+        const arr = wpmHistory;
+        wpmHistory = {};
+        arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
+        localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
+    }
+    const allEntries = Object.entries(wpmHistory)
+        .map(([idx, e]) => ({ ...e, idx: parseInt(idx, 10) }))
+        .sort((a, b) => a.idx - b.idx);
     const N = 20;
-    wpmHistory = wpmHistory.slice(-N);
+    const visible = allEntries.slice(-N);
 
     if (window._wpmChart) { window._wpmChart.destroy(); }
     // Find personal best (PB) value in the visible history
