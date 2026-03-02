@@ -1,3 +1,66 @@
+/* Help Button and Modal Styles */
+.help-btn {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+    background: var(--accent-strong, #e07a5f);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.3em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 1001;
+}
+.help-btn:hover {
+    background: #d35c3a;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1002;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;
+    background: rgba(0,0,0,0.35);
+}
+.modal-content {
+    background: #fff;
+    margin: 8% auto;
+    padding: 24px 32px;
+    border-radius: var(--radius-md, 12px);
+    max-width: 400px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    position: relative;
+}
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 1.3em;
+    color: var(--accent-strong, #e07a5f);
+}
+.modal-content ul {
+    margin: 16px 0;
+    padding-left: 18px;
+}
+.modal-content li {
+    margin-bottom: 8px;
+}
+.modal-content .close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 1.5em;
+    color: #888;
+    cursor: pointer;
+}
+.modal-content .close:hover {
+    color: #e07a5f;
+}
 /* Code mode: preserve whitespace and monospace font */
 .code-block {
     font-family: 'Fira Mono', 'Consolas', 'Menlo', 'Monaco', monospace;
