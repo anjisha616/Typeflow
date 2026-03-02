@@ -49,8 +49,7 @@ function updateGoalWidget() {
     if (migrated) {
         safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
     }
-    let testsToday = Object.values(wpmHistory).filter(e => e.date === today).length;
-    testsToday = wpmHistory.filter(e => e.date === today).length;
+        let testsToday = Object.values(wpmHistory).filter(e => e.date === today).length;
     const goalTotal = document.getElementById('goal-total');
     const goalTotal2 = document.getElementById('goal-total-2');
     const goalProgressCount = document.getElementById('goal-progress-count');
