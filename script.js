@@ -612,11 +612,12 @@ class TestEngine {
         this.timerInterval = setInterval(() => {
             this.timeLeft -= 1;
             this.updateTimerDisplay();
-            if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
-            if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
-            if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
             if (this.timeLeft <= 0) this.end();
         }, 1000);
+        // Achievement checks (only once per test end)
+        if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
+        if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
+        if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
     }
 
     updateTimerDisplay() {
