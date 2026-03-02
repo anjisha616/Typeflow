@@ -504,11 +504,14 @@ class TestEngine {
                 if (i < hideUntil) cls += " gone";
                 return `<span class="${cls}">${this.formatChar(char)}</span>`;
             }).join("");
-            let authorHtml = '';
-            if (this.currentAuthor) {
-                authorHtml = `<div class="quote-author">— ${this.currentAuthor}</div>`;
-            }
-            this.textDisplay.innerHTML = `<div class="quote-main">${html}</div>${authorHtml}`;
+            // Hide author during test
+            this.textDisplay.innerHTML = `<div class="quote-main">${html}</div>`;
+                // Reveal quote author after test ends
+                const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
+                if (mode === 'quote' && this.currentAuthor) {
+                    const html = this.textDisplay.querySelector('.quote-main')?.innerHTML || '';
+                    this.textDisplay.innerHTML = `<div class="quote-main">${html}</div><div class="quote-author">— ${this.currentAuthor}</div>`;
+                }
         } else if (mode === 'code') {
             // Render code with whitespace preserved and monospace font
             const html = this.currentText.split("").map((char, i) => {
