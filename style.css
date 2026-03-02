@@ -1,3 +1,19 @@
+.btn.danger {
+    background: #e07a5f;
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-sm, 8px);
+    padding: 0.5em 1.2em;
+    font-size: 1em;
+    font-weight: 500;
+    margin-left: 0.7em;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.2s;
+}
+.btn.danger:hover {
+    background: #d35c3a;
+}
 /* Help Button and Modal Styles */
 .help-btn {
     position: absolute;
