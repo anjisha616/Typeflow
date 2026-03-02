@@ -1,3 +1,48 @@
+/* Responsive horizontal scroll for mode nav */
+.mode-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    background: var(--nav-bg, #fff);
+    border-radius: var(--radius-md, 12px);
+    padding: 0.5em 0.2em;
+    margin-bottom: 1.2em;
+}
+.mode-nav::-webkit-scrollbar {
+    display: none;
+}
+.mode-tab {
+    flex: 0 0 auto;
+    min-width: 48px;
+    padding: 0.5em 0.7em;
+    margin: 0 0.1em;
+    border-radius: var(--radius-sm, 8px);
+    background: none;
+    border: none;
+    font-size: 1em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+.mode-tab .tab-label {
+    display: inline;
+}
+@media (max-width: 600px) {
+    .mode-nav {
+        padding: 0.5em 0.1em;
+    }
+    .mode-tab {
+        min-width: 44px;
+        padding: 0.5em 0.4em;
+        font-size: 1em;
+    }
+    .mode-tab .tab-label {
+        display: none;
+    }
+}
 .btn.danger {
     background: #e07a5f;
     color: #fff;
