@@ -526,6 +526,9 @@ class TestEngine {
             }).join("");
             // Hide author during test
             this.textDisplay.innerHTML = `<div class="quote-main">${html}</div>`;
+            // Smooth caret scrolling for quote mode
+            const currentChar = this.textDisplay.querySelector('.current');
+            if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 // Reveal quote author after test ends
                 const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
                 if (mode === 'quote' && this.currentAuthor) {
@@ -546,6 +549,9 @@ class TestEngine {
                 return `<span class="${cls}">${char === ' ' ? '&nbsp;' : this.formatChar(char)}</span>`;
             }).join("");
             this.textDisplay.innerHTML = `<pre class="code-block">${html}</pre>`;
+            // Smooth caret scrolling for code mode
+            const currentChar = this.textDisplay.querySelector('.current');
+            if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         } else {
             const html = this.currentText.split("").map((char, i) => {
                 let cls = "char";
@@ -558,6 +564,9 @@ class TestEngine {
                 return `<span class="${cls}">${this.formatChar(char)}</span>`;
             }).join("");
             this.textDisplay.innerHTML = html;
+            // Smooth caret scrolling for test mode
+            const currentChar = this.textDisplay.querySelector('.current');
+            if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
     }
 
