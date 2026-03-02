@@ -710,11 +710,28 @@ class TestEngine {
     }
 
     updateStats(reset = false) {
-        if (reset) { this.wpmDisplay.textContent = "0"; this.accuracyDisplay.textContent = "100%"; return; }
+        if (reset) {
+            this.wpmDisplay.textContent = "0";
+            this.accuracyDisplay.textContent = "100%";
+            const pbBadge = document.getElementById('pb-badge');
+            if (pbBadge) pbBadge.style.display = 'none';
+            return;
+        }
         const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1 / 60);
-        this.wpmDisplay.textContent = Math.round((this.correctChars / 5) / elapsed) || 0;
+        const currentWPM = Math.round((this.correctChars / 5) / elapsed) || 0;
+        this.wpmDisplay.textContent = currentWPM;
         const total = this.correctChars + this.incorrectChars;
         this.accuracyDisplay.textContent = `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
+        // Show PB badge if current pace is on track to beat best
+        const pbBadge = document.getElementById('pb-badge');
+        const bestWPM = progressManager?.data?.bestWPM || 0;
+        if (pbBadge) {
+            if (bestWPM > 0 && currentWPM >= bestWPM) {
+                pbBadge.style.display = '';
+            } else {
+                pbBadge.style.display = 'none';
+            }
+        }
     }
 
     end() {
