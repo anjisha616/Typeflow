@@ -1605,7 +1605,6 @@ function renderDashboard() {
     renderWPMLineChart();
     renderKeyHeatmap(weakKeys);
 }
-
 // ============ MODE SWITCHING ============
 
 function switchMode(mode) {
