@@ -1056,6 +1056,7 @@ class LessonEngine {
 // ============ WEAK KEY PRACTICE ENGINE ============
 
 class PracticeEngine {
+        stopRequested = false;
     constructor() {
         this.currentText     = "";
         this.currentPosition = 0;
@@ -1099,6 +1100,10 @@ class PracticeEngine {
         if (this._boundHandler) this.input.removeEventListener("input", this._boundHandler);
         this._boundHandler = () => this.handleTyping();
         this.input.addEventListener("input", this._boundHandler);
+        this.isActive = true; this.startTime = Date.now();
+        this.updateStats();
+        document.getElementById('practice-countdown').style.display = 'none';
+        this.stopRequested = false;
     }
 
     displayText() {
@@ -1168,6 +1173,10 @@ class PracticeEngine {
         }
         const tick = () => {
             countdown--;
+            if (this.stopRequested) {
+                if (countdownEl) countdownEl.style.display = 'none';
+                return;
+            }
             if (countdownEl && countdown > 0) {
                 countdownEl.textContent = `Well done! Starting next round in ${countdown}…`;
                 setTimeout(tick, 1000);
@@ -1631,6 +1640,15 @@ function updateThemeToggle(theme) {
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Stop practicing button logic
+    const stopBtn = document.getElementById('practice-stop');
+    if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+            practiceEngine.stopRequested = true;
+            practiceEngine.input.disabled = true;
+            document.getElementById('practice-countdown').style.display = 'none';
+        });
+    }
 
     // BUG FIX #2 (continued): Only instantiate engines ONCE
     progressManager      = new ProgressManager();
