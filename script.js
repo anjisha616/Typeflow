@@ -8,6 +8,26 @@ const safeLocalStorage = {
 };
 // === MOBILE/TABLET TOUCH SUPPORT ===
 document.addEventListener('DOMContentLoaded', () => {
+        // Help button/modal logic
+        const helpBtn = document.getElementById('help-btn');
+        const helpModal = document.getElementById('help-modal');
+        const helpClose = document.getElementById('help-close');
+        if (helpBtn && helpModal && helpClose) {
+            helpBtn.addEventListener('click', () => {
+                helpModal.style.display = 'block';
+            });
+            helpClose.addEventListener('click', () => {
+                helpModal.style.display = 'none';
+            });
+            window.addEventListener('click', (e) => {
+                if (e.target === helpModal) helpModal.style.display = 'none';
+            });
+            window.addEventListener('keydown', (e) => {
+                if (helpModal.style.display === 'block' && (e.key === 'Escape' || e.key === '?')) {
+                    helpModal.style.display = 'none';
+                }
+            });
+        }
     // Make text cards focus input on tap (for mobile)
     function enableTouchFocus(cardSelector, inputSelector) {
         const card = document.querySelector(cardSelector);
