@@ -1374,14 +1374,14 @@ function renderWPMLineChart() {
 
     if (window._wpmChart) { window._wpmChart.destroy(); }
     // Find personal best (PB) value in the visible history
-    const wpmData = wpmHistory.map(e => e.wpm);
+    const wpmData = visible.map(e => e.wpm);
     const pb = wpmData.length ? Math.max(...wpmData) : null;
     // PB line: array of PB value or nulls if no PB
     const pbLine = pb !== null ? Array(wpmData.length).fill(pb) : [];
     window._wpmChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: wpmHistory.map((e, i) => `Test #${wpmHistory.length - N + i + 1}`),
+            labels: visible.map((e, i) => `Test #${e.idx}`),
             datasets: [
                 {
                     label: 'WPM',
