@@ -1048,6 +1048,8 @@ class LessonEngine {
         this.currentPosition = 0; this.correctChars = 0; this.incorrectChars = 0;
         this.isActive = false; this.startTime = null;
         this.input.value = ""; this.input.disabled = false;
+        // Reset lesson progress in localStorage
+        if (this.currentLesson) safeLocalStorage.setItem(`lesson-progress-${this.currentLesson.id}`, 0);
         this.currentText = this.generateLessonText(this.currentLesson);
         this.displayText(); this.updateStats(true);
     }
