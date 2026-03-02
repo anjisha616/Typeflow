@@ -1,3 +1,11 @@
+// === SAFE LOCAL STORAGE ===
+const safeLocalStorage = {
+    getItem: (key) => { try { return localStorage.getItem(key); } catch { return null; } },
+    setItem: (key, val) => { try { localStorage.setItem(key, val); } catch {} },
+    removeItem: (key) => { try { localStorage.removeItem(key); } catch {} },
+    parse: (str, fallback) => { try { return JSON.parse(str) ?? fallback; } catch { return fallback; } },
+    stringify: (val) => { try { return JSON.stringify(val); } catch { return '{}'; } }
+};
 // === MOBILE/TABLET TOUCH SUPPORT ===
 document.addEventListener('DOMContentLoaded', () => {
     // Make text cards focus input on tap (for mobile)
