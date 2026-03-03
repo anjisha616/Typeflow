@@ -904,10 +904,19 @@ class TestEngine {
         progressManager.addXP(xpGained);
 
         if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
-        if (wpm >= 50      && !progressManager.hasAchievement('50wpm'))         progressManager.unlockAchievement('50wpm');
+        if (wpm >= 30  && !progressManager.hasAchievement('30wpm'))       progressManager.unlockAchievement('30wpm');
+        if (wpm >= 50  && !progressManager.hasAchievement('50wpm'))       progressManager.unlockAchievement('50wpm');
+        if (wpm >= 75  && !progressManager.hasAchievement('75wpm'))       progressManager.unlockAchievement('75wpm');
+        if (wpm >= 100 && !progressManager.hasAchievement('100wpm'))      progressManager.unlockAchievement('100wpm');
         if (accuracy === 100 && !progressManager.hasAchievement('100accuracy')) progressManager.unlockAchievement('100accuracy');
-        if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
-        if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
+        if ((progressManager.data.testsTaken||0) >= 10  && !progressManager.hasAchievement('10tests'))  progressManager.unlockAchievement('10tests');
+        if ((progressManager.data.testsTaken||0) >= 50  && !progressManager.hasAchievement('50tests'))  progressManager.unlockAchievement('50tests');
+        if ((progressManager.data.testsTaken||0) >= 100 && !progressManager.hasAchievement('100tests')) progressManager.unlockAchievement('100tests');
+        if ((progressManager.data.streakDays||0) >= 5   && !progressManager.hasAchievement('5day-streak'))  progressManager.unlockAchievement('5day-streak');
+        if ((progressManager.data.streakDays||0) >= 7   && !progressManager.hasAchievement('7day-streak'))  progressManager.unlockAchievement('7day-streak');
+        if ((progressManager.data.streakDays||0) >= 30  && !progressManager.hasAchievement('30day-streak')) progressManager.unlockAchievement('30day-streak');
+        // Speed Demon: 15s test, 0 errors
+        if (this.timeLimit === 15 && this.incorrectChars === 0 && wpm > 0 && !progressManager.hasAchievement('speed-demon')) progressManager.unlockAchievement('speed-demon');
 
         let wpmHistory = {};
         try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
