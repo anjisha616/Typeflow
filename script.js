@@ -1611,7 +1611,6 @@ function renderWeakKeys() {
         container.appendChild(item);
     });
 }
-
 function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
