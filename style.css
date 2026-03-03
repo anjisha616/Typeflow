@@ -1,3 +1,6 @@
+body[data-theme="dark"] .heatmap-key-cell.empty {
+    background: #2d3748 !important;
+}
 /* Responsive horizontal scroll for mode nav */
 .mode-nav {
     display: flex;
