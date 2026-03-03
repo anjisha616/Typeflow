@@ -1658,7 +1658,14 @@ function switchMode(mode) {
     else if (mode === "practice")        { renderWeakKeys(); practiceEngine.start(); }
     else if (mode === "dashboard")       renderDashboard();
     else if (mode === "finger-training") fingerTrainingEngine.reset();
-    else if (mode === "test" || mode === "quote" || mode === "code") testEngine.reset(true);
+    else if (mode === "test" || mode === "quote" || mode === "code") {
+        testEngine.reset(true);
+        // Autofocus typing input when switching to Test mode
+        setTimeout(() => {
+            const input = document.getElementById("typing-input");
+            if (input && input.offsetParent !== null) input.focus();
+        }, 0);
+    }
 
     safeLocalStorage.setItem('typeflow-mode', mode);
 }
