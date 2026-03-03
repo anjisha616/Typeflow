@@ -71,11 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 // === TODAY'S GOAL WIDGET ===
 function getDailyGoal() {
-    return parseInt(localStorage.getItem('typeflow-daily-goal') || '3', 10);
+    return parseInt(safeLocalStorage.getItem('typeflow-daily-goal') || '3', 10);
 }
 
 function setDailyGoal(val) {
-    localStorage.setItem('typeflow-daily-goal', val);
+    safeLocalStorage.setItem('typeflow-daily-goal', val);
     updateGoalWidget();
 }
 
@@ -212,7 +212,7 @@ class ProgressManager {
     }
 
     loadProgress() {
-        const saved = localStorage.getItem('typeflow-progress');
+        const saved = safeLocalStorage.getItem('typeflow-progress');
         if (saved) {
             this.data = JSON.parse(saved);
         } else {
@@ -225,7 +225,7 @@ class ProgressManager {
         }
     }
 
-    save() { localStorage.setItem('typeflow-progress', JSON.stringify(this.data)); }
+    save() { safeLocalStorage.setItem('typeflow-progress', JSON.stringify(this.data)); }
 
     hasAchievement(id) { return (this.data.achievements || []).includes(id); }
 
@@ -285,7 +285,7 @@ class ProgressManager {
 
     getTopWeakKeys(count = 5) {
         let keyStats = {};
-        try { keyStats = JSON.parse(localStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
+        try { keyStats = JSON.parse(safeLocalStorage.getItem('typeflow-key-stats') || '{}'); } catch { keyStats = {}; }
         const rates = Object.entries(this.data.weakKeys)
             .filter(([c]) => c && c.trim() !== "" && c !== " ")
             .map(([c, errors]) => {
@@ -791,7 +791,7 @@ class TestEngine {
         if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
 
         let wpmHistory = {};
-        try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
+        try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
         // MIGRATION: Convert old array format to object format if needed
         if (Array.isArray(wpmHistory)) {
             const arr = wpmHistory;
@@ -803,7 +803,7 @@ class TestEngine {
         const indices = Object.keys(wpmHistory).map(Number).filter(n => !isNaN(n));
         if (indices.length > 0) nextIndex = Math.max(...indices) + 1;
         wpmHistory[nextIndex] = { date: new Date().toDateString(), wpm };
-        localStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
+        safeLocalStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
 
         this.updateMiniWPMChart();
         this.showResults(wpm, accuracy, xpGained, isNewBest);
@@ -1074,7 +1074,7 @@ class LessonEngine {
         this.currentPosition = this.input.value.length;
         if (this.currentLesson && !progressManager.data.completedLessons.includes(this.currentLesson.id)) {
             const percent = Math.round((this.currentPosition / this.currentText.length) * 100);
-            localStorage.setItem(`lesson-progress-${this.currentLesson.id}`, percent);
+            safeLocalStorage.setItem(`lesson-progress-${this.currentLesson.id}`, percent);
         }
         if (this.currentPosition >= this.currentText.length) { this.completeLesson(); return; }
         this.recalculateFromInput();
@@ -1487,7 +1487,7 @@ function renderWPMLineChart() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let wpmHistory = {};
-    try { wpmHistory = JSON.parse(localStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
+    try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
     // MIGRATION: Convert old array format to object format if needed
     if (Array.isArray(wpmHistory)) {
         const arr = wpmHistory;
