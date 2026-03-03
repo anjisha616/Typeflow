@@ -61,6 +61,14 @@ document.addEventListener('DOMContentLoaded', () => {
     enableTouchFocus('.text-card', '#practice-input');
     enableTouchFocus('.text-card', '#lesson-input');
 });
+    // Setup daily goal select event
+    document.addEventListener('DOMContentLoaded', () => {
+        const goalSelect = document.getElementById('goal-select');
+        if (goalSelect) {
+            goalSelect.value = getDailyGoal();
+            goalSelect.addEventListener('change', e => setDailyGoal(e.target.value));
+        }
+    });
 // === TODAY'S GOAL WIDGET ===
 function getDailyGoal() {
     return parseInt(localStorage.getItem('typeflow-daily-goal') || '3', 10);
@@ -111,13 +119,7 @@ function updateGoalWidget() {
     if (goalSelect && parseInt(goalSelect.value, 10) !== DAILY_GOAL) goalSelect.value = DAILY_GOAL;
 }
 // Setup daily goal select event
-document.addEventListener('DOMContentLoaded', () => {
-    const goalSelect = document.getElementById('goal-select');
-    if (goalSelect) {
-        goalSelect.value = getDailyGoal();
-        goalSelect.addEventListener('change', e => setDailyGoal(e.target.value));
-    }
-});
+// ...existing code...
 
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
