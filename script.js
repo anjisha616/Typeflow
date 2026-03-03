@@ -865,6 +865,44 @@ class TestEngine {
         else if (accuracy >= 85 && wpm >= 30) { badge.textContent = "Good"; badge.className = "rating-badge good"; }
         else { badge.textContent = "Needs Work"; badge.className = "rating-badge needs-work"; }
 
+        // Focus trap logic for modal
+        const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+        const focusableEls = Array.from(modal.querySelectorAll(focusableSelectors)).filter(el => !el.disabled && el.offsetParent !== null);
+        if (focusableEls.length) focusableEls[0].focus();
+
+        function trapFocus(e) {
+            if (!modal.classList.contains('hidden')) {
+                if (e.key === 'Tab') {
+                    const first = focusableEls[0];
+                    const last = focusableEls[focusableEls.length - 1];
+                    if (e.shiftKey) {
+                        if (document.activeElement === first) {
+                            last.focus();
+                            e.preventDefault();
+                        }
+                    } else {
+                        if (document.activeElement === last) {
+                            first.focus();
+                            e.preventDefault();
+                        }
+                    }
+                } else if (e.key === 'Escape') {
+                    modal.classList.add('hidden');
+                    testEngine.reset(false);
+                }
+            }
+        }
+        window.addEventListener('keydown', trapFocus);
+        // Remove trap when modal closes
+        function cleanupTrap() {
+            window.removeEventListener('keydown', trapFocus);
+        }
+        modal.addEventListener('transitionend', () => {
+            if (modal.classList.contains('hidden')) cleanupTrap();
+        });
+        // Also clean up on button click
+        focusableEls.forEach(btn => btn.addEventListener('click', cleanupTrap));
+
         if (isNewBest) {
             launchConfettiOverModal(modal);
         }
