@@ -303,7 +303,6 @@ body[data-theme="dark"] #mini-wpm-graph {
 body[data-theme="dark"] .word-count-btn:hover {
     background: rgba(255, 255, 255, 0.09);
 }
-
 /* Achievements/Badges */
 #dashboard-achievements {
     display: flex;
