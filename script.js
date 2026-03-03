@@ -1,3 +1,17 @@
+// ============ SOUND FEEDBACK ============
+function playKeyClick() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+        osc.start(); osc.stop(ctx.currentTime + 0.04);
+        osc.onended = () => ctx.close();
+    } catch {}
+}
 // === SAFE LOCAL STORAGE ===
 const safeLocalStorage = {
     getItem: (key) => { try { return localStorage.getItem(key); } catch { return null; } },
@@ -542,6 +556,7 @@ class TestEngine {
     setupEventListeners() {
         this.input.addEventListener("input",  (e) => { this.handleTyping(e); });
         this.input.addEventListener("keydown", (e) => {
+            playKeyClick();
             this.handleKeydown(e);
             showCapsWarning(e.getModifierState && e.getModifierState('CapsLock'));
             if (e.key === 'Tab') {
@@ -1142,6 +1157,7 @@ class LessonEngine {
         if (this._boundHandler) this.input.removeEventListener("input", this._boundHandler);
         this._boundHandler = () => this.handleTyping();
         this.input.addEventListener("input", this._boundHandler);
+        this.input.addEventListener("keydown", () => playKeyClick());
     }
 
     displayText() {
@@ -1293,6 +1309,7 @@ class PracticeEngine {
         if (this._boundHandler) this.input.removeEventListener("input", this._boundHandler);
         this._boundHandler = () => this.handleTyping();
         this.input.addEventListener("input", this._boundHandler);
+        this.input.addEventListener("keydown", () => playKeyClick());
         this.isActive = true; this.startTime = Date.now();
         this.updateStats();
         document.getElementById('practice-countdown').style.display = 'none';
