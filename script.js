@@ -8,6 +8,26 @@ const safeLocalStorage = {
 };
 // === MOBILE/TABLET TOUCH SUPPORT ===
 document.addEventListener('DOMContentLoaded', () => {
+            // View saved feedback developer panel
+            const viewFeedbackBtn = document.getElementById('view-feedback-btn');
+            const feedbackViewPanel = document.getElementById('feedback-view-panel');
+            if (viewFeedbackBtn && feedbackViewPanel) {
+                viewFeedbackBtn.addEventListener('click', () => {
+                    const feedbacks = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-feedback') || '[]', []);
+                    if (feedbackViewPanel.classList.contains('hidden')) {
+                        if (feedbacks.length === 0) {
+                            feedbackViewPanel.innerHTML = '<em>No feedback saved.</em>';
+                        } else {
+                            feedbackViewPanel.innerHTML = feedbacks.map((fb, i) => `<div style="margin-bottom:10px;"><b>#${i+1}</b>: <pre style="white-space:pre-wrap;font-size:0.95em;">${JSON.stringify(fb, null, 2)}</pre></div>`).join('');
+                        }
+                        feedbackViewPanel.classList.remove('hidden');
+                        viewFeedbackBtn.textContent = 'Hide Saved Feedback';
+                    } else {
+                        feedbackViewPanel.classList.add('hidden');
+                        viewFeedbackBtn.textContent = 'View Saved Feedback';
+                    }
+                });
+            }
         // Help button/modal logic
         const helpBtn = document.getElementById('help-btn');
         const helpModal = document.getElementById('help-modal');
