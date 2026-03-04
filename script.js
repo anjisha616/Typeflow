@@ -682,7 +682,7 @@ class TestEngine {
                 this.textDisplay.innerHTML = `<div class="quote-main">${html}</div><div class="quote-author">— ${this.currentAuthor}</div>`;
             }
         } else if (mode === 'code') {
-                startGhostCursor() {
+                startGhostCursor(); {
                     this.stopGhostCursor();
                     const bestWPM = progressManager?.data?.bestWPM || 0;
                     if (!bestWPM || !this.currentText) return;
