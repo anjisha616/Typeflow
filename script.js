@@ -89,6 +89,32 @@ const safeLocalStorage = {
 };
 
 // ============ STATE MANAGEMENT ============
+// ============ DASHBOARD HISTORY TABLE ============
+function renderDashboardHistoryTable() {
+    const tbody = document.getElementById('dashboard-history-body');
+    if (!tbody) return;
+    let history = {};
+    try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
+    const rows = Object.values(history)
+        .map(e => ({ date: e.date || '', wpm: e.wpm || 0, accuracy: e.accuracy || 0 }))
+        .slice(-10)
+        .reverse();
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:10px;">No test history yet.</td></tr>';
+        return;
+    }
+    tbody.innerHTML = rows.map(r =>
+        `<tr>
+            <td style="padding:6px 8px;">${r.date}</td>
+            <td style="text-align:right;padding:6px 8px;">${r.wpm}</td>
+            <td style="text-align:right;padding:6px 8px;">${r.accuracy}%</td>
+        </tr>`
+    ).join('');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderDashboardHistoryTable();
+});
 
 class ProgressManager {
     constructor() {
