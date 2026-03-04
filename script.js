@@ -671,6 +671,11 @@ class TestEngine {
             const currentChar = this.textDisplay.querySelector('.current');
             if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 // Reveal quote author after test ends
+                if (mode === 'quote' && this.currentAuthor) {
+                    const html = this.textDisplay.querySelector('.quote-main')?.innerHTML || '';
+                    this.textDisplay.innerHTML = `<div class="quote-main">${html}</div><div class="quote-author">— ${this.currentAuthor}</div>`;
+                }
+                // Reveal quote author after test ends
                 const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
                 if (mode === 'quote' && this.currentAuthor) {
                     const html = this.textDisplay.querySelector('.quote-main')?.innerHTML || '';
