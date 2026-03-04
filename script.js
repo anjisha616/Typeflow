@@ -316,33 +316,88 @@ const baseWords = [
     "visit","visits","visited","visiting","wish","wishes","wished","wishing"
 ];
 
-const famousQuotes = [
-    "The only way to do great work is to love what you do. — Steve Jobs",
-    "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
-    "Life is what happens when you're busy making other plans. — John Lennon",
-    "You miss 100% of the shots you don't take. — Wayne Gretzky",
-    "The best way to predict the future is to invent it. — Alan Kay",
-    "Do not wait to strike till the iron is hot; but make it hot by striking. — William Butler Yeats",
-    "Whether you think you can or you think you can't, you're right. — Henry Ford",
-    "The journey of a thousand miles begins with one step. — Lao Tzu",
-    "It always seems impossible until it's done. — Nelson Mandela",
-    "In the middle of difficulty lies opportunity. — Albert Einstein",
-    "Simplicity is the ultimate sophistication. — Leonardo da Vinci",
-    "Be yourself; everyone else is already taken. — Oscar Wilde",
-    "Two things are infinite: the universe and human stupidity. — Albert Einstein",
-    "A room without books is like a body without a soul. — Marcus Tullius Cicero",
-    "You only live once, but if you do it right, once is enough. — Mae West",
-    "In three words I can sum up everything I've learned about life: it goes on. — Robert Frost",
-    "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment. — Ralph Waldo Emerson",
-    "It is better to be hated for what you are than to be loved for what you are not. — Andre Gide",
-    "Good friends, good books, and a sleepy conscience: this is the ideal life. — Mark Twain",
-    "Darkness cannot drive out darkness; only light can do that. — Martin Luther King Jr.",
-    "We accept the love we think we deserve. — Stephen Chbosky",
-    "Not all those who wander are lost. — J.R.R. Tolkien",
-    "There is no greater agony than bearing an untold story inside you. — Maya Angelou",
-    "Without music, life would be a mistake. — Friedrich Nietzsche",
-    "I am not afraid of storms, for I am learning how to sail my ship. — Louisa May Alcott",
-];
+const famousQuotes = {
+    motivational: [
+        "The only way to do great work is to love what you do. — Steve Jobs",
+        "Success is not final, failure is not fatal: It is the courage to continue that counts. — Winston Churchill",
+        "You miss 100% of the shots you don't take. — Wayne Gretzky",
+        "The best way to predict the future is to invent it. — Alan Kay",
+        "Do not wait to strike till the iron is hot; but make it hot by striking. — William Butler Yeats",
+        "Whether you think you can or you think you can't, you're right. — Henry Ford",
+        "The journey of a thousand miles begins with one step. — Lao Tzu",
+        "It always seems impossible until it's done. — Nelson Mandela",
+        "In the middle of difficulty lies opportunity. — Albert Einstein",
+        "Simplicity is the ultimate sophistication. — Leonardo da Vinci",
+        "Believe you can and you're halfway there. — Theodore Roosevelt",
+        "Act as if what you do makes a difference. It does. — William James",
+        "What you get by achieving your goals is not as important as what you become by achieving your goals. — Zig Ziglar",
+        "Dream big and dare to fail. — Norman Vaughan",
+        "Keep your face always toward the sunshine—and shadows will fall behind you. — Walt Whitman",
+        "The harder you work for something, the greater you'll feel when you achieve it. — Unknown",
+        "Push yourself, because no one else is going to do it for you. — Unknown",
+        "Great things never come from comfort zones. — Unknown",
+        "Success doesn’t just find you. You have to go out and get it. — Unknown",
+        "The key to success is to focus our conscious mind on things we desire not things we fear. — Brian Tracy",
+        "Don’t watch the clock; do what it does. Keep going. — Sam Levenson",
+        "Opportunities don't happen. You create them. — Chris Grosser",
+        "Don’t be afraid to give up the good to go for the great. — John D. Rockefeller",
+        "I find that the harder I work, the more luck I seem to have. — Thomas Jefferson",
+        "Success is walking from failure to failure with no loss of enthusiasm. — Winston Churchill",
+        "If you are not willing to risk the usual, you will have to settle for the ordinary. — Jim Rohn",
+    ],
+    literary: [
+        "Be yourself; everyone else is already taken. — Oscar Wilde",
+        "A room without books is like a body without a soul. — Marcus Tullius Cicero",
+        "You only live once, but if you do it right, once is enough. — Mae West",
+        "In three words I can sum up everything I've learned about life: it goes on. — Robert Frost",
+        "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment. — Ralph Waldo Emerson",
+        "It is better to be hated for what you are than to be loved for what you are not. — Andre Gide",
+        "Good friends, good books, and a sleepy conscience: this is the ideal life. — Mark Twain",
+        "We accept the love we think we deserve. — Stephen Chbosky",
+        "Not all those who wander are lost. — J.R.R. Tolkien",
+        "There is no greater agony than bearing an untold story inside you. — Maya Angelou",
+        "I am not afraid of storms, for I am learning how to sail my ship. — Louisa May Alcott",
+        "All the world's a stage, and all the men and women merely players. — William Shakespeare",
+        "It does not do to dwell on dreams and forget to live. — J.K. Rowling",
+        "So we beat on, boats against the current, borne back ceaselessly into the past. — F. Scott Fitzgerald",
+        "Whatever our souls are made of, his and mine are the same. — Emily Brontë",
+        "There is some good in this world, and it’s worth fighting for. — J.R.R. Tolkien",
+        "It matters not what someone is born, but what they grow to be. — J.K. Rowling",
+        "The only limit to our realization of tomorrow will be our doubts of today. — Franklin D. Roosevelt",
+        "The purpose of literature is to turn blood into ink. — T.S. Eliot",
+        "The books that the world calls immoral are books that show the world its own shame. — Oscar Wilde",
+        "We are all in the gutter, but some of us are looking at the stars. — Oscar Wilde",
+        "There is no friend as loyal as a book. — Ernest Hemingway",
+        "Not all those who wander are lost. — J.R.R. Tolkien",
+        "It is our choices that show what we truly are, far more than our abilities. — J.K. Rowling",
+    ],
+    philosophical: [
+        "Two things are infinite: the universe and human stupidity. — Albert Einstein",
+        "Life is what happens when you're busy making other plans. — John Lennon",
+        "Darkness cannot drive out darkness; only light can do that. — Martin Luther King Jr.",
+        "Without music, life would be a mistake. — Friedrich Nietzsche",
+        "Simplicity is the ultimate sophistication. — Leonardo da Vinci",
+        "The unexamined life is not worth living. — Socrates",
+        "He who thinks great thoughts, often makes great errors. — Martin Heidegger",
+        "The mind is everything. What you think you become. — Buddha",
+        "Happiness depends upon ourselves. — Aristotle",
+        "The only true wisdom is in knowing you know nothing. — Socrates",
+        "We are what we repeatedly do. Excellence, then, is not an act, but a habit. — Aristotle",
+        "The greatest wealth is to live content with little. — Plato",
+        "Man is condemned to be free. — Jean-Paul Sartre",
+        "The only thing I know is that I know nothing. — Socrates",
+        "The measure of a man is what he does with power. — Plato",
+        "The more I read, the more I acquire, the more certain I am that I know nothing. — Voltaire",
+        "The mind is not a vessel to be filled, but a fire to be kindled. — Plutarch",
+        "The only way to deal with an unfree world is to become so absolutely free that your very existence is an act of rebellion. — Albert Camus",
+        "The greatest happiness you can have is knowing that you do not necessarily require happiness. — William Saroyan",
+        "The only thing necessary for the triumph of evil is for good men to do nothing. — Edmund Burke",
+        "The more you know, the more you realize you know nothing. — Aristotle",
+        "The mind is everything. What you think you become. — Buddha",
+        "The only thing I know is that I know nothing. — Socrates",
+        "The greatest wealth is to live content with little. — Plato",
+    ]
+};
 
 const codeSnippets = [
     `for (let i = 0; i < 10; i++) {\n    console.log(i);\n}`,
@@ -529,12 +584,14 @@ class TestEngine {
     generateText() {
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
-            let candidates = famousQuotes.filter(q => {
+            // Flatten all categories into one array
+            const allQuotes = Object.values(famousQuotes).flat();
+            let candidates = allQuotes.filter(q => {
                 const match = q.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
                 const text = match ? match[1] : q;
                 return text && text.length >= 120;
             });
-            if (candidates.length === 0) candidates = famousQuotes;
+            if (candidates.length === 0) candidates = allQuotes;
             const raw = candidates[Math.floor(Math.random() * candidates.length)];
             const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
             if (match) {
