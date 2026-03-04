@@ -699,7 +699,7 @@ class TestEngine {
                     }, msPerChar);
                 }
 
-                stopGhostCursor() {
+                stopGhostCursor(); {
                     if (this.ghostCursorInterval) {
                         clearInterval(this.ghostCursorInterval);
                         this.ghostCursorInterval = null;
