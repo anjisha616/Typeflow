@@ -137,10 +137,11 @@ body[data-theme="dark"] .heatmap-key-cell.empty {
         width: 28px;
         height: 28px;
         font-size: 1.1em;
-    }
+    
     font-size: 1.5em;
     color: #888;
     cursor: pointer;
+    }
 }
 .modal-content .close:hover {
     color: #e07a5f;
