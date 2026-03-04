@@ -420,6 +420,15 @@ const codeSnippets = [
     `npm install --save-dev eslint prettier`,
     `const sorted = [...arr].sort((a, b) => a - b);`,
     `Object.keys(data).forEach(key => {\n    console.log(key, data[key]);\n});`
+    ,
+    // --- Longer JavaScript Example ---
+    `function processData(data) {\n    let result = [];\n    for (let i = 0; i < data.length; i++) {\n        if (data[i].active) {\n            let transformed = {\n                id: data[i].id,\n                name: data[i].name.toUpperCase(),\n                score: data[i].score * 1.5\n            };\n            result.push(transformed);\n        }\n    }\n    return result;\n}\n\nconst users = [\n    {id: 1, name: 'Alice', score: 80, active: true},\n    {id: 2, name: 'Bob', score: 65, active: false},\n    {id: 3, name: 'Carol', score: 92, active: true}\n];\nconsole.log(processData(users));`,
+
+    // --- Longer Python Example ---
+    `def analyze_scores(students):\n    results = []\n    for student in students:\n        if student['active']:\n            score = student['score'] * 1.2\n            results.append({\n                'id': student['id'],\n                'name': student['name'].upper(),\n                'score': score\n            })\n    return results\n\nstudents = [\n    {'id': 1, 'name': 'Alice', 'score': 80, 'active': True},\n    {'id': 2, 'name': 'Bob', 'score': 65, 'active': False},\n    {'id': 3, 'name': 'Carol', 'score': 92, 'active': True}\n]\nprint(analyze_scores(students))`,
+
+    // --- Longer SQL Example ---
+    `SELECT u.id, u.name, SUM(o.amount) AS total_spent\nFROM users u\nJOIN orders o ON u.id = o.user_id\nWHERE u.active = 1\nGROUP BY u.id, u.name\nHAVING total_spent > 100\nORDER BY total_spent DESC;\n\n-- Example data:\n-- users: id, name, active\n-- orders: id, user_id, amount`
 ];
 
 const symbols = ["!","@","#","$","%","&","*","+","-","?"];
