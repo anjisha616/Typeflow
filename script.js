@@ -1,3 +1,5 @@
+    ghostCursorInterval = null;
+    ghostCursorPos = null;
 // ============ SOUND FEEDBACK ============
 function playKeyClick() {
     try {
@@ -663,6 +665,10 @@ class TestEngine {
                     cls += " current";
                 }
                 if (i < hideUntil) cls += " gone";
+                // Insert ghost cursor at ghost position
+                if (this.ghostCursorPos !== null && i === this.ghostCursorPos && this.ghostCursorPos !== this.currentPosition) {
+                    return `<span class="ghost-cursor" style="opacity:0.35;">|</span><span class="${cls}">${this.formatChar(char)}</span>`;
+                }
                 return `<span class="${cls}">${this.formatChar(char)}</span>`;
             }).join("");
             // Hide author during test
@@ -670,18 +676,36 @@ class TestEngine {
             // Smooth caret scrolling for quote mode
             const currentChar = this.textDisplay.querySelector('.current');
             if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                // Reveal quote author after test ends
-                if (mode === 'quote' && this.currentAuthor) {
-                    const html = this.textDisplay.querySelector('.quote-main')?.innerHTML || '';
-                    this.textDisplay.innerHTML = `<div class="quote-main">${html}</div><div class="quote-author">— ${this.currentAuthor}</div>`;
-                }
-                // Reveal quote author after test ends
-                const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
-                if (mode === 'quote' && this.currentAuthor) {
-                    const html = this.textDisplay.querySelector('.quote-main')?.innerHTML || '';
-                    this.textDisplay.innerHTML = `<div class="quote-main">${html}</div><div class="quote-author">— ${this.currentAuthor}</div>`;
-                }
+            // Reveal quote author after test ends
+            if (mode === 'quote' && this.currentAuthor) {
+                const html = this.textDisplay.querySelector('.quote-main')?.innerHTML || '';
+                this.textDisplay.innerHTML = `<div class="quote-main">${html}</div><div class="quote-author">— ${this.currentAuthor}</div>`;
+            }
         } else if (mode === 'code') {
+                startGhostCursor() {
+                    this.stopGhostCursor();
+                    const bestWPM = progressManager?.data?.bestWPM || 0;
+                    if (!bestWPM || !this.currentText) return;
+                    this.ghostCursorPos = 0;
+                    // Calculate ms per char at bestWPM (assuming 5 chars/word)
+                    const msPerChar = 12000 / bestWPM;
+                    this.ghostCursorInterval = setInterval(() => {
+                        if (this.ghostCursorPos < this.currentText.length) {
+                            this.ghostCursorPos++;
+                            this.displayText();
+                        } else {
+                            this.stopGhostCursor();
+                        }
+                    }, msPerChar);
+                }
+
+                stopGhostCursor() {
+                    if (this.ghostCursorInterval) {
+                        clearInterval(this.ghostCursorInterval);
+                        this.ghostCursorInterval = null;
+                    }
+                    this.ghostCursorPos = null;
+                }
             // Render code with whitespace preserved and monospace font
             const html = this.currentText.split("").map((char, i) => {
                 let cls = "char";
@@ -735,6 +759,8 @@ class TestEngine {
         this.mistakesByChar  = {};
         this.startTime       = null;
         this.timeLeft        = this.timeLimit;
+        this.ghostCursorPos  = 0;
+        this.startGhostCursor();
 
         if (!preserveInput) this.input.value = "";
         this.input.disabled = false;
@@ -759,6 +785,7 @@ class TestEngine {
             if (this.liveWPMHistory.length > 30) this.liveWPMHistory.shift();
             this.updateMiniWPMChart();
         }, 500);
+        this.stopGhostCursor();
     }
 
     startTimer() {
