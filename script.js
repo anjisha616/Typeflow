@@ -315,7 +315,6 @@ const baseWords = [
     "throw","throws","threw","thrown","throwing","touch","touches","touched","touching","train","trains","trained","training","travel","travels","traveled","traveling",
     "visit","visits","visited","visiting","wish","wishes","wished","wishing"
 ];
-
 const famousQuotes = {
     motivational: [
         "The only way to do great work is to love what you do. — Steve Jobs",
