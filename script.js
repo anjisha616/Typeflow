@@ -1,194 +1,8 @@
-// --- Accuracy breakdown chart ---
-            const breakdownCanvas = document.getElementById('accuracy-breakdown-chart');
-            if (breakdownCanvas && this.currentText && typeof this.currentText === 'string') {
-                // Compute accuracy for beginning, middle, end thirds
-                const totalLen = this.currentText.length;
-                const typed = this.input.value;
-                const thirds = [
-                    { start: 0, end: Math.floor(totalLen/3) },
-                    { start: Math.floor(totalLen/3), end: Math.floor(2*totalLen/3) },
-                    { start: Math.floor(2*totalLen/3), end: totalLen }
-                ];
-                const accs = thirds.map(({start, end}) => {
-                    let correct = 0, total = 0;
-                    for (let i = start; i < end && i < typed.length; i++) {
-                        total++;
-                        if (typed[i] === this.currentText[i]) correct++;
-                    }
-                    return total ? Math.round((correct/total)*100) : 0;
-                });
-                // Render chart
-                if (window.accuracyBreakdownChart) window.accuracyBreakdownChart.destroy();
-                window.accuracyBreakdownChart = new Chart(breakdownCanvas.getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: ['Start', 'Middle', 'End'],
-                        datasets: [{
-                            label: 'Accuracy',
-                            data: accs,
-                            backgroundColor: ['#2a9d8f','#e9c46a','#e76f51'],
-                            borderRadius: 6,
-                            barPercentage: 0.7,
-                            categoryPercentage: 0.6,
-                        }]
-                    },
-                    options: {
-                        plugins: { legend: { display: false } },
-                        scales: {
-                            x: { grid: { display: false }, ticks: { font: { size: 12 } } },
-                            y: { beginAtZero: true, max: 100, grid: { display: false }, ticks: { stepSize: 20, font: { size: 11 } } }
-                        },
-                        animation: false,
-                        responsive: false,
-                    }
-                });
-            }
-    ghostCursorInterval = null;
-    ghostCursorPos = null;
-// ============ SOUND FEEDBACK ============
-function playKeyClick() {
-    try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.frequency.value = 800;
-        gain.gain.setValueAtTime(0.08, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
-        osc.start(); osc.stop(ctx.currentTime + 0.04);
-        osc.onended = () => ctx.close();
-    } catch {}
-}
-// === SAFE LOCAL STORAGE ===
-const safeLocalStorage = {
-    getItem: (key) => { try { return localStorage.getItem(key); } catch { return null; } },
-    setItem: (key, val) => { try { localStorage.setItem(key, val); } catch {} },
-    removeItem: (key) => { try { localStorage.removeItem(key); } catch {} },
-    parse: (str, fallback) => { try { return JSON.parse(str) ?? fallback; } catch { return fallback; } },
-    stringify: (val) => { try { return JSON.stringify(val); } catch { return '{}'; } }
-};
-// === MOBILE/TABLET TOUCH SUPPORT ===
-document.addEventListener('DOMContentLoaded', () => {
-            // View saved feedback developer panel
-            const viewFeedbackBtn = document.getElementById('view-feedback-btn');
-            const feedbackViewPanel = document.getElementById('feedback-view-panel');
-            if (viewFeedbackBtn && feedbackViewPanel) {
-                viewFeedbackBtn.addEventListener('click', () => {
-                    const feedbacks = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-feedback') || '[]', []);
-                    if (feedbackViewPanel.classList.contains('hidden')) {
-                        if (feedbacks.length === 0) {
-                            feedbackViewPanel.innerHTML = '<em>No feedback saved.</em>';
-                        } else {
-                            feedbackViewPanel.innerHTML = feedbacks.map((fb, i) => `<div style="margin-bottom:10px;"><b>#${i+1}</b>: <pre style="white-space:pre-wrap;font-size:0.95em;">${JSON.stringify(fb, null, 2)}</pre></div>`).join('');
-                        }
-                        feedbackViewPanel.classList.remove('hidden');
-                        viewFeedbackBtn.textContent = 'Hide Saved Feedback';
-                    } else {
-                        feedbackViewPanel.classList.add('hidden');
-                        viewFeedbackBtn.textContent = 'View Saved Feedback';
-                    }
-                });
-            }
-        // Help button/modal logic
-        const helpBtn = document.getElementById('help-btn');
-        const helpModal = document.getElementById('help-modal');
-        const helpClose = document.getElementById('help-close');
-        if (helpBtn && helpModal && helpClose) {
-            helpBtn.addEventListener('click', () => {
-                helpModal.style.display = 'block';
-            });
-            helpClose.addEventListener('click', () => {
-                helpModal.style.display = 'none';
-            });
-            window.addEventListener('click', (e) => {
-                if (e.target === helpModal) helpModal.style.display = 'none';
-            });
-            window.addEventListener('keydown', (e) => {
-                if (helpModal.style.display === 'block' && (e.key === 'Escape' || e.key === '?')) {
-                    helpModal.style.display = 'none';
-                }
-            });
-        }
-    // Make text cards focus input on tap (for mobile)
-    function enableTouchFocus(cardSelector, inputSelector) {
-        const card = document.querySelector(cardSelector);
-        const input = document.querySelector(inputSelector);
-        if (card && input) {
-            card.addEventListener('touchstart', () => { input.focus(); }, {passive:true});
-            card.addEventListener('click', () => { input.focus(); });
-        }
-    }
-    enableTouchFocus('.text-card', '#typing-input');
-    enableTouchFocus('.text-card', '#practice-input');
-    enableTouchFocus('.text-card', '#lesson-input');
-});
-    // Setup daily goal select event
-    document.addEventListener('DOMContentLoaded', () => {
-        const goalSelect = document.getElementById('goal-select');
-        if (goalSelect) {
-            goalSelect.value = getDailyGoal();
-            goalSelect.addEventListener('change', e => setDailyGoal(e.target.value));
-        }
-    });
-// === TODAY'S GOAL WIDGET ===
-function getDailyGoal() {
-    return parseInt(safeLocalStorage.getItem('typeflow-daily-goal') || '3', 10);
-}
-
-function setDailyGoal(val) {
-    safeLocalStorage.setItem('typeflow-daily-goal', val);
-    updateGoalWidget();
-}
-
-function updateGoalWidget() {
-    const DAILY_GOAL = getDailyGoal();
-    const today = new Date().toDateString();
-    let wpmHistory = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}', {});
-    // MIGRATION: Convert old array format to object format if needed
-    if (Array.isArray(wpmHistory)) {
-        const arr = wpmHistory;
-        wpmHistory = {};
-        arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
-        safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
-    }
-    // MIGRATION: Convert any old date fields from toLocaleDateString() to toDateString() format
-    let migrated = false;
-    Object.values(wpmHistory).forEach(e => {
-        if (e.date && !isNaN(Date.parse(e.date)) && !/^\w{3} \w{3} \d{1,2} \d{4}$/.test(e.date)) {
-            const d = new Date(e.date);
-            const newDate = d.toDateString();
-            if (e.date !== newDate) {
-                e.date = newDate;
-                migrated = true;
-            }
-        }
-    });
-    if (migrated) {
-        safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
-    }
-        let testsToday = Object.values(wpmHistory).filter(e => e.date === today).length;
-    const goalTotal = document.getElementById('goal-total');
-    const goalTotal2 = document.getElementById('goal-total-2');
-    const goalProgressCount = document.getElementById('goal-progress-count');
-    const goalBar = document.getElementById('goal-progress-bar');
-    if (goalTotal) goalTotal.textContent = DAILY_GOAL;
-    if (goalTotal2) goalTotal2.textContent = DAILY_GOAL;
-    if (goalProgressCount) goalProgressCount.textContent = testsToday;
-    if (goalBar) goalBar.style.width = Math.min(100, (testsToday / DAILY_GOAL) * 100) + '%';
-    // Set dropdown to match current value
-    const goalSelect = document.getElementById('goal-select');
-    if (goalSelect && parseInt(goalSelect.value, 10) !== DAILY_GOAL) goalSelect.value = DAILY_GOAL;
-}
-// Setup daily goal select event
-// ...existing code...
-
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
    ========================================= */
 
 // --- Caps Lock warning UI ---
-// BUG FIX #1: showCapsWarning was missing a closing brace for the outer if block,
-// causing a syntax error that silently broke ALL code below it.
 function showCapsWarning(show) {
     let warn = document.getElementById('caps-warning');
     if (!warn) {
@@ -199,7 +13,7 @@ function showCapsWarning(show) {
         warn.className = '';
         warn.style.display = 'none';
         if (inputCard) inputCard.appendChild(warn);
-    }  // <-- THIS CLOSING BRACE WAS MISSING in original code
+    }
     if (show) {
         warn.classList.add('visible');
         warn.style.display = 'block';
@@ -265,6 +79,15 @@ const LEVEL_THRESHOLDS = [
     { level: 5, name: "Elite",     minXP: 5000, maxXP: Infinity }
 ];
 
+// ============ SAFE LOCAL STORAGE ============
+const safeLocalStorage = {
+    getItem:   (key)      => { try { return localStorage.getItem(key); }       catch { return null; } },
+    setItem:   (key, val) => { try { localStorage.setItem(key, val); }         catch {} },
+    removeItem:(key)      => { try { localStorage.removeItem(key); }           catch {} },
+    parse:     (str, fallback) => { try { return JSON.parse(str) ?? fallback; } catch { return fallback; } },
+    stringify: (val)      => { try { return JSON.stringify(val); }             catch { return '{}'; } }
+};
+
 // ============ STATE MANAGEMENT ============
 
 class ProgressManager {
@@ -302,8 +125,8 @@ class ProgressManager {
 
     updateTestStats(wpm, accuracy, duration, mistakes) {
         if (wpm > this.data.bestWPM) this.data.bestWPM = wpm;
-        const totalTests = this.data.totalTests || 0;
-        const currentAvg = this.data.averageAccuracy || 0;
+        const totalTests  = this.data.totalTests || 0;
+        const currentAvg  = this.data.averageAccuracy || 0;
         this.data.averageAccuracy = Math.round((currentAvg * totalTests + accuracy) / (totalTests + 1));
         this.data.totalPracticeTime += duration;
         this.data.testsTaken  = (this.data.testsTaken  || 0) + 1;
@@ -375,7 +198,6 @@ class ProgressManager {
         safeLocalStorage.removeItem('typeflow-progress');
         safeLocalStorage.removeItem('typeflow-wpm-history');
         safeLocalStorage.removeItem('typeflow-key-stats');
-        // No mutation of LESSON_DATA; unlock logic is derived in renderLessons
         this.loadProgress();
     }
 }
@@ -383,14 +205,13 @@ class ProgressManager {
 // ============ WORD BANKS ============
 
 const baseWords = [
-    // 1000 most common English words (Monkeytype frequency list, truncated for brevity)
     "the","be","to","of","and","a","in","that","have","I","it","for","not","on","with","he","as","you","do","at",
     "this","but","his","by","from","they","we","say","her","she","or","an","will","my","one","all","would","there","their","what",
     "so","up","out","if","about","who","get","which","go","me","when","make","can","like","time","no","just","him","know","take",
     "people","into","year","your","good","some","could","them","see","other","than","then","now","look","only","come","its","over","think","also",
     "back","after","use","two","how","our","work","first","well","way","even","new","want","because","any","these","give","day","most","us",
     "is","are","was","were","has","had","did","been","am","being","does","having","may","might","must","shall","should","can","could",
-    "would","will","ought","need","dare","used","do","does","did","doing","done","go","goes","went","gone","going","get","gets","got","gotten","getting",
+    "would","will","need","do","does","did","doing","done","go","goes","went","gone","going","get","gets","got","gotten","getting",
     "make","makes","made","making","see","sees","saw","seen","seeing","think","thinks","thought","thinking","know","knows","knew","known","knowing","take",
     "takes","took","taken","taking","come","comes","came","coming","look","looks","looked","looking","use","uses","used","using","find","finds","found","finding",
     "give","gives","gave","given","giving","tell","tells","told","telling","work","works","worked","working","call","calls","called","calling","try","tries",
@@ -401,9 +222,9 @@ const baseWords = [
     "moves","moved","moving","live","lives","lived","living","believe","believes","believed","believing","hold","holds","held","holding","bring","brings","brought",
     "bringing","write","writes","wrote","written","writing","sit","sits","sat","sitting","stand","stands","stood","standing","lose","loses","lost","losing","pay",
     "pays","paid","paying","meet","meets","met","meeting","include","includes","included","including","continue","continues","continued","continuing","set","sets",
-    "set","setting","learn","learns","learned","learning","change","changes","changed","changing","lead","leads","led","leading","understand","understands","understood",
+    "setting","learn","learns","learned","learning","change","changes","changed","changing","lead","leads","led","leading","understand","understands","understood",
     "understanding","watch","watches","watched","watching","follow","follows","followed","following","stop","stops","stopped","stopping","create","creates","created",
-    "creating","speak","speaks","spoke","spoken","speaking","read","reads","read","reading","allow","allows","allowed","allowing","add","adds","added","adding",
+    "creating","speak","speaks","spoke","spoken","speaking","read","reads","reading","allow","allows","allowed","allowing","add","adds","added","adding",
     "spend","spends","spent","spending","grow","grows","grew","grown","growing","open","opens","opened","opening","walk","walks","walked","walking","win","wins",
     "won","winning","offer","offers","offered","offering","remember","remembers","remembered","remembering","love","loves","loved","loving","consider","considers",
     "considered","considering","appear","appears","appeared","appearing","buy","buys","bought","buying","wait","waits","waited","waiting","serve","serves","served",
@@ -413,86 +234,60 @@ const baseWords = [
     "passing","sell","sells","sold","selling","require","requires","required","requiring","report","reports","reported","reporting","decide","decides","decided",
     "deciding","pull","pulls","pulled","pulling","return","returns","returned","returning","explain","explains","explained","explaining","hope","hopes","hoped",
     "hoping","develop","develops","developed","developing","carry","carries","carried","carrying","break","breaks","broke","broken","breaking","receive","receives",
-    "received","receiving","agree","agrees","agreed","agreeing","support","supports","supported","supporting","hit","hits","hit","hitting","produce","produces",
+    "received","receiving","agree","agrees","agreed","agreeing","support","supports","supported","supporting","hit","hits","hitting","produce","produces",
     "produced","producing","eat","eats","ate","eaten","eating","cover","covers","covered","covering","catch","catches","caught","catching","draw","draws","drew",
     "drawn","drawing","choose","chooses","chose","chosen","choosing","cause","causes","caused","causing","point","points","pointed","pointing","listen","listens",
     "listened","listening","realize","realizes","realized","realizing","place","places","placed","placing","close","closes","closed","closing","involve","involves",
-    "involved","involving","increase","increases","increased","increasing","require","requires","required","requiring","prefer","prefers","preferred","preferring",
-    "spend","spends","spent","spending","reduce","reduces","reduced","reducing","describe","describes","described","describing","prepare","prepares","prepared",
+    "involved","involving","increase","increases","increased","increasing","prefer","prefers","preferred","preferring",
+    "reduce","reduces","reduced","reducing","describe","describes","described","describing","prepare","prepares","prepared",
     "preparing","improve","improves","improved","improving","manage","manages","managed","managing","miss","misses","missed","missing","protect","protects",
-    "protected","protecting","catch","catches","caught","catching","act","acts","acted","acting","express","expresses","expressed","expressing","finish","finishes",
-    "finished","finishing","imagine","imagines","imagined","imagining","notice","notices","noticed","noticing","prefer","prefers","preferred","preferring","prevent",
-    "prevents","prevented","preventing","promise","promises","promised","promising","realize","realizes","realized","realizing","recognize","recognizes","recognized",
+    "protected","protecting","act","acts","acted","acting","express","expresses","expressed","expressing","finish","finishes",
+    "finished","finishing","imagine","imagines","imagined","imagining","notice","notices","noticed","noticing","prevent",
+    "prevents","prevented","preventing","promise","promises","promised","promising","recognize","recognizes","recognized",
     "recognizing","relate","relates","related","relating","replace","replaces","replaced","replacing","save","saves","saved","saving","share","shares","shared",
     "sharing","suppose","supposes","supposed","supposing","survive","survives","survived","surviving","teach","teaches","taught","teaching","tend","tends","tended",
     "tending","test","tests","tested","testing","treat","treats","treated","treating","vote","votes","voted","voting","warn","warns","warned","warning","wonder",
-    "wonders","wondered","wondering","worry","worries","worried","worrying","write","writes","wrote","written","writing","accept","accepts","accepted","accepting",
-    "affect","affects","affected","affecting","afford","affords","afforded","affording","announce","announces","announced","announcing","arrive","arrives","arrived",
+    "wonders","wondered","wondering","worry","worries","worried","worrying","accept","accepts","accepted","accepting",
+    "affect","affects","affected","affecting","announce","announces","announced","announcing","arrive","arrives","arrived",
     "arriving","attach","attaches","attached","attaching","attempt","attempts","attempted","attempting","attend","attends","attended","attending","attract","attracts",
-    "attracted","attracting","avoid","avoids","avoided","avoiding","base","bases","based","basing","beat","beats","beat","beating","belong","belongs","belonged",
+    "attracted","attracting","avoid","avoids","avoided","avoiding","base","bases","based","basing","beat","beats","beating","belong","belongs","belonged",
     "belonging","borrow","borrows","borrowed","borrowing","bother","bothers","bothered","bothering","care","cares","cared","caring","celebrate","celebrates","celebrated",
     "celebrating","claim","claims","claimed","claiming","clean","cleans","cleaned","cleaning","collect","collects","collected","collecting","combine","combines","combined",
     "combining","complain","complains","complained","complaining","complete","completes","completed","completing","concentrate","concentrates","concentrated","concentrating",
     "confirm","confirms","confirmed","confirming","connect","connects","connected","connecting","contain","contains","contained","containing","contribute","contributes",
     "contributed","contributing","control","controls","controlled","controlling","cook","cooks","cooked","cooking","correct","corrects","corrected","correcting","cost",
-    "costs","cost","costing","count","counts","counted","counting","cover","covers","covered","covering","cross","crosses","crossed","crossing","damage","damages",
+    "costs","costing","count","counts","counted","counting","cross","crosses","crossed","crossing","damage","damages",
     "damaged","damaging","dance","dances","danced","dancing","deal","deals","dealt","dealing","deliver","delivers","delivered","delivering","depend","depends","depended",
-    "depending","describe","describes","described","describing","design","designs","designed","designing","destroy","destroys","destroyed","destroying","develop","develops",
-    "developed","developing","discuss","discusses","discussed","discussing","divide","divides","divided","dividing","dress","dresses","dressed","dressing","drink","drinks",
-    "drank","drunk","drinking","drive","drives","drove","driven","driving","drop","drops","dropped","dropping","earn","earns","earned","earning","educate","educates",
-    "educated","educating","employ","employs","employed","employing","encourage","encourages","encouraged","encouraging","enjoy","enjoys","enjoyed","enjoying","examine",
-    "examines","examined","examining","exist","exists","existed","existing","expand","expands","expanded","expanding","expect","expects","expected","expecting","experience",
-    "experiences","experienced","experiencing","explain","explains","explained","explaining","explore","explores","explored","exploring","express","expresses","expressed",
-    "expressing","extend","extends","extended","extending","face","faces","faced","facing","fail","fails","failed","failing","fasten","fastens","fastened","fastening",
-    "feed","feeds","fed","feeding","feel","feels","felt","feeling","fight","fights","fought","fighting","fill","fills","filled","filling","film","films","filmed",
-    "filming","fit","fits","fitted","fitting","fix","fixes","fixed","fixing","fold","folds","folded","folding","follow","follows","followed","following","force",
-    "forces","forced","forcing","form","forms","formed","forming","found","founds","founded","founding","frame","frames","framed","framing","gather","gathers","gathered",
-    "gathering","gaze","gazes","gazed","gazing","generate","generates","generated","generating","get","gets","got","gotten","getting","give","gives","gave","given",
-    "giving","glance","glances","glanced","glancing","go","goes","went","gone","going","grab","grabs","grabbed","grabbing","grow","grows","grew","grown","growing",
-    "guess","guesses","guessed","guessing","handle","handles","handled","handling","hang","hangs","hung","hanging","happen","happens","happened","happening","hate",
-    "hates","hated","hating","have","has","had","having","hear","hears","heard","hearing","help","helps","helped","helping","hide","hides","hid","hidden","hiding",
-    "hit","hits","hit","hitting","hold","holds","held","holding","hope","hopes","hoped","hoping","hug","hugs","hugged","hugging","hunt","hunts","hunted","hunting",
-    "hurry","hurries","hurried","hurrying","identify","identifies","identified","identifying","ignore","ignores","ignored","ignoring","imagine","imagines","imagined",
-    "imagining","improve","improves","improved","improving","include","includes","included","including","increase","increases","increased","increasing","indicate","indicates",
-    "indicated","indicating","inform","informs","informed","informing","insist","insists","insisted","insisting","intend","intends","intended","intending","introduce",
-    "introduces","introduced","introducing","invite","invites","invited","inviting","involve","involves","involved","involving","join","joins","joined","joining","jump",
-    "jumps","jumped","jumping","keep","keeps","kept","keeping","kick","kicks","kicked","kicking","kill","kills","killed","killing","kiss","kisses","kissed","kissing",
-    "knock","knocks","knocked","knocking","know","knows","knew","known","knowing","laugh","laughs","laughed","laughing","lay","lays","laid","laying","lead","leads",
-    "led","leading","learn","learns","learned","learning","leave","leaves","left","leaving","lend","lends","lent","lending","let","lets","letting","lie","lies",
-    "lay","lying","lift","lifts","lifted","lifting","like","likes","liked","liking","listen","listens","listened","listening","live","lives","lived","living","look",
-    "looks","looked","looking","lose","loses","lost","losing","love","loves","loved","loving","make","makes","made","making","manage","manages","managed","managing",
-    "mark","marks","marked","marking","marry","marries","married","marrying","match","matches","matched","matching","matter","matters","mattered","mattering","mean",
-    "means","meant","meaning","meet","meets","met","meeting","mention","mentions","mentioned","mentioning","mind","minds","minded","minding","miss","misses","missed",
-    "missing","move","moves","moved","moving","need","needs","needed","needing","notice","notices","noticed","noticing","offer","offers","offered","offering","open",
-    "opens","opened","opening","order","orders","ordered","ordering","own","owns","owned","owning","paint","paints","painted","painting","pass","passes","passed",
-    "passing","pay","pays","paid","paying","pick","picks","picked","picking","place","places","placed","placing","plan","plans","planned","planning","play","plays",
-    "played","playing","point","points","pointed","pointing","prefer","prefers","preferred","preferring","prepare","prepares","prepared","preparing","present","presents",
-    "presented","presenting","press","presses","pressed","pressing","prevent","prevents","prevented","preventing","produce","produces","produced","producing","promise",
-    "promises","promised","promising","protect","protects","protected","protecting","prove","proves","proved","proving","pull","pulls","pulled","pulling","push","pushes",
-    "pushed","pushing","put","puts","putting","qualify","qualifies","qualified","qualifying","question","questions","questioned","questioning","raise","raises","raised",
-    "raising","reach","reaches","reached","reaching","read","reads","read","reading","realize","realizes","realized","realizing","receive","receives","received","receiving",
-    "recognize","recognizes","recognized","recognizing","record","records","recorded","recording","reduce","reduces","reduced","reducing","refer","refers","referred",
-    "referring","reflect","reflects","reflected","reflecting","refuse","refuses","refused","refusing","regard","regards","regarded","regarding","relate","relates","related",
-    "relating","relax","relaxes","relaxed","relaxing","release","releases","released","releasing","remain","remains","remained","remaining","remember","remembers","remembered",
-    "remembering","remove","removes","removed","removing","repair","repairs","repaired","repairing","repeat","repeats","repeated","repeating","replace","replaces","replaced",
-    "replacing","reply","replies","replied","replying","report","reports","reported","reporting","represent","represents","represented","representing","require","requires",
-    "required","requiring","rest","rests","rested","resting","result","results","resulted","resulting","return","returns","returned","returning","reveal","reveals","revealed",
-    "revealing","ride","rides","rode","ridden","riding","ring","rings","rang","rung","ringing","rise","rises","rose","risen","rising","risk","risks","risked","risking",
-    "roll","rolls","rolled","rolling","run","runs","ran","running","save","saves","saved","saving","say","says","said","saying","see","sees","saw","seen","seeing",
-    "seem","seems","seemed","seeming","sell","sells","sold","selling","send","sends","sent","sending","serve","serves","served","serving","set","sets","set","setting",
-    "settle","settles","settled","settling","shake","shakes","shook","shaken","shaking","share","shares","shared","sharing","shoot","shoots","shot","shooting","show",
-    "shows","showed","shown","showing","shut","shuts","shut","shutting","sing","sings","sang","sung","singing","sit","sits","sat","sitting","sleep","sleeps","slept",
-    "sleeping","slide","slides","slid","sliding","smile","smiles","smiled","smiling","solve","solves","solved","solving","sound","sounds","sounded","sounding","speak",
-    "speaks","spoke","spoken","speaking","spend","spends","spent","spending","stand","stands","stood","standing","start","starts","started","starting","stay","stays",
-    "stayed","staying","stop","stops","stopped","stopping","study","studies","studied","studying","succeed","succeeds","succeeded","succeeding","suffer","suffers",
-    "suffered","suffering","suggest","suggests","suggested","suggesting","supply","supplies","supplied","supplying","support","supports","supported","supporting","suppose",
-    "supposes","supposed","supposing","survive","survives","survived","surviving","swim","swims","swam","swum","swimming","take","takes","took","taken","taking","talk",
-    "talks","talked","talking","teach","teaches","taught","teaching","tell","tells","told","telling","tend","tends","tended","tending","test","tests","tested","testing",
-    "thank","thanks","thanked","thanking","think","thinks","thought","thinking","throw","throws","threw","thrown","throwing","touch","touches","touched","touching","train",
-    "trains","trained","training","travel","travels","traveled","traveling","treat","treats","treated","treating","try","tries","tried","trying","turn","turns","turned",
-    "turning","understand","understands","understood","understanding","use","uses","used","using","visit","visits","visited","visiting","wait","waits","waited","waiting",
-    "walk","walks","walked","walking","want","wants","wanted","wanting","watch","watches","watched","watching","win","wins","won","winning","wish","wishes","wished",
-    "wishing","wonder","wonders","wondered","wondering","work","works","worked","working","worry","worries","worried","worrying","write","writes","wrote","written","writing"
+    "depending","design","designs","designed","designing","destroy","destroys","destroyed","destroying","discuss","discusses","discussed","discussing","divide","divides","divided","dividing",
+    "dress","dresses","dressed","dressing","drink","drinks","drank","drunk","drinking","drive","drives","drove","driven","driving","drop","drops","dropped","dropping",
+    "earn","earns","earned","earning","educate","educates","educated","educating","employ","employs","employed","employing","encourage","encourages","encouraged","encouraging",
+    "enjoy","enjoys","enjoyed","enjoying","examine","examines","examined","examining","exist","exists","existed","existing","expand","expands","expanded","expanding",
+    "experience","experiences","experienced","experiencing","explore","explores","explored","exploring","extend","extends","extended","extending","face","faces","faced","facing",
+    "fail","fails","failed","failing","feed","feeds","fed","feeding","fight","fights","fought","fighting","fill","fills","filled","filling","film","films","filmed",
+    "filming","fit","fits","fitted","fitting","fix","fixes","fixed","fixing","fold","folds","folded","folding","force","forces","forced","forcing","form","forms","formed","forming",
+    "frame","frames","framed","framing","gather","gathers","gathered","gathering","gaze","gazes","gazed","gazing","generate","generates","generated","generating",
+    "glance","glances","glanced","glancing","grab","grabs","grabbed","grabbing","guess","guesses","guessed","guessing","handle","handles","handled","handling",
+    "hang","hangs","hung","hanging","happen","happens","happened","happening","hate","hates","hated","hating","hide","hides","hid","hidden","hiding",
+    "hug","hugs","hugged","hugging","hunt","hunts","hunted","hunting","hurry","hurries","hurried","hurrying","identify","identifies","identified","identifying",
+    "ignore","ignores","ignored","ignoring","inform","informs","informed","informing","insist","insists","insisted","insisting","intend","intends","intended","intending",
+    "introduce","introduces","introduced","introducing","invite","invites","invited","inviting","join","joins","joined","joining","jump","jumps","jumped","jumping",
+    "kick","kicks","kicked","kicking","kiss","kisses","kissed","kissing","knock","knocks","knocked","knocking","laugh","laughs","laughed","laughing",
+    "lay","lays","laid","laying","lend","lends","lent","lending","lie","lies","lying","lift","lifts","lifted","lifting","mark","marks","marked","marking",
+    "marry","marries","married","marrying","match","matches","matched","matching","matter","matters","mattered","mattering","mean","means","meant","meaning",
+    "mention","mentions","mentioned","mentioning","mind","minds","minded","minding","order","orders","ordered","ordering","own","owns","owned","owning",
+    "paint","paints","painted","painting","pick","picks","picked","picking","plan","plans","planned","planning","press","presses","pressed","pressing",
+    "prove","proves","proved","proving","push","pushes","pushed","pushing","qualify","qualifies","qualified","qualifying","question","questions","questioned","questioning",
+    "record","records","recorded","recording","refer","refers","referred","referring","reflect","reflects","reflected","reflecting","refuse","refuses","refused","refusing",
+    "regard","regards","regarded","regarding","relax","relaxes","relaxed","relaxing","release","releases","released","releasing","remove","removes","removed","removing",
+    "repair","repairs","repaired","repairing","repeat","repeats","repeated","repeating","reply","replies","replied","replying","represent","represents","represented","representing",
+    "rest","rests","rested","resting","result","results","resulted","resulting","reveal","reveals","revealed","revealing","ride","rides","rode","ridden","riding",
+    "ring","rings","rang","rung","ringing","rise","rises","rose","risen","rising","risk","risks","risked","risking","roll","rolls","rolled","rolling",
+    "settle","settles","settled","settling","shake","shakes","shook","shaken","shaking","shoot","shoots","shot","shooting","shut","shuts","shutting",
+    "sing","sings","sang","sung","singing","sleep","sleeps","slept","sleeping","slide","slides","slid","sliding","smile","smiles","smiled","smiling",
+    "solve","solves","solved","solving","sound","sounds","sounded","sounding","study","studies","studied","studying","succeed","succeeds","succeeded","succeeding",
+    "suffer","suffers","suffered","suffering","supply","supplies","supplied","supplying","swim","swims","swam","swum","swimming","thank","thanks","thanked","thanking",
+    "throw","throws","threw","thrown","throwing","touch","touches","touched","touching","train","trains","trained","training","travel","travels","traveled","traveling",
+    "visit","visits","visited","visiting","wish","wishes","wished","wishing"
 ];
 
 const famousQuotes = [
@@ -569,22 +364,88 @@ const FINGER_NAMES  = { 'left-pinky':'Left Pinky','left-ring':'Left Ring','left-
 const FINGER_EMOJIS = { 'left-pinky':'🤙','left-ring':'💍','left-middle':'🖕','left-index':'☝️','right-index':'☝️','right-middle':'🖕','right-ring':'💍','right-pinky':'🤙','thumb':'👍' };
 const PRACTICE_KEYS = Object.keys(FINGER_MAP).filter(k => k.length === 1 && k !== ' ');
 
+// ============ SOUND FEEDBACK ============
+function playKeyClick() {
+    try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = 800;
+        gain.gain.setValueAtTime(0.08, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.04);
+        osc.start(); osc.stop(ctx.currentTime + 0.04);
+        osc.onended = () => ctx.close();
+    } catch {}
+}
+
+// ============ TODAY'S GOAL WIDGET ============
+function getDailyGoal() {
+    return parseInt(safeLocalStorage.getItem('typeflow-daily-goal') || '3', 10);
+}
+
+function setDailyGoal(val) {
+    safeLocalStorage.setItem('typeflow-daily-goal', val);
+    updateGoalWidget();
+}
+
+function updateGoalWidget() {
+    const DAILY_GOAL = getDailyGoal();
+    const today = new Date().toDateString();
+    let wpmHistory = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}', {});
+    // MIGRATION: Convert old array format to object format if needed
+    if (Array.isArray(wpmHistory)) {
+        const arr = wpmHistory;
+        wpmHistory = {};
+        arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
+        safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
+    }
+    // MIGRATION: Convert any old date fields from toLocaleDateString() to toDateString() format
+    let migrated = false;
+    Object.values(wpmHistory).forEach(e => {
+        if (e.date && !isNaN(Date.parse(e.date)) && !/^\w{3} \w{3} \d{1,2} \d{4}$/.test(e.date)) {
+            const d = new Date(e.date);
+            const newDate = d.toDateString();
+            if (e.date !== newDate) {
+                e.date = newDate;
+                migrated = true;
+            }
+        }
+    });
+    if (migrated) {
+        safeLocalStorage.setItem('typeflow-wpm-history', safeLocalStorage.stringify(wpmHistory));
+    }
+    let testsToday = Object.values(wpmHistory).filter(e => e.date === today).length;
+    const goalTotal        = document.getElementById('goal-total');
+    const goalTotal2       = document.getElementById('goal-total-2');
+    const goalProgressCount = document.getElementById('goal-progress-count');
+    const goalBar          = document.getElementById('goal-progress-bar');
+    if (goalTotal)         goalTotal.textContent        = DAILY_GOAL;
+    if (goalTotal2)        goalTotal2.textContent       = DAILY_GOAL;
+    if (goalProgressCount) goalProgressCount.textContent = testsToday;
+    if (goalBar)           goalBar.style.width          = Math.min(100, (testsToday / DAILY_GOAL) * 100) + '%';
+    const goalSelect = document.getElementById('goal-select');
+    if (goalSelect && parseInt(goalSelect.value, 10) !== DAILY_GOAL) goalSelect.value = DAILY_GOAL;
+}
+
 // ============ TEST ENGINE ============
 
 class TestEngine {
     constructor() {
-        this.currentText     = "";
-        this.currentPosition = 0;
-        this.correctChars    = 0;
-        this.incorrectChars  = 0;
-        this.isActive        = false;
-        this.startTime       = null;
-        this.timerInterval   = null;
-        this.timeLimit       = 15;
-        this.timeLeft        = 15;
-        this.mistakesByChar  = {};
+        this.currentText          = "";
+        this.currentPosition      = 0;
+        this.correctChars         = 0;
+        this.incorrectChars       = 0;
+        this.isActive             = false;
+        this.startTime            = null;
+        this.timerInterval        = null;
+        this.timeLimit            = 15;
+        this.timeLeft             = 15;
+        this.mistakesByChar       = {};
         this.waitingForFirstInput = false;
-        this.wordCountMode   = false;
+        this.wordCountMode        = false;
+        this.ghostCursorInterval  = null;  // FIX: moved from dangling global declarations into class
+        this.ghostCursorPos       = null;
 
         this.textDisplay     = document.getElementById("text-display");
         this.input           = document.getElementById("typing-input");
@@ -593,9 +454,9 @@ class TestEngine {
         this.timerDisplay    = document.getElementById("timer");
 
         this.miniWPMGraphCanvas = document.getElementById("mini-wpm-graph");
-        this.miniWPMChart = null;
-        this.liveWPMHistory = [];
-        this.liveWPMInterval = null;
+        this.miniWPMChart       = null;
+        this.liveWPMHistory     = [];
+        this.liveWPMInterval    = null;
 
         this.setupEventListeners();
     }
@@ -642,13 +503,12 @@ class TestEngine {
     generateText() {
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
-            // Filter for quotes with at least 120 chars (excluding author)
             let candidates = famousQuotes.filter(q => {
                 const match = q.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
                 const text = match ? match[1] : q;
                 return text && text.length >= 120;
             });
-            if (candidates.length === 0) candidates = famousQuotes; // fallback if all are short
+            if (candidates.length === 0) candidates = famousQuotes;
             const raw = candidates[Math.floor(Math.random() * candidates.length)];
             const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
             if (match) {
@@ -697,10 +557,36 @@ class TestEngine {
         this.displayText();
     }
 
+    // FIX: Extracted ghost cursor methods from the mangled displayText code into proper class methods
+    startGhostCursor() {
+        this.stopGhostCursor();
+        const bestWPM = progressManager?.data?.bestWPM || 0;
+        if (!bestWPM || !this.currentText) return;
+        this.ghostCursorPos = 0;
+        const msPerChar = 12000 / bestWPM;
+        this.ghostCursorInterval = setInterval(() => {
+            if (this.ghostCursorPos < this.currentText.length) {
+                this.ghostCursorPos++;
+                this.displayText();
+            } else {
+                this.stopGhostCursor();
+            }
+        }, msPerChar);
+    }
+
+    stopGhostCursor() {
+        if (this.ghostCursorInterval) {
+            clearInterval(this.ghostCursorInterval);
+            this.ghostCursorInterval = null;
+        }
+        this.ghostCursorPos = null;
+    }
+
     displayText() {
         const typedText = this.input.value;
         const hideUntil = this.getHideUntilIndex(typedText);
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
+
         if (mode === 'quote') {
             const html = this.currentText.split("").map((char, i) => {
                 let cls = "char";
@@ -710,48 +596,23 @@ class TestEngine {
                     cls += " current";
                 }
                 if (i < hideUntil) cls += " gone";
-                // Insert ghost cursor at ghost position
                 if (this.ghostCursorPos !== null && i === this.ghostCursorPos && this.ghostCursorPos !== this.currentPosition) {
                     return `<span class="ghost-cursor" style="opacity:0.35;">|</span><span class="${cls}">${this.formatChar(char)}</span>`;
                 }
                 return `<span class="${cls}">${this.formatChar(char)}</span>`;
             }).join("");
-            // Hide author during test
-            this.textDisplay.innerHTML = `<div class="quote-main">${html}</div>`;
-            // Smooth caret scrolling for quote mode
+
+            // FIX: Build author HTML once, not twice (was double-rendering the quote block)
+            let authorHtml = '';
+            if (this.currentAuthor) {
+                authorHtml = `<div class="quote-author">— ${this.currentAuthor}</div>`;
+            }
+            this.textDisplay.innerHTML = `<div class="quote-main">${html}</div>${authorHtml}`;
+
             const currentChar = this.textDisplay.querySelector('.current');
             if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            // Reveal quote author after test ends
-            if (mode === 'quote' && this.currentAuthor) {
-                const html = this.textDisplay.querySelector('.quote-main')?.innerHTML || '';
-                this.textDisplay.innerHTML = `<div class="quote-main">${html}</div><div class="quote-author">— ${this.currentAuthor}</div>`;
-            }
-        } else if (mode === 'code') {
-                startGhostCursor(); {
-                    this.stopGhostCursor();
-                    const bestWPM = progressManager?.data?.bestWPM || 0;
-                    if (!bestWPM || !this.currentText) return;
-                    this.ghostCursorPos = 0;
-                    // Calculate ms per char at bestWPM (assuming 5 chars/word)
-                    const msPerChar = 12000 / bestWPM;
-                    this.ghostCursorInterval = setInterval(() => {
-                        if (this.ghostCursorPos < this.currentText.length) {
-                            this.ghostCursorPos++;
-                            this.displayText();
-                        } else {
-                            this.stopGhostCursor();
-                        }
-                    }, msPerChar);
-                }
 
-                stopGhostCursor(); {
-                    if (this.ghostCursorInterval) {
-                        clearInterval(this.ghostCursorInterval);
-                        this.ghostCursorInterval = null;
-                    }
-                    this.ghostCursorPos = null;
-                }
-            // Render code with whitespace preserved and monospace font
+        } else if (mode === 'code') {
             const html = this.currentText.split("").map((char, i) => {
                 let cls = "char";
                 if (i < this.currentPosition) {
@@ -760,13 +621,12 @@ class TestEngine {
                     cls += " current";
                 }
                 if (i < hideUntil) cls += " gone";
-                // Replace space with nbsp for visual clarity
                 return `<span class="${cls}">${char === ' ' ? '&nbsp;' : this.formatChar(char)}</span>`;
             }).join("");
             this.textDisplay.innerHTML = `<pre class="code-block">${html}</pre>`;
-            // Smooth caret scrolling for code mode
             const currentChar = this.textDisplay.querySelector('.current');
             if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
         } else {
             const html = this.currentText.split("").map((char, i) => {
                 let cls = "char";
@@ -779,7 +639,6 @@ class TestEngine {
                 return `<span class="${cls}">${this.formatChar(char)}</span>`;
             }).join("");
             this.textDisplay.innerHTML = html;
-            // Smooth caret scrolling for test mode
             const currentChar = this.textDisplay.querySelector('.current');
             if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
@@ -804,8 +663,10 @@ class TestEngine {
         this.mistakesByChar  = {};
         this.startTime       = null;
         this.timeLeft        = this.timeLimit;
-        this.ghostCursorPos  = 0;
-        this.startGhostCursor();
+
+        // FIX: Ghost cursor only starts after a delay, not immediately on start
+        // (was calling startGhostCursor then stopGhostCursor right after, immediately cancelling it)
+        this.stopGhostCursor();
 
         if (!preserveInput) this.input.value = "";
         this.input.disabled = false;
@@ -830,7 +691,6 @@ class TestEngine {
             if (this.liveWPMHistory.length > 30) this.liveWPMHistory.shift();
             this.updateMiniWPMChart();
         }, 500);
-        this.stopGhostCursor();
     }
 
     startTimer() {
@@ -841,7 +701,6 @@ class TestEngine {
             this.updateTimerDisplay();
             if (this.timeLeft <= 0) this.end();
         }, 1000);
-        // Achievement checks (only once per test end)
         if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
         if ((progressManager.data.testsTaken || 0) >= 10 && !progressManager.hasAchievement('10tests')) progressManager.unlockAchievement('10tests');
         if ((progressManager.data.streakDays || 0) >= 7  && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
@@ -851,14 +710,11 @@ class TestEngine {
         const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
         if (wordCountMode) {
             const wordsTyped = this.input.value.trim().split(/\s+/).filter(Boolean).length;
-            const wordsLeft = Math.max(0, parseInt(wordCountMode, 10) - wordsTyped);
+            const wordsLeft  = Math.max(0, parseInt(wordCountMode, 10) - wordsTyped);
             this.timerDisplay.textContent = wordsLeft;
             const label = this.timerDisplay.parentElement.querySelector('.stat-label');
             if (label) label.textContent = 'Words';
-            // Auto-end test if words left is 0 and test is active
-            if (wordsLeft === 0 && this.isActive) {
-                this.end();
-            }
+            if (wordsLeft === 0 && this.isActive) { this.end(); }
         } else {
             this.timerDisplay.textContent = this.isTimedMode() ? Math.max(this.timeLeft, 0) : '∞';
             const label = this.timerDisplay.parentElement.querySelector('.stat-label');
@@ -869,13 +725,11 @@ class TestEngine {
     handleTyping() {
         if (!this.isActive) {
             if (this.input.value.length > 0) {
-                // First keypress: activate test
-                this.isActive = true;
+                this.isActive  = true;
                 this.startTime = Date.now();
                 this.startTimer();
                 this.waitingForFirstInput = false;
             } else {
-                // If not started and no input, allow start(true) for paste recovery
                 return;
             }
         }
@@ -922,7 +776,7 @@ class TestEngine {
     }
 
     recalculateFromInput() {
-        const typedText = this.input.value;
+        const typedText      = this.input.value;
         this.currentPosition = typedText.length;
         this.correctChars    = 0;
         this.incorrectChars  = 0;
@@ -938,26 +792,21 @@ class TestEngine {
 
     updateStats(reset = false) {
         if (reset) {
-            this.wpmDisplay.textContent = "0";
+            this.wpmDisplay.textContent      = "0";
             this.accuracyDisplay.textContent = "100%";
             const pbBadge = document.getElementById('pb-badge');
             if (pbBadge) pbBadge.style.display = 'none';
             return;
         }
-        const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1 / 60);
+        const elapsed    = Math.max((Date.now() - this.startTime) / 60000, 1 / 60);
         const currentWPM = Math.round((this.correctChars / 5) / elapsed) || 0;
         this.wpmDisplay.textContent = currentWPM;
         const total = this.correctChars + this.incorrectChars;
         this.accuracyDisplay.textContent = `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
-        // Show PB badge if current pace is on track to beat best
         const pbBadge = document.getElementById('pb-badge');
         const bestWPM = progressManager?.data?.bestWPM || 0;
         if (pbBadge) {
-            if (bestWPM > 0 && currentWPM >= bestWPM) {
-                pbBadge.style.display = '';
-            } else {
-                pbBadge.style.display = 'none';
-            }
+            pbBadge.style.display = (bestWPM > 0 && currentWPM >= bestWPM) ? '' : 'none';
         }
     }
 
@@ -966,12 +815,15 @@ class TestEngine {
         this.isActive = false;
         clearInterval(this.timerInterval);
         clearInterval(this.liveWPMInterval);
+        this.stopGhostCursor();
         this.input.disabled = true;
         this.updateStats();
 
         const wpm      = parseInt(this.wpmDisplay.textContent);
         const accuracy = parseInt(this.accuracyDisplay.textContent);
-        const duration = this.isTimedMode() ? (this.timeLimit - this.timeLeft) : Math.floor((Date.now() - this.startTime) / 1000);
+        const duration = this.isTimedMode()
+            ? (this.timeLimit - this.timeLeft)
+            : Math.floor((Date.now() - this.startTime) / 1000);
 
         const isNewBest = wpm > (progressManager.data.bestWPM || 0);
 
@@ -980,35 +832,76 @@ class TestEngine {
         const xpGained = this.calculateXP(wpm, accuracy);
         progressManager.addXP(xpGained);
 
-        if (!progressManager.hasAchievement('first-test')) progressManager.unlockAchievement('first-test');
-        if (wpm >= 30  && !progressManager.hasAchievement('30wpm'))       progressManager.unlockAchievement('30wpm');
-        if (wpm >= 50  && !progressManager.hasAchievement('50wpm'))       progressManager.unlockAchievement('50wpm');
-        if (wpm >= 75  && !progressManager.hasAchievement('75wpm'))       progressManager.unlockAchievement('75wpm');
-        if (wpm >= 100 && !progressManager.hasAchievement('100wpm'))      progressManager.unlockAchievement('100wpm');
-        if (accuracy === 100 && !progressManager.hasAchievement('100accuracy')) progressManager.unlockAchievement('100accuracy');
+        if (!progressManager.hasAchievement('first-test'))                                         progressManager.unlockAchievement('first-test');
+        if (wpm >= 30  && !progressManager.hasAchievement('30wpm'))                               progressManager.unlockAchievement('30wpm');
+        if (wpm >= 50  && !progressManager.hasAchievement('50wpm'))                               progressManager.unlockAchievement('50wpm');
+        if (wpm >= 75  && !progressManager.hasAchievement('75wpm'))                               progressManager.unlockAchievement('75wpm');
+        if (wpm >= 100 && !progressManager.hasAchievement('100wpm'))                              progressManager.unlockAchievement('100wpm');
+        if (accuracy === 100 && !progressManager.hasAchievement('100accuracy'))                   progressManager.unlockAchievement('100accuracy');
         if ((progressManager.data.testsTaken||0) >= 10  && !progressManager.hasAchievement('10tests'))  progressManager.unlockAchievement('10tests');
         if ((progressManager.data.testsTaken||0) >= 50  && !progressManager.hasAchievement('50tests'))  progressManager.unlockAchievement('50tests');
         if ((progressManager.data.testsTaken||0) >= 100 && !progressManager.hasAchievement('100tests')) progressManager.unlockAchievement('100tests');
         if ((progressManager.data.streakDays||0) >= 5   && !progressManager.hasAchievement('5day-streak'))  progressManager.unlockAchievement('5day-streak');
         if ((progressManager.data.streakDays||0) >= 7   && !progressManager.hasAchievement('7day-streak'))  progressManager.unlockAchievement('7day-streak');
         if ((progressManager.data.streakDays||0) >= 30  && !progressManager.hasAchievement('30day-streak')) progressManager.unlockAchievement('30day-streak');
-        // Speed Demon: 15s test, 0 errors
         if (this.timeLimit === 15 && this.incorrectChars === 0 && wpm > 0 && !progressManager.hasAchievement('speed-demon')) progressManager.unlockAchievement('speed-demon');
 
         let wpmHistory = {};
         try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
-        // MIGRATION: Convert old array format to object format if needed
         if (Array.isArray(wpmHistory)) {
             const arr = wpmHistory;
             wpmHistory = {};
             arr.forEach((e, i) => { wpmHistory[i + 1] = e; });
         }
-        // Find the next available test index (as a string)
         let nextIndex = 1;
         const indices = Object.keys(wpmHistory).map(Number).filter(n => !isNaN(n));
         if (indices.length > 0) nextIndex = Math.max(...indices) + 1;
         wpmHistory[nextIndex] = { date: new Date().toDateString(), wpm };
         safeLocalStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
+
+        // FIX: Render accuracy breakdown chart using stored results modal canvas
+        const breakdownCanvas = document.getElementById('accuracy-breakdown-chart');
+        if (breakdownCanvas && this.currentText && typeof this.currentText === 'string') {
+            const totalLen = this.currentText.length;
+            const typed    = this.input.value;
+            const thirds   = [
+                { start: 0,                          end: Math.floor(totalLen / 3) },
+                { start: Math.floor(totalLen / 3),   end: Math.floor(2 * totalLen / 3) },
+                { start: Math.floor(2 * totalLen / 3), end: totalLen }
+            ];
+            const accs = thirds.map(({ start, end }) => {
+                let correct = 0, total = 0;
+                for (let i = start; i < end && i < typed.length; i++) {
+                    total++;
+                    if (typed[i] === this.currentText[i]) correct++;
+                }
+                return total ? Math.round((correct / total) * 100) : 0;
+            });
+            if (window.accuracyBreakdownChart) window.accuracyBreakdownChart.destroy();
+            window.accuracyBreakdownChart = new Chart(breakdownCanvas.getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Start', 'Middle', 'End'],
+                    datasets: [{
+                        label: 'Accuracy',
+                        data: accs,
+                        backgroundColor: ['#2a9d8f','#e9c46a','#e76f51'],
+                        borderRadius: 6,
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.6,
+                    }]
+                },
+                options: {
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+                        y: { beginAtZero: true, max: 100, grid: { display: false }, ticks: { stepSize: 20, font: { size: 11 } } }
+                    },
+                    animation: false,
+                    responsive: false,
+                }
+            });
+        }
 
         this.updateMiniWPMChart();
         this.showResults(wpm, accuracy, xpGained, isNewBest);
@@ -1048,7 +941,7 @@ class TestEngine {
 
     calculateXP(wpm, accuracy) {
         let xp = Math.floor(wpm * 2);
-        if (accuracy >= 95) xp += 50;
+        if (accuracy >= 95)      xp += 50;
         else if (accuracy >= 90) xp += 30;
         else if (accuracy >= 85) xp += 15;
         return xp;
@@ -1068,11 +961,10 @@ class TestEngine {
         document.getElementById("xp-amount").textContent        = xpGained;
 
         const badge = document.getElementById("rating-badge");
-        if (accuracy >= 95 && wpm >= 40) { badge.textContent = "Excellent"; badge.className = "rating-badge excellent"; }
-        else if (accuracy >= 85 && wpm >= 30) { badge.textContent = "Good"; badge.className = "rating-badge good"; }
-        else { badge.textContent = "Needs Work"; badge.className = "rating-badge needs-work"; }
+        if (accuracy >= 95 && wpm >= 40)        { badge.textContent = "Excellent";   badge.className = "rating-badge excellent"; }
+        else if (accuracy >= 85 && wpm >= 30)   { badge.textContent = "Good";        badge.className = "rating-badge good"; }
+        else                                    { badge.textContent = "Needs Work";  badge.className = "rating-badge needs-work"; }
 
-        // Focus trap logic for modal
         const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
         const focusableEls = Array.from(modal.querySelectorAll(focusableSelectors)).filter(el => !el.disabled && el.offsetParent !== null);
         if (focusableEls.length) focusableEls[0].focus();
@@ -1081,17 +973,11 @@ class TestEngine {
             if (!modal.classList.contains('hidden')) {
                 if (e.key === 'Tab') {
                     const first = focusableEls[0];
-                    const last = focusableEls[focusableEls.length - 1];
+                    const last  = focusableEls[focusableEls.length - 1];
                     if (e.shiftKey) {
-                        if (document.activeElement === first) {
-                            last.focus();
-                            e.preventDefault();
-                        }
+                        if (document.activeElement === first) { last.focus(); e.preventDefault(); }
                     } else {
-                        if (document.activeElement === last) {
-                            first.focus();
-                            e.preventDefault();
-                        }
+                        if (document.activeElement === last)  { first.focus(); e.preventDefault(); }
                     }
                 } else if (e.key === 'Escape') {
                     modal.classList.add('hidden');
@@ -1100,19 +986,11 @@ class TestEngine {
             }
         }
         window.addEventListener('keydown', trapFocus);
-        // Remove trap when modal closes
-        function cleanupTrap() {
-            window.removeEventListener('keydown', trapFocus);
-        }
-        modal.addEventListener('transitionend', () => {
-            if (modal.classList.contains('hidden')) cleanupTrap();
-        });
-        // Also clean up on button click
+        function cleanupTrap() { window.removeEventListener('keydown', trapFocus); }
+        modal.addEventListener('transitionend', () => { if (modal.classList.contains('hidden')) cleanupTrap(); });
         focusableEls.forEach(btn => btn.addEventListener('click', cleanupTrap));
 
-        if (isNewBest) {
-            launchConfettiOverModal(modal);
-        }
+        if (isNewBest) { launchConfettiOverModal(modal); }
     }
 
     reset(newText = false) {
@@ -1141,10 +1019,10 @@ function launchConfettiOverModal(modal) {
     confettiCanvas.id = 'confetti-canvas';
     confettiCanvas.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
     document.body.appendChild(confettiCanvas);
-    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.width  = window.innerWidth;
     confettiCanvas.height = window.innerHeight;
 
-    const ctx = confettiCanvas.getContext('2d');
+    const ctx    = confettiCanvas.getContext('2d');
     const colors = ['#f4a261', '#2a9d8f', '#e76f51', '#e9c46a', '#264653', '#fff'];
     const particles = [];
     for (let i = 0; i < 80; i++) {
@@ -1165,10 +1043,10 @@ function launchConfettiOverModal(modal) {
         for (let p of particles) {
             ctx.beginPath();
             ctx.ellipse(p.x, p.y, p.r, p.r * 0.4, p.tilt, 0, 2 * Math.PI);
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = 0.85;
+            ctx.fillStyle    = p.color;
+            ctx.globalAlpha  = 0.85;
             ctx.fill();
-            ctx.globalAlpha = 1;
+            ctx.globalAlpha  = 1;
             p.y += p.d * 3 + Math.sin(frame / 8) * 0.5;
             p.x += Math.sin(frame / 10 + p.tilt) * 2;
             p.tilt += p.tiltAngleInc;
@@ -1233,7 +1111,7 @@ class LessonEngine {
         this.input.disabled = false;
         this.input.focus();
 
-        document.getElementById("lesson-title").textContent = lesson.title;
+        document.getElementById("lesson-title").textContent       = lesson.title;
         document.getElementById("lesson-description").textContent = lesson.description;
         document.getElementById("focus-keys").querySelector("span").textContent = lesson.focusKeys;
 
@@ -1249,24 +1127,22 @@ class LessonEngine {
     displayText() {
         const typedText = this.input.value;
         let idx = 0, html = "";
-        // Split on weak-highlight spans, then spread chars for Unicode safety
         const parts = this.currentText.split(/(<span class='weak-highlight'>.*?<\/span>)/g).filter(Boolean);
         for (const part of parts) {
             if (part.startsWith("<span class='weak-highlight'>")) {
-                // Extract the highlighted text and spread it
                 const inner = part.replace(/^<span class='weak-highlight'>|<\/span>$/g, "");
                 for (const char of [...inner]) {
                     let cls = "char weak-highlight";
-                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
-                    else if (idx === this.currentPosition) cls += " current";
+                    if (idx < this.currentPosition)        cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition)  cls += " current";
                     html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
                     idx++;
                 }
             } else {
                 for (const char of [...part]) {
                     let cls = "char";
-                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
-                    else if (idx === this.currentPosition) cls += " current";
+                    if (idx < this.currentPosition)        cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition)  cls += " current";
                     html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
                     idx++;
                 }
@@ -1289,8 +1165,9 @@ class LessonEngine {
     }
 
     recalculateFromInput() {
-        const typedText = this.input.value;
-        this.correctChars = 0; this.incorrectChars = 0;
+        const typedText  = this.input.value;
+        this.correctChars   = 0;
+        this.incorrectChars = 0;
         for (let i = 0; i < typedText.length; i++) {
             if (typedText[i] === this.currentText[i]) this.correctChars++;
             else this.incorrectChars++;
@@ -1309,7 +1186,7 @@ class LessonEngine {
     }
 
     completeLesson() {
-        this.isActive = false;
+        this.isActive       = false;
         this.input.disabled = true;
         const wpm      = parseInt(this.wpmDisplay.textContent);
         const accuracy = parseInt(this.accuracyDisplay.textContent);
@@ -1319,7 +1196,6 @@ class LessonEngine {
         if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
             progressManager.completeLesson(this.currentLesson.id);
             this.showLessonComplete(wpm, accuracy, duration, this.currentLesson.xpReward);
-            // No mutation of LESSON_DATA; unlock logic is derived in renderLessons
             if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) progressManager.unlockAchievement('all-lessons');
             renderLessons();
         } else {
@@ -1341,7 +1217,6 @@ class LessonEngine {
         this.currentPosition = 0; this.correctChars = 0; this.incorrectChars = 0;
         this.isActive = false; this.startTime = null;
         this.input.value = ""; this.input.disabled = false;
-        // Reset lesson progress in localStorage
         if (this.currentLesson) safeLocalStorage.setItem(`lesson-progress-${this.currentLesson.id}`, 0);
         this.currentText = this.generateLessonText(this.currentLesson);
         this.displayText(); this.updateStats(true);
@@ -1351,8 +1226,8 @@ class LessonEngine {
 // ============ WEAK KEY PRACTICE ENGINE ============
 
 class PracticeEngine {
-        stopRequested = false;
     constructor() {
+        this.stopRequested   = false;  // FIX: moved class field into constructor for broad compatibility
         this.currentText     = "";
         this.currentPosition = 0;
         this.correctChars    = 0;
@@ -1374,7 +1249,7 @@ class PracticeEngine {
         const targetChars = weakKeys.map(([c]) => c);
         const words = [];
         for (let i = 0; i < 40; i++) {
-            let word = Math.random() < 0.7 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
+            let word       = Math.random() < 0.7 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
             let highlighted = word.split("").map(char => targetChars.includes(char) ? `<span class='weak-highlight'>${char}</span>` : char).join("");
             words.push(highlighted);
         }
@@ -1396,7 +1271,8 @@ class PracticeEngine {
         this._boundHandler = () => this.handleTyping();
         this.input.addEventListener("input", this._boundHandler);
         this.input.addEventListener("keydown", () => playKeyClick());
-        this.isActive = true; this.startTime = Date.now();
+        this.isActive  = true;
+        this.startTime = Date.now();
         this.updateStats();
         document.getElementById('practice-countdown').style.display = 'none';
         this.stopRequested = false;
@@ -1405,24 +1281,22 @@ class PracticeEngine {
     displayText() {
         const typedText = this.input.value;
         let idx = 0, html = "";
-        // Split on weak-highlight spans, then spread chars for Unicode safety
         const parts = this.currentText.split(/(<span class='weak-highlight'>.*?<\/span>)/g).filter(Boolean);
         for (const part of parts) {
             if (part.startsWith("<span class='weak-highlight'>")) {
-                // Extract the highlighted text and spread it
                 const inner = part.replace(/^<span class='weak-highlight'>|<\/span>$/g, "");
                 for (const char of [...inner]) {
                     let cls = "char weak-highlight";
-                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
-                    else if (idx === this.currentPosition) cls += " current";
+                    if (idx < this.currentPosition)        cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition)  cls += " current";
                     html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
                     idx++;
                 }
             } else {
                 for (const char of [...part]) {
                     let cls = "char";
-                    if (idx < this.currentPosition)       cls += typedText[idx] === char ? " correct" : " incorrect";
-                    else if (idx === this.currentPosition) cls += " current";
+                    if (idx < this.currentPosition)        cls += typedText[idx] === char ? " correct" : " incorrect";
+                    else if (idx === this.currentPosition)  cls += " current";
                     html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
                     idx++;
                 }
@@ -1439,8 +1313,9 @@ class PracticeEngine {
     }
 
     recalculateFromInput() {
-        const typedText = this.input.value;
-        this.correctChars = 0; this.incorrectChars = 0;
+        const typedText  = this.input.value;
+        this.correctChars   = 0;
+        this.incorrectChars = 0;
         for (let i = 0; i < typedText.length; i++) {
             if (typedText[i] === this.currentText[i]) this.correctChars++;
             else this.incorrectChars++;
@@ -1455,17 +1330,16 @@ class PracticeEngine {
         }
         const total = this.correctChars + this.incorrectChars;
         this.accuracyDisplay.textContent = `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
-        this.errorsDisplay.textContent = this.incorrectChars;
+        this.errorsDisplay.textContent   = this.incorrectChars;
     }
 
     complete() {
         this.isActive = false; this.input.disabled = true;
-        const accuracy = parseInt(this.accuracyDisplay.textContent);
         const countdownEl = document.getElementById('practice-countdown');
         let countdown = 3;
         if (countdownEl) {
             countdownEl.style.display = '';
-            countdownEl.textContent = `Well done! Starting next round in ${countdown}…`;
+            countdownEl.textContent   = `Well done! Starting next round in ${countdown}…`;
         }
         const tick = () => {
             countdown--;
@@ -1543,7 +1417,7 @@ class FingerTrainingEngine {
     showKeyInfo(keyChar) {
         const finger = FINGER_MAP[keyChar.toLowerCase()];
         if (!finger) return;
-        this.currentKey = keyChar.toLowerCase();
+        this.currentKey               = keyChar.toLowerCase();
         this.targetKeyChar.textContent    = keyChar.toUpperCase();
         this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
         this.targetFingerName.textContent = FINGER_NAMES[finger];
@@ -1597,8 +1471,8 @@ class FingerTrainingEngine {
     nextRandomKey() { this.showKeyInfo(PRACTICE_KEYS[Math.floor(Math.random() * PRACTICE_KEYS.length)]); }
 
     updateStats() {
-        this.fingerCorrect.textContent = this.correctCount;
-        this.fingerWrong.textContent   = this.wrongCount;
+        this.fingerCorrect.textContent  = this.correctCount;
+        this.fingerWrong.textContent    = this.wrongCount;
         const total = this.correctCount + this.wrongCount;
         this.fingerAccuracy.textContent = `${total > 0 ? Math.round((this.correctCount / total) * 100) : 100}%`;
     }
@@ -1608,7 +1482,7 @@ class FingerTrainingEngine {
         this.currentKey   = null;
         this.correctCount = 0;
         this.wrongCount   = 0;
-        this.fingerDrillStats.style.display = 'none';
+        this.fingerDrillStats.style.display  = 'none';
         this.targetKeyChar.textContent    = '-';
         this.targetFingerIcon.textContent = '👆';
         this.targetFingerName.textContent = 'Waiting...';
@@ -1623,15 +1497,14 @@ function renderLessons() {
     grid.innerHTML = "";
     LESSON_DATA.forEach((lesson, idx) => {
         const isCompleted = progressManager.data.completedLessons.includes(lesson.id);
-        // Unlocked if first lesson, or previous lesson is completed
-        const isUnlocked = (idx === 0) || progressManager.data.completedLessons.includes(LESSON_DATA[idx - 1]?.id);
-        const isLocked = !isUnlocked || isCompleted;
-        const card = document.createElement("div");
-        card.className = `lesson-card ${isLocked && !isCompleted ? "locked" : ""} ${isCompleted ? "completed" : ""}`;
+        const isUnlocked  = (idx === 0) || progressManager.data.completedLessons.includes(LESSON_DATA[idx - 1]?.id);
+        const isLocked    = !isUnlocked || isCompleted;
+        const card        = document.createElement("div");
+        card.className    = `lesson-card ${isLocked && !isCompleted ? "locked" : ""} ${isCompleted ? "completed" : ""}`;
 
         if (isLocked && !isCompleted) {
-            let prevLesson = LESSON_DATA[idx - 1];
-            let tooltip = prevLesson ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM` : "Complete previous lesson to unlock";
+            let prevLesson   = LESSON_DATA[idx - 1];
+            let tooltip      = prevLesson ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM` : "Complete previous lesson to unlock";
             let tooltipClass = "lesson-tooltip";
             if (lesson.id === 5) tooltipClass += " tooltip-left";
             if (lesson.id === 6) tooltipClass += " tooltip-right";
@@ -1647,7 +1520,9 @@ function renderLessons() {
             if (!isCompleted) {
                 const lastProgress = safeLocalStorage.getItem(`lesson-progress-${lesson.id}`);
                 progress = lastProgress ? parseInt(lastProgress) : 0;
-            } else { progress = 100; }
+            } else {
+                progress = 100;
+            }
             card.innerHTML = `
                 <div class="lesson-number">Lesson ${lesson.id}</div>
                 <h3 class="lesson-card-title">${lesson.title}</h3>
@@ -1681,20 +1556,20 @@ function renderWeakKeys() {
     container.innerHTML = "";
     weakKeys.forEach(([char, rate, errors, presses]) => {
         if (!char || char.trim() === "") return;
-        const item = document.createElement("div");
+        const item    = document.createElement("div");
         item.className = "weak-key-item";
         const percent = Math.round(rate * 100);
         item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${percent}% error rate (${errors}/${presses})</span>`;
         container.appendChild(item);
     });
 }
+
 function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let wpmHistory = {};
     try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
-    // MIGRATION: Convert old array format to object format if needed
     if (Array.isArray(wpmHistory)) {
         const arr = wpmHistory;
         wpmHistory = {};
@@ -1704,19 +1579,18 @@ function renderWPMLineChart() {
     const allEntries = Object.entries(wpmHistory)
         .map(([idx, e]) => ({ ...e, idx: parseInt(idx, 10) }))
         .sort((a, b) => a.idx - b.idx);
-    const N = 20;
+    const N       = 20;
     const visible = allEntries.slice(-N);
 
     if (window._wpmChart) { window._wpmChart.destroy(); }
-    // Find personal best (PB) value in the visible history
     const wpmData = visible.map(e => e.wpm);
-    const pb = wpmData.length ? Math.max(...wpmData) : null;
-    // PB line: array of PB value or nulls if no PB
-    const pbLine = pb !== null ? Array(wpmData.length).fill(pb) : [];
+    const pb      = wpmData.length ? Math.max(...wpmData) : null;
+    const pbLine  = pb !== null ? Array(wpmData.length).fill(pb) : [];
+
     window._wpmChart = new Chart(ctx, {
         type: 'line',
         data: {
-            labels: visible.map((e, i) => `Test #${e.idx}`),
+            labels: visible.map((e) => `Test #${e.idx}`),
             datasets: [
                 {
                     label: 'WPM',
@@ -1766,7 +1640,7 @@ function renderKeyHeatmap(weakKeys) {
     ];
 
     const isDark = document.body.getAttribute('data-theme') === 'dark';
-    const max = Math.max(...Object.values(keyStats), 1);
+    const max    = Math.max(...Object.values(keyStats), 1);
     grid.innerHTML = '';
 
     QWERTY_ROWS.forEach(row => {
@@ -1774,9 +1648,9 @@ function renderKeyHeatmap(weakKeys) {
         rowEl.className = 'heatmap-row';
 
         row.forEach(k => {
-            const freq    = keyStats[k] || 0;
-            const isWeak  = weakKeys && weakKeys.some(([wk]) => wk === k);
-            const ratio   = freq / max;
+            const freq   = keyStats[k] || 0;
+            const isWeak = weakKeys && weakKeys.some(([wk]) => wk === k);
+            const ratio  = freq / max;
 
             let bg, color;
             if (isWeak) {
@@ -1796,7 +1670,7 @@ function renderKeyHeatmap(weakKeys) {
                 color = '#fff';
             }
 
-            const cell = document.createElement('div');
+            const cell     = document.createElement('div');
             cell.className = 'heatmap-key-cell';
             cell.style.cssText = `background:${bg}; color:${color}; border-color:${isWeak ? '#ff6b6b' : 'transparent'};`;
             let weakInfo = '';
@@ -1816,20 +1690,20 @@ function renderKeyHeatmap(weakKeys) {
 }
 
 function renderDashboard() {
-    const data = progressManager.data;
+    const data         = progressManager.data;
     const currentLevel = progressManager.getCurrentLevel();
 
-    document.getElementById("level-badge").textContent     = currentLevel.name;
-    document.getElementById("xp-value").textContent        = `${data.xp} XP`;
-    document.getElementById("xp-progress").style.width     = `${progressManager.getXPProgress()}%`;
+    document.getElementById("level-badge").textContent       = currentLevel.name;
+    document.getElementById("xp-value").textContent          = `${data.xp} XP`;
+    document.getElementById("xp-progress").style.width       = `${progressManager.getXPProgress()}%`;
     const xpToNext = progressManager.getXPToNextLevel();
     document.getElementById("xp-next").textContent = xpToNext > 0 ? `${xpToNext} XP to next level` : "Max level reached!";
-    document.getElementById("best-wpm-display").textContent = data.bestWPM;
-    document.getElementById("streak-value").textContent     = data.streakDays;
-    document.getElementById("avg-accuracy").textContent     = `${data.averageAccuracy}%`;
-    document.getElementById("total-time").textContent       = `${Math.floor(data.totalPracticeTime / 60)}m`;
+    document.getElementById("best-wpm-display").textContent  = data.bestWPM;
+    document.getElementById("streak-value").textContent      = data.streakDays;
+    document.getElementById("avg-accuracy").textContent      = `${data.averageAccuracy}%`;
+    document.getElementById("total-time").textContent        = `${Math.floor(data.totalPracticeTime / 60)}m`;
     document.getElementById("completed-lessons").textContent = `${data.completedLessons.length}/${LESSON_DATA.length}`;
-    document.getElementById("tests-taken").textContent      = data.testsTaken || 0;
+    document.getElementById("tests-taken").textContent       = data.testsTaken || 0;
 
     updateGoalWidget();
 
@@ -1840,9 +1714,9 @@ function renderDashboard() {
     } else {
         weakKeysChart.innerHTML = "";
         weakKeys.forEach(([char, rate, errors, presses]) => {
-            const item = document.createElement("div");
+            const item     = document.createElement("div");
             item.className = "weak-key-item";
-            const percent = Math.round(rate * 100);
+            const percent  = Math.round(rate * 100);
             item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${percent}% error rate (${errors}/${presses})</span>`;
             weakKeysChart.appendChild(item);
         });
@@ -1854,12 +1728,12 @@ function renderDashboard() {
         const unlocked = (data.achievements || []);
         ACHIEVEMENTS.forEach(ach => {
             const isUnlocked = unlocked.includes(ach.id);
-            const badge = document.createElement('div');
-            badge.className = 'achievement-badge' + (isUnlocked ? '' : ' locked');
-            badge.title = ach.desc;
-            badge.innerHTML = `<span class="badge-icon">${isUnlocked ? ach.icon : '🔒'}</span><span class="badge-name">${ach.name}</span>`;
+            const badge      = document.createElement('div');
+            badge.className  = 'achievement-badge' + (isUnlocked ? '' : ' locked');
+            badge.title      = ach.desc;
+            badge.innerHTML  = `<span class="badge-icon">${isUnlocked ? ach.icon : '🔒'}</span><span class="badge-name">${ach.name}</span>`;
             if (!isUnlocked) {
-                const desc = document.createElement('span');
+                const desc     = document.createElement('span');
                 desc.className = 'badge-desc';
                 desc.textContent = ach.desc;
                 badge.appendChild(desc);
@@ -1871,15 +1745,19 @@ function renderDashboard() {
     renderWPMLineChart();
     renderKeyHeatmap(weakKeys);
 }
+
 // ============ MODE SWITCHING ============
 
 function switchMode(mode) {
-    document.querySelectorAll(".mode-tab").forEach(tab => { tab.classList.remove("active"); tab.setAttribute("aria-selected", "false"); });
+    document.querySelectorAll(".mode-tab").forEach(tab => {
+        tab.classList.remove("active");
+        tab.setAttribute("aria-selected", "false");
+    });
     const activeTab = document.querySelector(`[data-mode="${mode}"]`);
     if (activeTab) { activeTab.classList.add("active"); activeTab.setAttribute("aria-selected", "true"); }
 
     document.querySelectorAll(".mode-section").forEach(s => { s.classList.remove("active"); s.hidden = true; });
-    const sectionMode = (mode === "quote" || mode === "code") ? "test" : mode;
+    const sectionMode   = (mode === "quote" || mode === "code") ? "test" : mode;
     const activeSection = document.getElementById(`${sectionMode}-mode`);
     if (activeSection) { activeSection.classList.add("active"); activeSection.hidden = false; }
 
@@ -1892,9 +1770,7 @@ function switchMode(mode) {
         if (timerGroup)     timerGroup.style.display     = 'none';
         if (wordCountGroup) wordCountGroup.style.display = 'none';
     } else {
-        if (optionsRow)     optionsRow.style.display     = '';
-        // BUG FIX #3: Restore timer/word-count group visibility based on current segmented mode
-        // instead of unconditionally showing both (which caused both to show at once)
+        if (optionsRow) optionsRow.style.display = '';
         const currentSegment = document.querySelector('.segmented-btn.active')?.dataset.mode || 'timed';
         if (timerGroup)     timerGroup.style.display     = currentSegment === 'timed' ? '' : 'none';
         if (wordCountGroup) wordCountGroup.style.display = currentSegment === 'words' ? '' : 'none';
@@ -1906,7 +1782,6 @@ function switchMode(mode) {
     else if (mode === "finger-training") fingerTrainingEngine.reset();
     else if (mode === "test" || mode === "quote" || mode === "code") {
         testEngine.reset(true);
-        // Autofocus typing input when switching to Test mode
         setTimeout(() => {
             const input = document.getElementById("typing-input");
             if (input && input.offsetParent !== null) input.focus();
@@ -1924,8 +1799,8 @@ function getInitialTheme() {
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
-function applyTheme(theme) { document.body.setAttribute("data-theme", theme); safeLocalStorage.setItem("typeflow-theme", theme); updateThemeToggle(theme); }
-function toggleTheme()     { applyTheme(document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"); }
+function applyTheme(theme)  { document.body.setAttribute("data-theme", theme); safeLocalStorage.setItem("typeflow-theme", theme); updateThemeToggle(theme); }
+function toggleTheme()      { applyTheme(document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"); }
 
 function updateThemeToggle(theme) {
     const toggle = document.getElementById("theme-toggle");
@@ -1935,23 +1810,12 @@ function updateThemeToggle(theme) {
 
 // ============ INITIALIZATION ============
 
-// BUG FIX #2: Declare globals once here (they were declared twice in original,
-// causing the first set of instantiated engines to be overwritten with fresh
-// instances AFTER all event listeners were attached — completely breaking the app)
+// Declare engine globals once
 let progressManager, testEngine, lessonEngine, practiceEngine, fingerTrainingEngine;
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Stop practicing button logic
-    const stopBtn = document.getElementById('practice-stop');
-    if (stopBtn) {
-        stopBtn.addEventListener('click', () => {
-            practiceEngine.stopRequested = true;
-            practiceEngine.input.disabled = true;
-            document.getElementById('practice-countdown').style.display = 'none';
-        });
-    }
 
-    // BUG FIX #2 (continued): Only instantiate engines ONCE
+    // Instantiate engines ONCE here
     progressManager      = new ProgressManager();
     testEngine           = new TestEngine();
     lessonEngine         = new LessonEngine();
@@ -1961,6 +1825,24 @@ document.addEventListener("DOMContentLoaded", () => {
     applyTheme(getInitialTheme());
     testEngine.loadNewText();
     testEngine.start(false);
+
+    // Daily goal select
+    const goalSelect = document.getElementById('goal-select');
+    if (goalSelect) {
+        goalSelect.value = getDailyGoal();
+        goalSelect.addEventListener('change', e => setDailyGoal(e.target.value));
+    }
+
+    // Stop practicing button
+    const stopBtn = document.getElementById('practice-stop');
+    if (stopBtn) {
+        stopBtn.addEventListener('click', () => {
+            practiceEngine.stopRequested  = true;
+            practiceEngine.input.disabled = true;
+            document.getElementById('practice-countdown').style.display = 'none';
+        });
+    }
+
     // Segmented control (timed vs word count)
     const timerGroup     = document.getElementById('timer-group');
     const wordCountGroup = document.getElementById('word-count-group');
@@ -1994,6 +1876,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return modal && !modal.classList.contains('hidden');
     }
 
+    // Auto-focus typing input on keypress when test section is active
     document.addEventListener("keydown", (e) => {
         if (isFeedbackModalOpen()) return;
         const testSection = document.getElementById("test-mode");
@@ -2005,7 +1888,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Mode switching
+    // Mode switching tabs
     document.querySelectorAll(".mode-tab").forEach(tab => {
         tab.addEventListener("click", e => switchMode(e.currentTarget.dataset.mode));
     });
@@ -2034,7 +1917,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    document.getElementById("start-btn").addEventListener("click", () => { testEngine.reset(false); testEngine.start(false); });
+    document.getElementById("start-btn").addEventListener("click",    () => { testEngine.reset(false); testEngine.start(false); });
     document.getElementById("new-text-btn").addEventListener("click", () => testEngine.reset(true));
     document.getElementById("theme-toggle").addEventListener("click", toggleTheme);
 
@@ -2047,8 +1930,8 @@ document.addEventListener("DOMContentLoaded", () => {
         testEngine.reset(true);
     });
 
-    document.getElementById("back-to-lessons").addEventListener("click", hideLessonPractice);
-    document.getElementById("lesson-restart").addEventListener("click", () => lessonEngine.reset());
+    document.getElementById("back-to-lessons").addEventListener("click",  hideLessonPractice);
+    document.getElementById("lesson-restart").addEventListener("click",   () => lessonEngine.reset());
 
     document.getElementById("next-lesson-btn").addEventListener("click", () => {
         document.getElementById("lesson-complete-modal").classList.add("hidden");
@@ -2059,9 +1942,9 @@ document.addEventListener("DOMContentLoaded", () => {
         hideLessonPractice();
     });
 
-    document.getElementById("practice-restart").addEventListener("click", () => practiceEngine.start());
+    document.getElementById("practice-restart").addEventListener("click",   () => practiceEngine.start());
     document.getElementById("start-finger-drill").addEventListener("click", () => fingerTrainingEngine.startDrill());
-    document.getElementById("random-key-practice").addEventListener("click", () => fingerTrainingEngine.nextRandomKey());
+    document.getElementById("random-key-practice").addEventListener("click",() => fingerTrainingEngine.nextRandomKey());
 
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
@@ -2086,6 +1969,57 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // View saved feedback developer panel
+    const viewFeedbackBtn  = document.getElementById('view-feedback-btn');
+    const feedbackViewPanel = document.getElementById('feedback-view-panel');
+    if (viewFeedbackBtn && feedbackViewPanel) {
+        viewFeedbackBtn.addEventListener('click', () => {
+            const feedbacks = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-feedback') || '[]', []);
+            if (feedbackViewPanel.classList.contains('hidden')) {
+                if (feedbacks.length === 0) {
+                    feedbackViewPanel.innerHTML = '<em>No feedback saved.</em>';
+                } else {
+                    feedbackViewPanel.innerHTML = feedbacks.map((fb, i) =>
+                        `<div style="margin-bottom:10px;"><b>#${i+1}</b>: <pre style="white-space:pre-wrap;font-size:0.95em;">${JSON.stringify(fb, null, 2)}</pre></div>`
+                    ).join('');
+                }
+                feedbackViewPanel.classList.remove('hidden');
+                viewFeedbackBtn.textContent = 'Hide Saved Feedback';
+            } else {
+                feedbackViewPanel.classList.add('hidden');
+                viewFeedbackBtn.textContent = 'View Saved Feedback';
+            }
+        });
+    }
+
+    // Help button / modal
+    const helpBtn   = document.getElementById('help-btn');
+    const helpModal = document.getElementById('help-modal');
+    const helpClose = document.getElementById('help-close');
+    if (helpBtn && helpModal && helpClose) {
+        helpBtn.addEventListener('click', () => { helpModal.style.display = 'block'; });
+        helpClose.addEventListener('click', () => { helpModal.style.display = 'none'; });
+        window.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
+        window.addEventListener('keydown', (e) => {
+            if (helpModal.style.display === 'block' && (e.key === 'Escape' || e.key === '?')) {
+                helpModal.style.display = 'none';
+            }
+        });
+    }
+
+    // Mobile/tablet touch support
+    function enableTouchFocus(cardSelector, inputSelector) {
+        const card  = document.querySelector(cardSelector);
+        const input = document.querySelector(inputSelector);
+        if (card && input) {
+            card.addEventListener('touchstart', () => { input.focus(); }, { passive: true });
+            card.addEventListener('click',      () => { input.focus(); });
+        }
+    }
+    enableTouchFocus('.text-card', '#typing-input');
+    enableTouchFocus('.text-card', '#practice-input');
+    enableTouchFocus('.text-card', '#lesson-input');
+
     // Feedback system
     const feedbackBtn     = document.getElementById('feedback-btn');
     const feedbackModal   = document.getElementById('feedback-modal');
@@ -2103,8 +2037,10 @@ document.addEventListener("DOMContentLoaded", () => {
             const formData = new FormData(feedbackForm);
             const feedback = {
                 timestamp: new Date().toISOString(),
-                liked: formData.get('liked'), improve: formData.get('improve'),
-                bugs: formData.get('bugs'), email: formData.get('email'),
+                liked:     formData.get('liked'),
+                improve:   formData.get('improve'),
+                bugs:      formData.get('bugs'),
+                email:     formData.get('email'),
                 userAgent: navigator.userAgent
             };
             const allFeedback = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-feedback') || '[]', []);
@@ -2117,5 +2053,3 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 }); // end DOMContentLoaded
-// BUG FIX #4: Removed the extra stray `}` that was in the original,
-// which caused a syntax error closing the DOMContentLoaded one brace too early.
