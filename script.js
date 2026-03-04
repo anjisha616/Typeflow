@@ -1251,10 +1251,16 @@ class PracticeEngine {
             return "Practice makes perfect. Keep typing to improve your skills.";
         }
         const targetChars = weakKeys.map(([c]) => c.toLowerCase());
+        const { text, highlightIndices } = this.buildPracticeTextData(targetChars, 40);
+        this.highlightIndices = highlightIndices;
+        return text;
+    }
+
+    buildPracticeTextData(targetChars, wordCount = 40) {
         const words = [];
         const highlightIndices = new Set();
         let charIdx = 0;
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < wordCount; i++) {
             const word = Math.random() < 0.7 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
             for (let j = 0; j < word.length; j++) {
                 if (targetChars.includes(word[j].toLowerCase())) highlightIndices.add(charIdx + j);
@@ -1262,8 +1268,7 @@ class PracticeEngine {
             words.push(word);
             charIdx += word.length + 1;
         }
-        this.highlightIndices = highlightIndices;
-        return words.join(" ") + ".";
+        return { text: words.join(" ") + ".", highlightIndices };
     }
 
     findWordWithChars(targetChars) {
