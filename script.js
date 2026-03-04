@@ -1,3 +1,48 @@
+            // --- Accuracy breakdown chart ---
+            const breakdownCanvas = document.getElementById('accuracy-breakdown-chart');
+            if (breakdownCanvas) {
+                // Compute accuracy for beginning, middle, end thirds
+                const totalLen = this.currentText.length;
+                const typed = this.input.value;
+                const thirds = [
+                    { start: 0, end: Math.floor(totalLen/3) },
+                    { start: Math.floor(totalLen/3), end: Math.floor(2*totalLen/3) },
+                    { start: Math.floor(2*totalLen/3), end: totalLen }
+                ];
+                const accs = thirds.map(({start, end}) => {
+                    let correct = 0, total = 0;
+                    for (let i = start; i < end && i < typed.length; i++) {
+                        total++;
+                        if (typed[i] === this.currentText[i]) correct++;
+                    }
+                    return total ? Math.round((correct/total)*100) : 0;
+                });
+                // Render chart
+                if (window.accuracyBreakdownChart) window.accuracyBreakdownChart.destroy();
+                window.accuracyBreakdownChart = new Chart(breakdownCanvas.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Start', 'Middle', 'End'],
+                        datasets: [{
+                            label: 'Accuracy',
+                            data: accs,
+                            backgroundColor: ['#2a9d8f','#e9c46a','#e76f51'],
+                            borderRadius: 6,
+                            barPercentage: 0.7,
+                            categoryPercentage: 0.6,
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { size: 12 } } },
+                            y: { beginAtZero: true, max: 100, grid: { display: false }, ticks: { stepSize: 20, font: { size: 11 } } }
+                        },
+                        animation: false,
+                        responsive: false,
+                    }
+                });
+            }
     ghostCursorInterval = null;
     ghostCursorPos = null;
 // ============ SOUND FEEDBACK ============
