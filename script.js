@@ -1229,6 +1229,7 @@ class PracticeEngine {
     constructor() {
         this.stopRequested   = false;  // FIX: moved class field into constructor for broad compatibility
         this.currentText     = "";
+        this.highlightIndices = new Set();
         this.currentPosition = 0;
         this.correctChars    = 0;
         this.incorrectChars  = 0;
@@ -1245,14 +1246,23 @@ class PracticeEngine {
 
     generatePracticeText() {
         const weakKeys = progressManager.getTopWeakKeys(5).filter(([c]) => c && c.trim() !== "");
-        if (weakKeys.length === 0) return "Practice makes perfect. Keep typing to improve your skills.";
-        const targetChars = weakKeys.map(([c]) => c);
-        const words = [];
-        for (let i = 0; i < 40; i++) {
-            let word       = Math.random() < 0.7 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
-            let highlighted = word.split("").map(char => targetChars.includes(char) ? `<span class='weak-highlight'>${char}</span>` : char).join("");
-            words.push(highlighted);
+        if (weakKeys.length === 0) {
+            this.highlightIndices = new Set();
+            return "Practice makes perfect. Keep typing to improve your skills.";
         }
+        const targetChars = weakKeys.map(([c]) => c.toLowerCase());
+        const words = [];
+        const highlightIndices = new Set();
+        let charIdx = 0;
+        for (let i = 0; i < 40; i++) {
+            const word = Math.random() < 0.7 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
+            for (let j = 0; j < word.length; j++) {
+                if (targetChars.includes(word[j].toLowerCase())) highlightIndices.add(charIdx + j);
+            }
+            words.push(word);
+            charIdx += word.length + 1;
+        }
+        this.highlightIndices = highlightIndices;
         return words.join(" ") + ".";
     }
 
@@ -1280,27 +1290,14 @@ class PracticeEngine {
 
     displayText() {
         const typedText = this.input.value;
-        let idx = 0, html = "";
-        const parts = this.currentText.split(/(<span class='weak-highlight'>.*?<\/span>)/g).filter(Boolean);
-        for (const part of parts) {
-            if (part.startsWith("<span class='weak-highlight'>")) {
-                const inner = part.replace(/^<span class='weak-highlight'>|<\/span>$/g, "");
-                for (const char of [...inner]) {
-                    let cls = "char weak-highlight";
-                    if (idx < this.currentPosition)        cls += typedText[idx] === char ? " correct" : " incorrect";
-                    else if (idx === this.currentPosition)  cls += " current";
-                    html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
-                    idx++;
-                }
-            } else {
-                for (const char of [...part]) {
-                    let cls = "char";
-                    if (idx < this.currentPosition)        cls += typedText[idx] === char ? " correct" : " incorrect";
-                    else if (idx === this.currentPosition)  cls += " current";
-                    html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
-                    idx++;
-                }
-            }
+        let html = "";
+        for (let idx = 0; idx < this.currentText.length; idx++) {
+            const char = this.currentText[idx];
+            let cls = "char";
+            if (this.highlightIndices.has(idx)) cls += " weak-highlight";
+            if (idx < this.currentPosition)        cls += typedText[idx] === char ? " correct" : " incorrect";
+            else if (idx === this.currentPosition)  cls += " current";
+            html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
         }
         this.textDisplay.innerHTML = html;
     }
