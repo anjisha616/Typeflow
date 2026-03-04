@@ -336,7 +336,7 @@ const famousQuotes = {
         "The harder you work for something, the greater you'll feel when you achieve it. — Unknown",
         "Push yourself, because no one else is going to do it for you. — Unknown",
         "Great things never come from comfort zones. — Unknown",
-        "Success doesn’t just find you. You have to go out and get it. — Unknown",
+        "Success doesn't just find you. You have to go out and get it. — Unknown",
         "The key to success is to focus our conscious mind on things we desire not things we fear. — Brian Tracy",
         "Don’t watch the clock; do what it does. Keep going. — Sam Levenson",
         "Opportunities don't happen. You create them. — Chris Grosser",
@@ -1643,21 +1643,6 @@ function hideLessonPractice() {
     document.getElementById("lesson-practice").classList.add("hidden");
 }
 
-function renderWeakKeys() {
-    const container = document.getElementById("weak-keys-list");
-    const weakKeys  = progressManager.getTopWeakKeys(5);
-    if (weakKeys.length === 0) { container.innerHTML = '<p class="empty-state">Complete some typing tests to identify weak keys</p>'; return; }
-    container.innerHTML = "";
-    weakKeys.forEach(([char, rate, errors, presses]) => {
-        if (!char || char.trim() === "") return;
-        const item    = document.createElement("div");
-        item.className = "weak-key-item";
-        const percent = Math.round(rate * 100);
-        item.innerHTML = `<span class="weak-key-char">${char}</span><span class="weak-key-count">${percent}% error rate (${errors}/${presses})</span>`;
-        container.appendChild(item);
-    });
-}
-
 function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
@@ -1766,6 +1751,7 @@ function renderKeyHeatmap(weakKeys) {
 
             const cell     = document.createElement('div');
             cell.className = 'heatmap-key-cell';
+            if (freq === 0) cell.classList.add('empty');
             cell.style.cssText = `background:${bg}; color:${color}; border-color:${isWeak ? '#ff6b6b' : 'transparent'};`;
             let weakInfo = '';
             if (isWeak && weakKeys) {
