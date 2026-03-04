@@ -115,9 +115,29 @@ body[data-theme="dark"] .heatmap-key-cell.empty {
     margin-bottom: 8px;
 }
 .modal-content .close {
-    position: absolute;
-    top: 12px;
-    right: 18px;
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    background: var(--accent-strong, #e07a5f);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    font-size: 1.3em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    z-index: 1001;
+}
+@media (max-width: 600px) {
+    .help-btn {
+        top: 12px;
+        left: 10px;
+        width: 28px;
+        height: 28px;
+        font-size: 1.1em;
+    }
     font-size: 1.5em;
     color: #888;
     cursor: pointer;
