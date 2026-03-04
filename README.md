@@ -3,6 +3,7 @@
 Typeflow is a modern touch typing learning platform designed to help users improve their typing speed and accuracy through interactive lessons, practice modes, finger placement training, and a rich dashboard.
 
 ## Features
+
 ### Core Features
 - Typing speed test with adjustable timer (15s, 30s, 60s)
 - Word count mode (25, 50, 100 words)
