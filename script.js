@@ -1,6 +1,6 @@
-            // --- Accuracy breakdown chart ---
+// --- Accuracy breakdown chart ---
             const breakdownCanvas = document.getElementById('accuracy-breakdown-chart');
-            if (breakdownCanvas) {
+            if (breakdownCanvas && this.currentText && typeof this.currentText === 'string') {
                 // Compute accuracy for beginning, middle, end thirds
                 const totalLen = this.currentText.length;
                 const typed = this.input.value;
