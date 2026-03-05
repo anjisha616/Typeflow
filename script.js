@@ -1814,8 +1814,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-
-    // Help modal
+   // Help modal
     const helpBtn   = document.getElementById('help-btn');
     const helpModal = document.getElementById('help-modal');
     const helpClose = document.getElementById('help-close');
