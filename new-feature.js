@@ -1,826 +1,636 @@
 /* =========================================
-   TYPEFLOW — NEW FEATURES PATCH
-   Add this BEFORE the closing </body> tag,
-   after script.js. It extends the existing app.
-   =========================================
+   TYPEFLOW — NEW FEATURES
+   Drop this AFTER script.js, before </body>
 
-   Features added:
-   1. Custom Text Mode  — paste, type, or upload .txt
-   2. Language Support  — ES / FR / DE / PT word banks + switcher
-   3. Export / Share    — results image card + CSV history download
-   4. Mobile UX         — floating soft keyboard dismiss, better touch targets
+   Features:
+   1. Custom Text  — paste / type / URL / .txt upload
+   2. Languages    — FR / DE / JA (romaji) switcher
+   3. Export       — CSV history download
+   4. Mobile UX    — touch targets, tap-to-type, iOS zoom fix
    ========================================= */
+
+'use strict';
 
 // ============================================================
 // 1. LANGUAGE WORD BANKS
 // ============================================================
-const LANGUAGE_WORD_BANKS = {
-    en: null, // uses existing baseWords
-    es: [
-        "el","la","de","en","y","a","que","los","se","del","las","un","por","con","una","su","para","es","al","lo",
-        "como","más","pero","sus","le","ya","o","este","fue","bien","cuando","muy","sin","sobre","también","tiene",
-        "hasta","hay","donde","quien","desde","todo","nos","durante","estados","todos","uno","les","ni","contra",
-        "otros","ese","eso","ante","ellos","entre","esta","ser","dos","años","otro","haber","si","nombre","misma",
-        "casa","tiempo","vida","mundo","mano","agua","noche","ciudad","parte","hombre","mujer","día","año","vez",
-        "trabajo","manera","lugar","amor","familia","cosa","forma","país","punto","momento","tipo","persona","historia",
-        "palabra","pregunta","verdad","problema","camino","idea","tarde","mañana","libro","gente","voz","puerta",
-        "noche","tierra","madre","padre","hijo","amigo","ciudad","color","cuerpo","ojos","cara","cabeza","corazón",
-        "través","tanto","hacer","decir","saber","poder","querer","llegar","pasar","deber","poner","creer","hablar",
-        "llevar","dejar","seguir","encontrar","llamar","venir","pensar","salir","volver","tomar","conocer","vivir",
-        "sentir","mirar","contar","empezar","esperar","buscar","existir","entrar","trabajar","escribir","perder",
-        "producir","ocurrir","entender","pedir","recibir","recordar","terminar","permitir","aparecer","conseguir"
-    ],
-    fr: [
-        "le","la","les","de","un","une","des","en","et","est","que","qui","il","elle","ce","nous","vous","ils",
-        "elles","je","tu","me","te","se","son","sa","ses","mon","ma","mes","ton","ta","tes","leur","leurs","y",
-        "au","aux","du","par","sur","dans","avec","pour","pas","plus","mais","ou","si","ne","tout","bien","être",
-        "avoir","faire","dire","pouvoir","aller","voir","savoir","vouloir","venir","prendre","falloir","croire",
-        "trouver","donner","tenir","partir","sembler","laisser","passer","rester","entendre","mettre","sentir",
-        "parler","porter","chercher","appeler","regarder","penser","rendre","montrer","demander","connaître",
-        "temps","année","monde","vie","homme","femme","jour","enfant","main","ville","pays","chose","nuit","eau",
-        "nom","voix","lieu","porte","maison","travail","amour","histoire","famille","coeur","tête","corps","yeux",
-        "livre","question","problème","idée","chemin","moment","façon","point","genre","type","couleur","nature"
-    ],
-    de: [
-        "der","die","das","ein","eine","und","ist","in","zu","den","von","mit","sich","des","nicht","auf","dem",
-        "er","sie","es","wird","auch","ich","war","als","an","nach","bei","hat","wie","aus","oder","aber","vor",
-        "doch","so","wir","wenn","über","einen","noch","sein","durch","uns","hier","dass","diese","alle","nur",
-        "dann","hat","ihm","werden","geworden","haben","mehr","seiner","gegen","weil","wieder","bis","seit","zur",
-        "Zeit","Jahr","Mann","Frau","Kind","Stadt","Land","Haus","Tag","Nacht","Welt","Leben","Mensch","Hand",
-        "Wasser","Namen","Stimme","Tür","Buch","Frage","Weg","Liebe","Familie","Herz","Kopf","Auge","Körper",
-        "Arbeit","Moment","Gedanke","Problem","Geschichte","Farbe","Art","Form","Punkt","Idee","Sache","Platz",
-        "machen","sagen","gehen","sehen","wissen","kommen","können","müssen","geben","nehmen","halten","heißen",
-        "denken","finden","lassen","stehen","bleiben","liegen","fallen","sprechen","schreiben","lesen","zeigen"
-    ],
-    pt: [
-        "o","a","de","que","e","do","da","em","um","para","com","uma","os","no","se","na","por","mais","as","dos",
-        "como","mas","foi","ao","ele","das","tem","à","seu","sua","ou","ser","quando","muito","há","nos","já","está",
-        "eu","também","só","pelo","pela","até","isso","ela","entre","era","depois","sem","mesmo","aos","ter","seus",
-        "suas","numa","pelos","pelas","esse","eles","tão","havia","foram","todo","essa","bem","este","esta","isso",
-        "tempo","ano","mundo","vida","homem","mulher","dia","filho","mão","cidade","país","coisa","noite","água",
-        "nome","voz","lugar","porta","casa","trabalho","amor","história","família","coração","cabeça","corpo","olho",
-        "livro","pergunta","problema","ideia","caminho","momento","forma","ponto","tipo","cor","natureza","gente",
-        "fazer","dizer","poder","ir","ver","saber","querer","vir","ter","dar","ficar","falar","partir","deixar",
-        "passar","encontrar","sentir","olhar","pensar","contar","começar","esperar","buscar","entrar","trabalhar"
-    ]
+const EXTRA_WORD_BANKS = {
+  fr: [
+    "le","la","les","de","un","une","des","en","et","est","que","qui","il","elle","ce","nous","vous",
+    "je","tu","me","te","se","son","sa","ses","mon","ma","mes","ton","ta","tes","leur","leurs",
+    "au","aux","du","par","sur","dans","avec","pour","pas","plus","mais","ou","si","ne","tout","bien",
+    "être","avoir","faire","dire","pouvoir","aller","voir","savoir","vouloir","venir","prendre","croire",
+    "trouver","donner","tenir","partir","sembler","laisser","passer","rester","entendre","mettre","sentir",
+    "parler","porter","chercher","appeler","regarder","penser","rendre","montrer","demander","connaître",
+    "temps","année","monde","vie","homme","femme","jour","enfant","main","ville","pays","chose","nuit",
+    "nom","voix","lieu","porte","maison","travail","amour","histoire","famille","coeur","tête","corps",
+    "oeil","livre","question","problème","idée","chemin","moment","façon","point","genre","couleur",
+    "manger","boire","dormir","courir","lire","écrire","chanter","jouer","aimer","vivre",
+    "table","chaise","fenêtre","jardin","forêt","mer","soleil","lune","étoile","ciel","nuage","pluie",
+    "fleur","arbre","oiseau","chat","chien","cheval","pain","fromage","vin","café","eau","feu","terre"
+  ],
+  de: [
+    "der","die","das","ein","eine","und","ist","in","zu","den","von","mit","sich","des","nicht","auf",
+    "dem","er","sie","es","wird","auch","ich","war","als","an","nach","bei","hat","wie","aus","oder",
+    "aber","vor","doch","so","wir","wenn","über","einen","noch","sein","durch","uns","hier","dass",
+    "diese","alle","nur","dann","werden","haben","mehr","gegen","weil","wieder","bis","seit","zur",
+    "Zeit","Jahr","Mann","Frau","Kind","Stadt","Land","Haus","Tag","Nacht","Welt","Leben","Mensch",
+    "Hand","Wasser","Name","Stimme","Tür","Buch","Frage","Weg","Liebe","Familie","Herz","Kopf","Auge",
+    "Körper","Arbeit","Moment","Gedanke","Problem","Geschichte","Farbe","Form","Punkt","Idee","Platz",
+    "machen","sagen","gehen","sehen","wissen","kommen","können","müssen","geben","nehmen","halten",
+    "denken","finden","lassen","stehen","bleiben","liegen","fallen","sprechen","schreiben","lesen",
+    "spielen","laufen","essen","trinken","schlafen","wohnen","arbeiten","helfen","zeigen","lernen",
+    "Tisch","Stuhl","Fenster","Garten","Wald","Meer","Sonne","Mond","Stern","Himmel","Wolke","Regen",
+    "Blume","Baum","Vogel","Katze","Hund","Brot","Käse","Wein","Kaffee","Milch","Feuer","Erde"
+  ],
+  // Common Japanese words written in romaji
+  ja: [
+    "watashi","anata","kare","kanojo","watashitachi","minasan","hito","kodomo","otoko","onna",
+    "chichi","haha","ani","ane","tomodachi","sensei","gakusei","isha","kazoku","namae",
+    "ie","heya","mado","tobira","niwa","machi","kuni","shizen","umi","yama",
+    "sora","hi","tsuki","hoshi","kaze","ame","yuki","ki","hana","tori",
+    "neko","inu","sakana","gohan","mizu","ocha","pan","tamago","yasai","kudamono",
+    "hon","kami","koe","te","me","atama","kokoro","karada","ashi","kuchi",
+    "jikan","toshi","ima","kyou","ashita","kinou","asa","hiru","yoru","mae",
+    "suki","kirei","ookii","chiisai","hayai","osoi","atarashii","furui","takai","yasui",
+    "iku","kuru","miru","kiku","hanasu","yomu","kaku","taberu","nomu","neru",
+    "okiru","hashiru","aruku","asobu","hataraku","benkyou","oshieru","wakaru","omou","shiru",
+    "ii","warui","tanoshii","kanashii","ureshii","kowai","isogashii","genki","shizuka","nigiyaka",
+    "nihon","nihongo","gakkou","shigoto","ryokou","ongaku","eiga","ryouri","supootsu","densha",
+    "arigatou","sumimasen","gomen","ohayou","konnichiwa","konbanwa","sayonara","daijoubu","onegai","hai"
+  ]
 };
 
-const LANGUAGE_LABELS = { en: '🇬🇧 EN', es: '🇪🇸 ES', fr: '🇫🇷 FR', de: '🇩🇪 DE', pt: '🇧🇷 PT' };
-let currentLanguage = safeLocalStorage.getItem('typeflow-language') || 'en';
+const LANG_META = {
+  en: { flag: '🇬🇧', label: 'EN', name: 'English'  },
+  fr: { flag: '🇫🇷', label: 'FR', name: 'Français' },
+  de: { flag: '🇩🇪', label: 'DE', name: 'Deutsch'  },
+  ja: { flag: '🇯🇵', label: 'JA', name: 'Romaji'   },
+};
 
-function getActiveWordBank() {
-    if (currentLanguage === 'en' || !LANGUAGE_WORD_BANKS[currentLanguage]) return baseWords;
-    return LANGUAGE_WORD_BANKS[currentLanguage];
+let currentLang = safeLocalStorage.getItem('typeflow-language') || 'en';
+
+function getWordBank() {
+  return EXTRA_WORD_BANKS[currentLang] || baseWords;
 }
 
-function injectLanguageSwitcher() {
-    // Add language pill row under the mode nav
-    const modeNav = document.querySelector('.mode-nav');
-    if (!modeNav || document.getElementById('language-switcher')) return;
-
-    const switcher = document.createElement('div');
-    switcher.id = 'language-switcher';
-    switcher.style.cssText = `
-        display: flex; gap: 6px; flex-wrap: wrap; justify-content: center;
-        margin-bottom: 14px; padding: 6px 10px;
-        background: rgba(255,255,255,0.38); backdrop-filter: blur(10px);
-        border-radius: 999px; border: 1px solid rgba(255,255,255,0.6);
-        width: fit-content; margin-left: auto; margin-right: auto;
-        box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-        transition: background 0.2s;
-    `;
-    modeNav.insertAdjacentElement('afterend', switcher);
-
-    Object.entries(LANGUAGE_LABELS).forEach(([code, label]) => {
-        const btn = document.createElement('button');
-        btn.dataset.lang = code;
-        btn.textContent = label;
-        btn.style.cssText = `
-            border: none; border-radius: 999px; padding: 5px 14px;
-            font-size: 0.82rem; font-weight: 600; cursor: pointer;
-            transition: all 0.18s ease; font-family: inherit;
-            background: ${code === currentLanguage ? 'var(--accent)' : 'transparent'};
-            color: ${code === currentLanguage ? '#fff' : 'var(--muted)'};
-        `;
-        btn.addEventListener('click', () => {
-            currentLanguage = code;
-            safeLocalStorage.setItem('typeflow-language', code);
-            document.querySelectorAll('#language-switcher button').forEach(b => {
-                const active = b.dataset.lang === code;
-                b.style.background = active ? 'var(--accent)' : 'transparent';
-                b.style.color      = active ? '#fff' : 'var(--muted)';
-            });
-            if (typeof testEngine !== 'undefined' && !testEngine.isActive) {
-                testEngine.loadNewText();
-            }
-            showToast(`Language: ${label}`, '', 1500);
-        });
-        switcher.appendChild(btn);
-    });
-
-    // Dark mode adaptation
-    const observer = new MutationObserver(() => {
-        const isDark = document.body.getAttribute('data-theme') === 'dark';
-        switcher.style.background = isDark
-            ? 'rgba(20,27,36,0.45)'
-            : 'rgba(255,255,255,0.38)';
-        switcher.style.borderColor = isDark
-            ? 'rgba(255,255,255,0.08)'
-            : 'rgba(255,255,255,0.6)';
-    });
-    observer.observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
-}
-
-// Patch TestEngine.generateText to use active language word bank
-(function patchTestEngineLanguage() {
-    const _originalGenerate = TestEngine.prototype.generateText;
-    TestEngine.prototype.generateText = function() {
-        // Swap baseWords for current language temporarily
-        const originalBank = window._baseWordsOverride;
-        const langBank = getActiveWordBank();
-        // We patch by temporarily swapping out baseWords
-        const saved = baseWords.slice();
-        if (langBank !== baseWords) {
-            baseWords.splice(0, baseWords.length, ...langBank);
-        }
-        const result = _originalGenerate.call(this);
-        // Restore
-        baseWords.splice(0, baseWords.length, ...saved);
-        return result;
-    };
+// Patch TestEngine.generateText to swap in the active word bank
+(function patchLang() {
+  const orig = TestEngine.prototype.generateText;
+  TestEngine.prototype.generateText = function () {
+    const bank = getWordBank();
+    if (bank === baseWords) return orig.call(this);
+    const saved = baseWords.splice(0);        // snapshot
+    baseWords.push(...bank);                  // swap in
+    const text = orig.call(this);
+    baseWords.splice(0); baseWords.push(...saved); // restore
+    return text;
+  };
 })();
+
+function buildLanguageSwitcher() {
+  if (document.getElementById('lang-switcher')) return;
+  const nav = document.querySelector('.mode-nav');
+  if (!nav) return;
+
+  const wrap = document.createElement('div');
+  wrap.id = 'lang-switcher';
+  wrap.style.cssText = `
+    display:flex; gap:4px; justify-content:center; flex-wrap:wrap;
+    margin-bottom:14px; padding:5px 8px;
+    background:rgba(255,255,255,0.42); backdrop-filter:blur(10px);
+    border-radius:999px; border:1px solid rgba(255,255,255,0.65);
+    width:fit-content; margin-left:auto; margin-right:auto;
+    box-shadow:0 2px 12px rgba(0,0,0,0.06);
+  `;
+  nav.insertAdjacentElement('afterend', wrap);
+
+  function renderBtns() {
+    wrap.innerHTML = '';
+    Object.entries(LANG_META).forEach(([code, meta]) => {
+      const active = code === currentLang;
+      const btn = document.createElement('button');
+      btn.title = meta.name;
+      btn.textContent = `${meta.flag} ${meta.label}`;
+      btn.style.cssText = `
+        border:none; border-radius:999px; padding:5px 14px;
+        font-size:0.82rem; font-weight:600; cursor:pointer; font-family:inherit;
+        transition:all 0.18s; background:${active ? 'var(--accent)' : 'transparent'};
+        color:${active ? '#fff' : 'var(--muted)'};
+      `;
+      btn.addEventListener('click', () => {
+        currentLang = code;
+        safeLocalStorage.setItem('typeflow-language', code);
+        renderBtns();
+        if (typeof testEngine !== 'undefined' && !testEngine.isActive) testEngine.loadNewText();
+        showToast(`${meta.flag} ${meta.name}`, '', 1500);
+      });
+      wrap.appendChild(btn);
+    });
+  }
+  renderBtns();
+
+  // Adapt colours for dark mode
+  new MutationObserver(() => {
+    const dark = document.body.getAttribute('data-theme') === 'dark';
+    wrap.style.background  = dark ? 'rgba(20,27,36,0.48)'      : 'rgba(255,255,255,0.42)';
+    wrap.style.borderColor = dark ? 'rgba(255,255,255,0.08)'   : 'rgba(255,255,255,0.65)';
+  }).observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
+}
 
 
 // ============================================================
 // 2. CUSTOM TEXT MODE
 // ============================================================
-function injectCustomTextMode() {
-    // Add tab to nav
-    const nav = document.querySelector('.mode-nav');
-    if (!nav || document.querySelector('[data-mode="custom"]')) return;
+let _switchPatched = false;
 
-    const tab = document.createElement('button');
-    tab.className = 'mode-tab';
-    tab.dataset.mode = 'custom';
-    tab.setAttribute('role', 'tab');
-    tab.setAttribute('aria-selected', 'false');
-    tab.innerHTML = `<span class="tab-icon">✏️</span><span class="tab-label">Custom</span>`;
-    nav.appendChild(tab);
-    tab.addEventListener('click', () => switchMode('custom'));
+function buildCustomMode() {
+  if (document.querySelector('[data-mode="custom"]')) return;
 
-    // Register keyboard shortcut Ctrl+Shift+T
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'T') {
-            e.preventDefault();
-            switchMode('custom');
-            showToast('✏️ Custom Text mode', '', 1500);
-        }
-    });
+  // Nav tab
+  const nav = document.querySelector('.mode-nav');
+  const tab = document.createElement('button');
+  tab.className = 'mode-tab';
+  tab.dataset.mode = 'custom';
+  tab.setAttribute('role', 'tab');
+  tab.setAttribute('aria-selected', 'false');
+  tab.innerHTML = `<span class="tab-icon">✏️</span><span class="tab-label">Custom</span>`;
+  nav.appendChild(tab);
+  tab.addEventListener('click', () => switchMode('custom'));
 
-    // Create the section HTML
-    const section = document.createElement('section');
-    section.className = 'mode-section';
-    section.id = 'custom-mode';
-    section.setAttribute('role', 'tabpanel');
-    section.setAttribute('hidden', '');
-    section.style.display = 'none';
-    section.style.opacity = '0';
-    section.innerHTML = `
-        <div class="panel">
-            <div class="custom-header">
-                <h2 class="section-title">Custom Text</h2>
-                <p class="section-subtitle">Type any text you want to practice</p>
-            </div>
-
-            <div class="custom-input-area" id="custom-input-area">
-                <div class="custom-tabs">
-                    <button class="custom-tab active" data-ctab="paste">📋 Paste / Type</button>
-                    <button class="custom-tab" data-ctab="upload">📂 Upload .txt</button>
-                </div>
-
-                <!-- Paste/Type panel -->
-                <div class="custom-panel active" id="ctab-paste">
-                    <textarea
-                        id="custom-text-source"
-                        placeholder="Paste or type your custom text here... (min 20 characters)"
-                        rows="6"
-                        style="width:100%;padding:16px;border-radius:12px;border:2px solid rgba(0,0,0,0.08);
-                               font-size:1rem;font-family:inherit;resize:vertical;
-                               background:transparent;color:var(--ink);outline:none;
-                               transition:border-color 0.2s;"
-                    ></textarea>
-                    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center;">
-                        <button class="btn primary" id="custom-start-btn" disabled>▶ Start Typing</button>
-                        <button class="btn ghost" id="custom-clear-btn">✕ Clear</button>
-                        <span id="custom-char-count" style="color:var(--muted);font-size:0.85rem;margin-left:auto;">0 chars</span>
-                    </div>
-                </div>
-
-                <!-- Upload panel -->
-                <div class="custom-panel" id="ctab-upload" style="display:none;">
-                    <div id="custom-dropzone" style="
-                        border: 2px dashed rgba(224,122,95,0.4); border-radius: 16px;
-                        padding: 48px 24px; text-align: center; cursor: pointer;
-                        transition: all 0.2s; background: rgba(224,122,95,0.03);
-                    ">
-                        <div style="font-size:2.5rem;margin-bottom:12px;">📂</div>
-                        <div style="font-weight:600;margin-bottom:6px;">Drop a .txt file here</div>
-                        <div style="color:var(--muted);font-size:0.9rem;margin-bottom:16px;">or click to browse</div>
-                        <input type="file" id="custom-file-input" accept=".txt" style="display:none;">
-                        <button class="btn ghost" onclick="document.getElementById('custom-file-input').click()">Browse files</button>
-                    </div>
-                    <div id="custom-file-preview" style="display:none;margin-top:12px;">
-                        <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;
-                                    background:rgba(47,133,90,0.08);border-radius:10px;
-                                    border:1px solid rgba(47,133,90,0.2);">
-                            <span style="font-size:1.5rem;">📄</span>
-                            <div>
-                                <div id="custom-file-name" style="font-weight:600;font-size:0.95rem;"></div>
-                                <div id="custom-file-chars" style="color:var(--muted);font-size:0.82rem;"></div>
-                            </div>
-                            <button class="btn ghost" id="custom-file-start" style="margin-left:auto;padding:8px 18px;font-size:0.9rem;">▶ Start</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Live typing area (hidden until started) -->
-            <div id="custom-typing-area" style="display:none;">
-                <div class="custom-typing-stats" style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;">
-                    <div class="stat-card"><span class="stat-label">WPM</span><span class="stat-value" id="custom-wpm">0</span></div>
-                    <div class="stat-card"><span class="stat-label">Accuracy</span><span class="stat-value" id="custom-accuracy">100%</span></div>
-                    <div class="stat-card"><span class="stat-label">Progress</span><span class="stat-value" id="custom-progress">0%</span></div>
-                </div>
-                <div class="text-card" aria-live="polite">
-                    <div class="text-display" id="custom-text-display"></div>
-                </div>
-                <div class="input-card">
-                    <input type="text" id="custom-typing-input" placeholder="Start typing..." autocomplete="off" spellcheck="false">
-                    <p class="hint">Tab = restart this text</p>
-                </div>
-                <div class="actions" style="margin-top:10px;">
-                    <button class="btn primary" id="custom-restart-btn">↺ Restart</button>
-                    <button class="btn ghost" id="custom-change-text-btn">← Change Text</button>
-                </div>
-            </div>
-        </div>
-    `;
-    document.querySelector('.app').appendChild(section);
-
-    // Wire up custom text tab switching
-    section.querySelectorAll('.custom-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-            section.querySelectorAll('.custom-tab').forEach(b => b.classList.remove('active'));
-            section.querySelectorAll('.custom-panel').forEach(p => p.style.display = 'none');
-            btn.classList.add('active');
-            document.getElementById(`ctab-${btn.dataset.ctab}`).style.display = '';
-        });
-    });
-
-    // Char count + enable/disable start button
-    const sourceTA = document.getElementById('custom-text-source');
-    const startBtn = document.getElementById('custom-start-btn');
-    const charCount = document.getElementById('custom-char-count');
-    sourceTA.addEventListener('input', () => {
-        const len = sourceTA.value.trim().length;
-        charCount.textContent = `${len} chars`;
-        startBtn.disabled = len < 20;
-        startBtn.style.opacity = len < 20 ? '0.4' : '1';
-    });
-    // Focus style
-    sourceTA.addEventListener('focus', () => { sourceTA.style.borderColor = 'var(--accent)'; sourceTA.style.boxShadow = '0 0 0 4px rgba(224,122,95,0.12)'; });
-    sourceTA.addEventListener('blur',  () => { sourceTA.style.borderColor = 'rgba(0,0,0,0.08)'; sourceTA.style.boxShadow = 'none'; });
-
-    document.getElementById('custom-clear-btn').addEventListener('click', () => {
-        sourceTA.value = ''; charCount.textContent = '0 chars'; startBtn.disabled = true; startBtn.style.opacity = '0.4';
-    });
-
-    startBtn.addEventListener('click', () => {
-        const text = sourceTA.value.trim();
-        if (text.length >= 20) startCustomTyping(text);
-    });
-
-    // File upload
-    const fileInput  = document.getElementById('custom-file-input');
-    const dropzone   = document.getElementById('custom-dropzone');
-    const filePreview = document.getElementById('custom-file-preview');
-    let uploadedText = '';
-
-    function handleFile(file) {
-        if (!file || !file.name.endsWith('.txt')) { showToast('Please upload a .txt file', 'warning'); return; }
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            uploadedText = e.target.result.trim();
-            document.getElementById('custom-file-name').textContent  = file.name;
-            document.getElementById('custom-file-chars').textContent = `${uploadedText.length.toLocaleString()} characters`;
-            filePreview.style.display = '';
-        };
-        reader.readAsText(file);
+  // Keyboard shortcut
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'T') {
+      e.preventDefault(); switchMode('custom'); showToast('✏️ Custom Text', '', 1500);
     }
+  });
 
-    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
-    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.style.borderColor = 'var(--accent)'; dropzone.style.background = 'rgba(224,122,95,0.06)'; });
-    dropzone.addEventListener('dragleave', () => { dropzone.style.borderColor = 'rgba(224,122,95,0.4)'; dropzone.style.background = 'rgba(224,122,95,0.03)'; });
-    dropzone.addEventListener('drop', (e) => { e.preventDefault(); dropzone.style.borderColor = 'rgba(224,122,95,0.4)'; dropzone.style.background = 'rgba(224,122,95,0.03)'; handleFile(e.dataTransfer.files[0]); });
-    dropzone.addEventListener('click', () => fileInput.click());
+  // Section
+  const sec = document.createElement('section');
+  sec.className = 'mode-section';
+  sec.id = 'custom-mode';
+  sec.setAttribute('role', 'tabpanel');
+  sec.style.cssText = 'display:none;opacity:0;transform:translateY(18px);pointer-events:none;transition:opacity .32s cubic-bezier(.4,0,.2,1),transform .32s cubic-bezier(.4,0,.2,1);';
 
-    document.getElementById('custom-file-start').addEventListener('click', () => {
-        if (uploadedText.length >= 20) startCustomTyping(uploadedText);
-        else showToast('File is too short (min 20 chars)', 'warning');
+  sec.innerHTML = `
+<div class="panel">
+  <div>
+    <h2 class="section-title">Custom Text</h2>
+    <p class="section-subtitle">Practice with any text you choose</p>
+  </div>
+
+  <div id="custom-source-area">
+    <!-- Source tabs -->
+    <div id="custom-src-tabs" style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;"></div>
+
+    <!-- Paste / Type -->
+    <div class="csrc-panel" id="csrc-type">
+      <textarea id="cst-ta" rows="6" placeholder="Paste or type any text here… (min 20 characters)"
+        style="width:100%;padding:16px;border-radius:12px;border:2px solid rgba(0,0,0,0.08);
+               font-size:1rem;font-family:inherit;resize:vertical;background:transparent;
+               color:var(--ink);outline:none;box-sizing:border-box;
+               transition:border-color .2s,box-shadow .2s;"></textarea>
+      <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap;align-items:center;">
+        <button class="btn primary" id="cst-start-btn" disabled style="opacity:.4;">▶ Start</button>
+        <button class="btn ghost"   id="cst-clear-btn">✕ Clear</button>
+        <span id="cst-char-count" style="color:var(--muted);font-size:.85rem;margin-left:auto;">0 chars</span>
+      </div>
+    </div>
+
+    <!-- URL -->
+    <div class="csrc-panel" id="csrc-url" style="display:none;">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;">
+        <input id="cst-url" type="url" placeholder="https://en.wikipedia.org/wiki/Touch_typing"
+          style="flex:1;min-width:200px;padding:13px 16px;border-radius:12px;
+                 border:2px solid rgba(0,0,0,0.08);font-size:1rem;font-family:inherit;
+                 background:transparent;color:var(--ink);outline:none;
+                 transition:border-color .2s,box-shadow .2s;" />
+        <button class="btn primary" id="cst-fetch-btn">⬇ Fetch</button>
+      </div>
+      <p style="color:var(--muted);font-size:.82rem;margin-top:8px;">
+        Works best with Wikipedia articles and plain-text pages.
+        CORS-restricted sites will fail — paste the text manually instead.
+      </p>
+      <div id="cst-url-preview" style="display:none;margin-top:12px;"></div>
+    </div>
+
+    <!-- Upload -->
+    <div class="csrc-panel" id="csrc-upload" style="display:none;">
+      <div id="cst-dropzone" style="
+          border:2px dashed rgba(224,122,95,.45);border-radius:16px;
+          padding:44px 24px;text-align:center;cursor:pointer;
+          transition:all .2s;background:rgba(224,122,95,.03);">
+        <div style="font-size:2.5rem;margin-bottom:10px;">📂</div>
+        <div style="font-weight:600;margin-bottom:6px;">Drop a .txt file here</div>
+        <div style="color:var(--muted);font-size:.9rem;margin-bottom:16px;">or click to browse</div>
+        <input type="file" id="cst-file" accept=".txt,text/plain" style="display:none;">
+        <button class="btn ghost" id="cst-browse-btn" type="button">Browse files</button>
+      </div>
+      <div id="cst-upload-preview" style="display:none;margin-top:12px;"></div>
+    </div>
+  </div>
+
+  <!-- Live typing area -->
+  <div id="custom-typing-area" style="display:none;">
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px;">
+      <div class="stat-card"><span class="stat-label">WPM</span><span class="stat-value" id="ct-wpm">0</span></div>
+      <div class="stat-card"><span class="stat-label">Accuracy</span><span class="stat-value" id="ct-acc">100%</span></div>
+      <div class="stat-card"><span class="stat-label">Progress</span><span class="stat-value" id="ct-prog">0%</span></div>
+    </div>
+    <div class="text-card" style="cursor:text;" onclick="document.getElementById('ct-input').focus()">
+      <div class="text-display" id="ct-display"></div>
+    </div>
+    <div class="input-card">
+      <input type="text" id="ct-input" placeholder="Start typing…" autocomplete="off" spellcheck="false">
+      <p class="hint">Tab = restart &nbsp;·&nbsp; Esc = back to source</p>
+    </div>
+    <div class="actions" style="margin-top:10px;">
+      <button class="btn primary" id="ct-restart-btn">↺ Restart</button>
+      <button class="btn ghost"   id="ct-back-btn">← Change Text</button>
+    </div>
+  </div>
+</div>`;
+
+  document.querySelector('.app').appendChild(sec);
+
+  // ---- source tab logic ----
+  const srcDefs = [
+    { id: 'type',   icon: '✍️', label: 'Type / Paste' },
+    { id: 'url',    icon: '🔗', label: 'From URL'     },
+    { id: 'upload', icon: '📂', label: 'Upload .txt'  },
+  ];
+  const tabBar = document.getElementById('custom-src-tabs');
+  srcDefs.forEach((def, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'custom-src-tab';
+    btn.dataset.src = def.id;
+    btn.textContent = `${def.icon} ${def.label}`;
+    btn.style.cssText = srcTabCSS(i === 0);
+    btn.addEventListener('click', () => {
+      tabBar.querySelectorAll('.custom-src-tab').forEach(b => { b.style.background = 'rgba(0,0,0,0.05)'; b.style.color = 'var(--muted)'; });
+      sec.querySelectorAll('.csrc-panel').forEach(p => { p.style.display = 'none'; });
+      btn.style.background = 'var(--accent)'; btn.style.color = '#fff';
+      document.getElementById(`csrc-${def.id}`).style.display = '';
     });
+    tabBar.appendChild(btn);
+  });
 
-    document.getElementById('custom-change-text-btn').addEventListener('click', () => {
-        document.getElementById('custom-typing-area').style.display = 'none';
-        document.getElementById('custom-input-area').style.display  = '';
-        customEngine.reset();
-    });
+  // ---- textarea ----
+  const ta        = document.getElementById('cst-ta');
+  const startBtn  = document.getElementById('cst-start-btn');
+  const charCount = document.getElementById('cst-char-count');
+  function syncCount() {
+    const n = ta.value.trim().length;
+    charCount.textContent  = `${n.toLocaleString()} chars`;
+    startBtn.disabled      = n < 20;
+    startBtn.style.opacity = n >= 20 ? '1' : '.4';
+  }
+  ta.addEventListener('input', syncCount);
+  ta.addEventListener('focus', () => { ta.style.borderColor = 'var(--accent)'; ta.style.boxShadow = '0 0 0 4px rgba(224,122,95,.12)'; });
+  ta.addEventListener('blur',  () => { ta.style.borderColor = 'rgba(0,0,0,.08)'; ta.style.boxShadow = 'none'; });
+  document.getElementById('cst-clear-btn').addEventListener('click', () => { ta.value = ''; syncCount(); });
+  startBtn.addEventListener('click', () => { const t = ta.value.trim(); if (t.length >= 20) launchCustom(t); });
 
-    document.getElementById('custom-restart-btn').addEventListener('click', () => customEngine.restart());
+  // ---- URL fetch ----
+  const urlIn   = document.getElementById('cst-url');
+  const fetchBtn = document.getElementById('cst-fetch-btn');
+  focusStyle(urlIn);
+  fetchBtn.addEventListener('click', async () => {
+    const url = urlIn.value.trim();
+    if (!url) { showToast('Enter a URL first', 'warning'); return; }
+    fetchBtn.textContent = '⏳ Fetching…'; fetchBtn.disabled = true;
+    try {
+      const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+      const res   = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json  = await res.json();
+      const tmp   = document.createElement('div');
+      tmp.innerHTML = json.contents || '';
+      ['script','style','nav','footer','header','aside','noscript'].forEach(t => tmp.querySelectorAll(t).forEach(el => el.remove()));
+      const text = (tmp.innerText || tmp.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 4000);
+      if (text.length < 20) throw new Error('Not enough readable text on that page');
+      const prev = document.getElementById('cst-url-preview');
+      prev.style.display = '';
+      prev.innerHTML = previewCard(`✅ ${text.length.toLocaleString()} chars extracted`, text.slice(0, 180) + '…', 'cst-url-go');
+      document.getElementById('cst-url-go').addEventListener('click', () => launchCustom(text));
+    } catch(err) {
+      showToast(`⚠ ${err.message || 'Fetch failed — try pasting instead'}`, 'warning', 4000);
+    } finally {
+      fetchBtn.textContent = '⬇ Fetch'; fetchBtn.disabled = false;
+    }
+  });
+  urlIn.addEventListener('keydown', e => { if (e.key === 'Enter') fetchBtn.click(); });
 
-    // Register with switchMode
-    const _origSwitchMode = window.switchMode;
-    window.switchMode = function(mode) {
-        _origSwitchMode(mode);
-        if (mode === 'custom') {
-            // Show/hide custom section properly
-            const customSec = document.getElementById('custom-mode');
-            if (customSec) {
-                customSec.style.display = 'block';
-                customSec.hidden = false;
-                void customSec.offsetWidth;
-                customSec.classList.add('active');
-                customSec.style.opacity = '1';
-                customSec.style.pointerEvents = 'auto';
-                customSec.style.transform = 'translateY(0)';
-            }
-        } else {
-            const customSec = document.getElementById('custom-mode');
-            if (customSec) {
-                customSec.classList.remove('active');
-                customSec.style.opacity  = '0';
-                customSec.style.transform = 'translateY(18px)';
-                customSec.style.pointerEvents = 'none';
-                setTimeout(() => { if (!customSec.classList.contains('active')) customSec.style.display = 'none'; }, 350);
-            }
-        }
+  // ---- file upload ----
+  const fileIn    = document.getElementById('cst-file');
+  const dropzone  = document.getElementById('cst-dropzone');
+  document.getElementById('cst-browse-btn').addEventListener('click', e => { e.stopPropagation(); fileIn.click(); });
+  dropzone.addEventListener('click', () => fileIn.click());
+  dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.style.borderColor = 'var(--accent)'; dropzone.style.background = 'rgba(224,122,95,.07)'; });
+  dropzone.addEventListener('dragleave', ()  => resetDropzone());
+  dropzone.addEventListener('drop', e => { e.preventDefault(); resetDropzone(); handleFile(e.dataTransfer.files[0]); });
+  fileIn.addEventListener('change', e => handleFile(e.target.files[0]));
+
+  function resetDropzone() { dropzone.style.borderColor = 'rgba(224,122,95,.45)'; dropzone.style.background = 'rgba(224,122,95,.03)'; }
+  function handleFile(file) {
+    if (!file || (!file.name.endsWith('.txt') && file.type !== 'text/plain')) {
+      showToast('Please upload a .txt file', 'warning'); return;
+    }
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result.trim().slice(0, 5000);
+      if (text.length < 20) { showToast('File too short (min 20 chars)', 'warning'); return; }
+      const prev = document.getElementById('cst-upload-preview');
+      prev.style.display = '';
+      prev.innerHTML = previewCard(`📄 ${file.name}`, `${text.length.toLocaleString()} characters loaded`, 'cst-upload-go');
+      document.getElementById('cst-upload-go').addEventListener('click', () => launchCustom(text));
     };
+    reader.onerror = () => showToast('Could not read file', 'warning');
+    reader.readAsText(file);
+  }
+
+  // ---- typing controls ----
+  document.getElementById('ct-restart-btn').addEventListener('click', () => customTyper.restart());
+  document.getElementById('ct-back-btn').addEventListener('click',    () => {
+    document.getElementById('custom-typing-area').style.display = 'none';
+    document.getElementById('custom-source-area').style.display = '';
+    customTyper.reset();
+  });
+
+  // ---- patch switchMode ----
+  if (!_switchPatched) {
+    _switchPatched = true;
+    const _orig = window.switchMode;
+    window.switchMode = function(mode) {
+      _orig(mode);
+      const customSec = document.getElementById('custom-mode');
+      if (!customSec) return;
+      if (mode === 'custom') {
+        customSec.style.display = 'block';
+        void customSec.offsetWidth;
+        customSec.classList.add('active');
+        customSec.style.opacity       = '1';
+        customSec.style.transform     = 'translateY(0)';
+        customSec.style.pointerEvents = 'auto';
+      } else {
+        customSec.classList.remove('active');
+        customSec.style.opacity       = '0';
+        customSec.style.transform     = 'translateY(18px)';
+        customSec.style.pointerEvents = 'none';
+        setTimeout(() => { if (!customSec.classList.contains('active')) customSec.style.display = 'none'; }, 350);
+      }
+    };
+  }
 }
 
-// Custom typing mini-engine
-const customEngine = {
-    text: '', position: 0, correct: 0, incorrect: 0,
-    isActive: false, startTime: null, timerInterval: null,
+// Shared helpers
+function srcTabCSS(active) {
+  return `border:none;border-radius:999px;padding:8px 18px;font-size:.9rem;font-weight:600;
+          cursor:pointer;font-family:inherit;transition:all .18s;
+          background:${active ? 'var(--accent)' : 'rgba(0,0,0,.05)'};
+          color:${active ? '#fff' : 'var(--muted)'};`;
+}
+function focusStyle(el) {
+  el.addEventListener('focus', () => { el.style.borderColor = 'var(--accent)'; el.style.boxShadow = '0 0 0 4px rgba(224,122,95,.12)'; });
+  el.addEventListener('blur',  () => { el.style.borderColor = 'rgba(0,0,0,.08)'; el.style.boxShadow = 'none'; });
+}
+function previewCard(title, body, btnId) {
+  return `<div style="background:rgba(47,133,90,.07);border:1px solid rgba(47,133,90,.22);
+                      border-radius:12px;padding:14px 16px;">
+            <div style="font-weight:600;margin-bottom:6px;">${title}</div>
+            <div style="color:var(--muted);font-size:.85rem;margin-bottom:12px;
+                        max-height:56px;overflow:hidden;">${body}</div>
+            <button class="btn primary" id="${btnId}" style="padding:8px 18px;font-size:.9rem;">▶ Start Typing</button>
+          </div>`;
+}
 
-    start(text) {
-        this.text = text; this.position = 0; this.correct = 0; this.incorrect = 0;
-        this.isActive = false; this.startTime = null;
-        clearInterval(this.timerInterval);
-        const input = document.getElementById('custom-typing-input');
-        input.value = ''; input.disabled = false;
-        this.render();
-        this.updateStats(true);
-        input.focus();
-        input.addEventListener('input',   () => this.handleInput(),  { once: false });
-        input.addEventListener('keydown', (e) => {
-            playKeyClick();
-            if (e.key === 'Tab') { e.preventDefault(); this.restart(); }
-        });
-    },
-
-    restart() { this.start(this.text); },
-    reset()   { this.text = ''; clearInterval(this.timerInterval); },
-
-    render() {
-        const typed = document.getElementById('custom-typing-input').value;
-        const display = document.getElementById('custom-text-display');
-        let html = '';
-        for (let i = 0; i < this.text.length; i++) {
-            const ch = this.text[i];
-            let cls = 'char';
-            if (i < this.position) cls += typed[i] === ch ? ' correct' : ' incorrect';
-            else if (i === this.position) cls += ' current';
-            const safe = ch === ' ' ? ' ' : ch.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-            html += `<span class="${cls}">${safe}</span>`;
-        }
-        display.innerHTML = html;
-        const cur = display.querySelector('.current');
-        if (cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    },
-
-    handleInput() {
-        const input = document.getElementById('custom-typing-input');
-        if (!this.isActive && input.value.length > 0) {
-            this.isActive = true; this.startTime = Date.now();
-            this.timerInterval = setInterval(() => this.updateStats(), 500);
-        }
-        this.position = input.value.length;
-        this.correct = 0; this.incorrect = 0;
-        for (let i = 0; i < input.value.length; i++) {
-            if (input.value[i] === this.text[i]) this.correct++; else this.incorrect++;
-        }
-        this.render(); this.updateStats();
-        if (this.position >= this.text.length) this.complete();
-    },
-
-    updateStats(reset = false) {
-        if (reset) {
-            document.getElementById('custom-wpm').textContent      = '0';
-            document.getElementById('custom-accuracy').textContent = '100%';
-            document.getElementById('custom-progress').textContent = '0%';
-            return;
-        }
-        const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1/60);
-        document.getElementById('custom-wpm').textContent      = Math.round((this.correct / 5) / elapsed) || 0;
-        const total = this.correct + this.incorrect;
-        document.getElementById('custom-accuracy').textContent = `${total ? Math.round((this.correct / total) * 100) : 100}%`;
-        document.getElementById('custom-progress').textContent = `${Math.round((this.position / this.text.length) * 100)}%`;
-    },
-
-    complete() {
-        clearInterval(this.timerInterval);
-        const input = document.getElementById('custom-typing-input');
-        input.disabled = true;
-        const wpm = parseInt(document.getElementById('custom-wpm').textContent);
-        const acc = parseInt(document.getElementById('custom-accuracy').textContent);
-        showToast(`✅ Done! ${wpm} WPM · ${acc}% accuracy`, 'success', 4000);
-        const xp = Math.floor(wpm * 1.5);
-        if (typeof progressManager !== 'undefined') {
-            progressManager.addXP(xp);
-            showToast(`✨ +${xp} XP earned`, '', 2500);
-        }
+// ---- Custom typing micro-engine ----
+const customTyper = {
+  text:'', pos:0, correct:0, incorrect:0, active:false, t0:null, _iv:null,
+  start(text) {
+    this.text=text; this.pos=0; this.correct=0; this.incorrect=0; this.active=false; this.t0=null;
+    clearInterval(this._iv);
+    const inp = document.getElementById('ct-input');
+    // Clone to remove old listeners
+    const fresh = inp.cloneNode(true);
+    inp.parentNode.replaceChild(fresh, inp);
+    fresh.value=''; fresh.disabled=false; fresh.focus();
+    fresh.addEventListener('input',   () => this._onInput());
+    fresh.addEventListener('keydown', e => {
+      playKeyClick();
+      if (e.key==='Tab')    { e.preventDefault(); this.restart(); }
+      if (e.key==='Escape') { document.getElementById('ct-back-btn')?.click(); }
+    });
+    this._render(); this._stats(true);
+  },
+  restart() { if(this.text) this.start(this.text); },
+  reset()   { this.text=''; clearInterval(this._iv); },
+  _onInput() {
+    const inp = document.getElementById('ct-input');
+    if (!inp) return;
+    if (!this.active && inp.value.length>0) {
+      this.active=true; this.t0=Date.now();
+      this._iv = setInterval(()=>this._stats(), 500);
     }
+    this.pos=inp.value.length; this.correct=0; this.incorrect=0;
+    for (let i=0;i<inp.value.length;i++) {
+      if (inp.value[i]===this.text[i]) this.correct++; else this.incorrect++;
+    }
+    this._render(); this._stats();
+    if (this.pos>=this.text.length) this._done();
+  },
+  _render() {
+    const val  = document.getElementById('ct-input')?.value||'';
+    const disp = document.getElementById('ct-display');
+    if (!disp) return;
+    let html='';
+    for (let i=0;i<this.text.length;i++) {
+      const ch=this.text[i]; let cls='char';
+      if      (i<this.pos)  cls+=val[i]===ch?' correct':' incorrect';
+      else if (i===this.pos) cls+=' current';
+      const safe=ch===' '?' ':ch.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      html+=`<span class="${cls}">${safe}</span>`;
+    }
+    disp.innerHTML=html;
+    disp.querySelector('.current')?.scrollIntoView({block:'nearest',behavior:'smooth'});
+  },
+  _stats(reset=false) {
+    const w=document.getElementById('ct-wpm'), a=document.getElementById('ct-acc'), p=document.getElementById('ct-prog');
+    if (!w) return;
+    if (reset){ w.textContent='0'; a.textContent='100%'; p.textContent='0%'; return; }
+    const elapsed=Math.max((Date.now()-this.t0)/60000,1/60);
+    w.textContent = Math.round((this.correct/5)/elapsed)||0;
+    const tot=this.correct+this.incorrect;
+    a.textContent = `${tot?Math.round(this.correct/tot*100):100}%`;
+    p.textContent = `${Math.round(this.pos/this.text.length*100)}%`;
+  },
+  _done() {
+    clearInterval(this._iv);
+    const inp=document.getElementById('ct-input'); if(inp) inp.disabled=true;
+    const wpm=parseInt(document.getElementById('ct-wpm')?.textContent||'0');
+    const acc=parseInt(document.getElementById('ct-acc')?.textContent||'100');
+    if (typeof progressManager!=='undefined') {
+      const xp=Math.floor(wpm*1.5);
+      progressManager.addXP(xp); progressManager.updateStreak(); progressManager.save();
+      showToast(`✅ ${wpm} WPM · ${acc}% accuracy · +${xp} XP`, 'success', 4000);
+    } else {
+      showToast(`✅ ${wpm} WPM · ${acc}% accuracy`, 'success', 3000);
+    }
+  }
 };
 
-function startCustomTyping(text) {
-    document.getElementById('custom-input-area').style.display  = 'none';
-    document.getElementById('custom-typing-area').style.display = '';
-    customEngine.start(text);
+function launchCustom(text) {
+  document.getElementById('custom-source-area').style.display = 'none';
+  document.getElementById('custom-typing-area').style.display = '';
+  customTyper.start(text);
 }
 
 
 // ============================================================
-// 3. EXPORT / SHARE RESULTS
+// 3. CSV EXPORT  (Dashboard)
 // ============================================================
-function injectExportButtons() {
-    // Add export buttons to the results modal
-    const resultsActions = document.querySelector('.results-actions');
-    if (!resultsActions || document.getElementById('export-share-btn')) return;
+function buildCSVExport() {
+  if (document.getElementById('export-csv-btn')) return;
+  const panel = document.querySelector('#dashboard-mode .panel');
+  if (!panel) return;
 
-    const shareBtn = document.createElement('button');
-    shareBtn.id = 'export-share-btn';
-    shareBtn.className = 'btn ghost';
-    shareBtn.innerHTML = '📤 Share';
-    shareBtn.style.cssText = 'font-size:0.95rem;padding:10px 18px;';
-    resultsActions.appendChild(shareBtn);
+  const row = document.createElement('div');
+  row.style.cssText = `
+    display:flex; gap:12px; flex-wrap:wrap; align-items:center;
+    padding-top:1.2em; border-top:1px solid rgba(0,0,0,.07); margin-top:.5em;
+  `;
+  row.innerHTML = `
+    <span style="font-size:.88rem;color:var(--muted);font-weight:500;">Export:</span>
+    <button class="btn ghost" id="export-csv-btn"  style="font-size:.88rem;padding:8px 16px;">⬇ CSV</button>
+    <button class="btn ghost" id="export-json-btn" style="font-size:.88rem;padding:8px 16px;">⬇ JSON</button>
+  `;
+  const resetEl = panel.querySelector('#reset-progress-btn')?.parentElement;
+  if (resetEl) panel.insertBefore(row, resetEl); else panel.appendChild(row);
 
-    shareBtn.addEventListener('click', () => generateShareCard());
-
-    // Also add CSV export to dashboard
-    const dashPanel = document.querySelector('#dashboard-mode .panel');
-    if (dashPanel && !document.getElementById('export-csv-btn')) {
-        const exportSection = document.createElement('div');
-        exportSection.style.cssText = 'margin-top:1.5em;padding-top:1.5em;border-top:1px solid rgba(0,0,0,0.06);display:flex;gap:12px;flex-wrap:wrap;align-items:center;';
-        exportSection.innerHTML = `
-            <span style="font-size:0.9rem;color:var(--muted);font-weight:500;">Export your data:</span>
-            <button class="btn ghost" id="export-csv-btn" style="font-size:0.9rem;padding:8px 16px;">⬇ Download CSV</button>
-            <button class="btn ghost" id="export-json-btn" style="font-size:0.9rem;padding:8px 16px;">⬇ Download JSON</button>
-        `;
-        // Insert before the reset button row
-        const resetRow = dashPanel.querySelector('#reset-progress-btn')?.parentElement;
-        if (resetRow) dashPanel.insertBefore(exportSection, resetRow);
-        else dashPanel.appendChild(exportSection);
-
-        document.getElementById('export-csv-btn').addEventListener('click',  exportCSV);
-        document.getElementById('export-json-btn').addEventListener('click', exportJSON);
-    }
-}
-
-function generateShareCard() {
-    const wpm      = document.getElementById('result-wpm')?.textContent      || '0 WPM';
-    const accuracy = document.getElementById('result-accuracy')?.textContent  || '100%';
-    const correct  = document.getElementById('result-correct')?.textContent   || '0';
-    const xp       = document.getElementById('xp-amount')?.textContent        || '0';
-    const best     = progressManager?.data?.bestWPM || 0;
-    const streak   = progressManager?.data?.streakDays || 0;
-    const isDark   = document.body.getAttribute('data-theme') === 'dark';
-
-    const canvas  = document.createElement('canvas');
-    canvas.width  = 640;
-    canvas.height = 360;
-    const ctx     = canvas.getContext('2d');
-
-    // Background
-    const grad = ctx.createLinearGradient(0, 0, 640, 360);
-    if (isDark) {
-        grad.addColorStop(0, '#111827');
-        grad.addColorStop(1, '#0f172a');
-    } else {
-        grad.addColorStop(0, '#fef5ea');
-        grad.addColorStop(1, '#e9edf5');
-    }
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 640, 360);
-
-    // Accent stripe
-    const accentGrad = ctx.createLinearGradient(0, 0, 640, 0);
-    accentGrad.addColorStop(0, isDark ? '#f4a261' : '#e07a5f');
-    accentGrad.addColorStop(1, isDark ? '#e98645' : '#cc5b3e');
-    ctx.fillStyle = accentGrad;
-    ctx.fillRect(0, 0, 640, 6);
-
-    // Brand
-    ctx.fillStyle = isDark ? '#e6edf3' : '#1f2933';
-    ctx.font = 'bold 28px Poppins, sans-serif';
-    ctx.fillText('Typeflow', 40, 60);
-
-    ctx.fillStyle = isDark ? '#a8b2c1' : '#7b8794';
-    ctx.font = '14px Poppins, sans-serif';
-    ctx.fillText(new Date().toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' }), 40, 84);
-
-    // Main WPM number
-    const wpmNum = wpm.replace(' WPM','');
-    ctx.fillStyle = isDark ? '#f4a261' : '#e07a5f';
-    ctx.font = 'bold 120px Poppins, sans-serif';
-    ctx.fillText(wpmNum, 36, 230);
-
-    ctx.fillStyle = isDark ? '#a8b2c1' : '#7b8794';
-    ctx.font = 'bold 24px Poppins, sans-serif';
-    ctx.fillText('WPM', 40, 268);
-
-    // Stats grid (right side)
-    const stats = [
-        { label: 'Accuracy', value: accuracy },
-        { label: 'Correct chars', value: correct },
-        { label: 'XP earned', value: `+${xp} XP` },
-        { label: 'Best ever', value: `${best} WPM` },
-        { label: 'Day streak', value: `🔥 ${streak}` },
-    ];
-
-    let x = 340, y = 100;
-    stats.forEach((s, i) => {
-        if (i === 3) { x = 490; y = 100; }
-        const bx = x, by = y;
-        // Card bg
-        ctx.fillStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.7)';
-        roundRect(ctx, bx, by, 130, 70, 10);
-        ctx.fill();
-        ctx.fillStyle = isDark ? '#a8b2c1' : '#7b8794';
-        ctx.font = '11px Poppins, sans-serif';
-        ctx.fillText(s.label.toUpperCase(), bx + 10, by + 22);
-        ctx.fillStyle = isDark ? '#e6edf3' : '#1f2933';
-        ctx.font = 'bold 20px Poppins, sans-serif';
-        ctx.fillText(s.value, bx + 10, by + 52);
-        y += 82;
-    });
-
-    // Footer
-    ctx.fillStyle = isDark ? '#a8b2c1' : '#7b8794';
-    ctx.font = '13px Poppins, sans-serif';
-    ctx.fillText('typeflow.app', 40, 340);
-
-    // Show download UI
-    showShareCardUI(canvas);
-}
-
-function roundRect(ctx, x, y, w, h, r) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-}
-
-function showShareCardUI(canvas) {
-    // Remove any existing share overlay
-    document.getElementById('share-overlay')?.remove();
-
-    const overlay = document.createElement('div');
-    overlay.id = 'share-overlay';
-    overlay.style.cssText = `
-        position:fixed;inset:0;z-index:4000;
-        background:rgba(0,0,0,0.65);backdrop-filter:blur(10px);
-        display:flex;align-items:center;justify-content:center;padding:20px;
-        animation: fadeIn 0.2s ease;
-    `;
-
-    const card = document.createElement('div');
-    card.style.cssText = `
-        background:var(--surface-elev);border-radius:20px;padding:28px;
-        max-width:700px;width:100%;box-shadow:0 40px 100px rgba(0,0,0,0.3);
-        animation: popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
-        display:flex;flex-direction:column;gap:16px;
-    `;
-
-    canvas.style.cssText = 'width:100%;border-radius:12px;display:block;';
-
-    const actions = document.createElement('div');
-    actions.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;';
-
-    const downloadBtn = document.createElement('button');
-    downloadBtn.className = 'btn primary';
-    downloadBtn.innerHTML = '⬇ Save Image';
-    downloadBtn.addEventListener('click', () => {
-        const a = document.createElement('a');
-        a.download = `typeflow-result-${Date.now()}.png`;
-        a.href = canvas.toDataURL('image/png');
-        a.click();
-    });
-
-    const copyBtn = document.createElement('button');
-    copyBtn.className = 'btn ghost';
-    copyBtn.innerHTML = '📋 Copy Image';
-    copyBtn.addEventListener('click', async () => {
-        try {
-            canvas.toBlob(async (blob) => {
-                await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-                showToast('✅ Image copied to clipboard!', 'success', 2500);
-            });
-        } catch { showToast('Copy not supported — use Save Image', 'warning'); }
-    });
-
-    const closeBtn = document.createElement('button');
-    closeBtn.className = 'btn ghost';
-    closeBtn.innerHTML = '✕ Close';
-    closeBtn.addEventListener('click', () => overlay.remove());
-
-    actions.append(downloadBtn, copyBtn, closeBtn);
-    card.append(canvas, actions);
-    overlay.appendChild(card);
-    document.body.appendChild(overlay);
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  document.getElementById('export-csv-btn').addEventListener('click', exportCSV);
+  document.getElementById('export-json-btn').addEventListener('click', exportJSON);
 }
 
 function exportCSV() {
-    let history = {};
-    try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch {}
-    const rows = Object.entries(history)
-        .map(([idx, e]) => ({ idx: parseInt(idx), ...e }))
-        .sort((a, b) => a.idx - b.idx);
-
-    if (rows.length === 0) { showToast('No test history to export yet', 'warning'); return; }
-
-    const header = 'Test #,Date,WPM,Accuracy\n';
-    const csv = header + rows.map(r => `${r.idx},"${r.date || ''}",${r.wpm || 0},${r.accuracy || 0}`).join('\n');
-    downloadFile(csv, 'typeflow-history.csv', 'text/csv');
-    showToast(`✅ Exported ${rows.length} tests`, 'success', 2500);
+  let hist = {};
+  try { hist = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history')||'{}'); } catch{}
+  const rows = Object.entries(hist)
+    .map(([i,e])=>({idx:parseInt(i,10),...e}))
+    .sort((a,b)=>a.idx-b.idx);
+  if (!rows.length) { showToast('No history to export yet', 'warning'); return; }
+  const csv = 'Test #,Date,WPM,Accuracy\n' +
+    rows.map(r=>`${r.idx},"${r.date||''}",${r.wpm||0},${r.accuracy||0}`).join('\n');
+  dlFile(csv, 'typeflow-history.csv', 'text/csv');
+  showToast(`✅ Exported ${rows.length} tests`, 'success', 2500);
 }
 
 function exportJSON() {
-    const data = {
-        exportDate: new Date().toISOString(),
-        progress:   progressManager?.data || {},
-        history:    JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'),
-        keyStats:   JSON.parse(safeLocalStorage.getItem('typeflow-key-stats')   || '{}'),
-    };
-    downloadFile(JSON.stringify(data, null, 2), 'typeflow-data.json', 'application/json');
-    showToast('✅ Full data exported as JSON', 'success', 2500);
+  const data = {
+    exportDate: new Date().toISOString(),
+    progress:   progressManager?.data ?? {},
+    history:    JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history')||'{}'),
+    keyStats:   JSON.parse(safeLocalStorage.getItem('typeflow-key-stats')||'{}'),
+  };
+  dlFile(JSON.stringify(data,null,2), 'typeflow-data.json', 'application/json');
+  showToast('✅ Full data exported', 'success', 2500);
 }
 
-function downloadFile(content, filename, mimeType) {
-    const blob = new Blob([content], { type: mimeType });
-    const a    = document.createElement('a');
-    a.href     = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
+function dlFile(content, filename, mime) {
+  const a = Object.assign(document.createElement('a'), {
+    href: URL.createObjectURL(new Blob([content],{type:mime})),
+    download: filename
+  });
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
 
 // ============================================================
-// 4. MOBILE UX IMPROVEMENTS
+// 4. MOBILE UX
 // ============================================================
-function injectMobileImprovements() {
-    // Add viewport meta fix if missing
-    if (!document.querySelector('meta[name="viewport"]')) {
-        const meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0';
-        document.head.appendChild(meta);
+function buildMobileImprovements() {
+  const mobile = () => window.innerWidth<=768 || 'ontouchstart' in window;
+  if (!mobile()) return;
+
+  // iOS: 16px+ prevents auto-zoom on input focus
+  const s = document.createElement('style');
+  s.textContent = `
+    @media (max-width:768px) {
+      #typing-input,#lesson-input,#practice-input,
+      #ct-input,#cst-ta,#cst-url { font-size:16px !important; }
+      .timer-btn,.word-count-btn,.segmented-btn,
+      .custom-src-tab { min-height:44px !important; }
+      .mode-tab  { min-height:52px !important; }
+      .toggle    { min-height:44px !important; padding:10px 16px !important; }
+      .btn       { min-height:48px !important; }
+      .text-card { cursor:pointer; -webkit-tap-highlight-color:transparent; }
+      .stat-value { font-size:1.8rem !important; }
     }
+  `;
+  document.head.appendChild(s);
 
-    // Floating "tap to type" banner on mobile when test is active and input unfocused
-    const isMobile = () => window.innerWidth <= 768 || ('ontouchstart' in window);
+  // Floating "Tap to type" banner
+  const banner = document.createElement('div');
+  banner.id = 'tap-banner';
+  banner.textContent = '⌨️ Tap to type';
+  banner.style.cssText = `
+    display:none; position:fixed; bottom:80px; left:50%; transform:translateX(-50%);
+    background:var(--accent); color:#fff; padding:12px 28px; border-radius:999px;
+    font-weight:600; font-size:.95rem; z-index:500; cursor:pointer;
+    white-space:nowrap; box-shadow:0 8px 24px rgba(224,122,95,.45);
+    animation:tapPulse 2s ease infinite;
+  `;
+  document.body.appendChild(banner);
+  const ps = document.createElement('style');
+  ps.textContent = `@keyframes tapPulse{0%,100%{box-shadow:0 8px 24px rgba(224,122,95,.4)}50%{box-shadow:0 14px 36px rgba(224,122,95,.65)}}`;
+  document.head.appendChild(ps);
 
-    if (!isMobile()) return;
-
-    // Add a sticky "Tap here to type" banner at the bottom for mobile
-    const tapBanner = document.createElement('div');
-    tapBanner.id = 'mobile-tap-banner';
-    tapBanner.innerHTML = '⌨️ Tap to type';
-    tapBanner.style.cssText = `
-        display: none;
-        position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
-        background: var(--accent); color: #fff;
-        padding: 12px 28px; border-radius: 999px;
-        font-weight: 600; font-size: 0.95rem;
-        box-shadow: 0 8px 24px rgba(224,122,95,0.4);
-        z-index: 500; cursor: pointer;
-        animation: tapBannerPulse 2s ease infinite;
-        white-space: nowrap;
-    `;
-    document.body.appendChild(tapBanner);
-
-    // CSS for pulse
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes tapBannerPulse {
-            0%, 100% { box-shadow: 0 8px 24px rgba(224,122,95,0.4); transform: translateX(-50%) scale(1); }
-            50%       { box-shadow: 0 12px 32px rgba(224,122,95,0.6); transform: translateX(-50%) scale(1.04); }
-        }
-        /* Bigger touch targets on mobile */
-        @media (max-width: 768px) {
-            .timer-btn, .word-count-btn, .segmented-btn {
-                min-height: 44px !important;
-                min-width: 44px !important;
-            }
-            .mode-tab { min-height: 52px !important; }
-            .toggle   { min-height: 44px !important; padding: 10px 16px !important; }
-            .btn      { min-height: 48px !important; }
-
-            /* Prevent zoom on input focus (iOS) */
-            #typing-input, #lesson-input, #practice-input, #custom-typing-input {
-                font-size: 16px !important;
-            }
-
-            /* Better text card tap area */
-            .text-card { cursor: pointer; -webkit-tap-highlight-color: transparent; }
-
-            /* Larger stat cards */
-            .stat-card { padding: 14px 12px !important; }
-            .stat-value { font-size: 1.8rem !important; }
-            .stat-label { font-size: 0.75rem !important; }
-        }
-    `;
-    document.head.appendChild(style);
-
-    tapBanner.addEventListener('click', () => {
-        const activeInput = document.querySelector('#test-mode.active #typing-input') ||
-                            document.querySelector('#custom-mode.active #custom-typing-input') ||
-                            document.querySelector('#practice-mode.active #practice-input');
-        if (activeInput) { activeInput.focus(); tapBanner.style.display = 'none'; }
-    });
-
-    // Show/hide banner based on focus state
-    document.addEventListener('focusin',  () => { tapBanner.style.display = 'none'; });
-    document.addEventListener('focusout', (e) => {
-        const testActive = document.getElementById('test-mode')?.classList.contains('active');
-        if (testActive && e.target?.id === 'typing-input') {
-            setTimeout(() => {
-                if (document.activeElement !== document.getElementById('typing-input')) {
-                    tapBanner.style.display = 'block';
-                }
-            }, 300);
-        }
-    });
-
-    // Prevent iOS double-tap zoom on buttons
-    document.querySelectorAll('button').forEach(btn => {
-        btn.addEventListener('touchend', (e) => e.preventDefault(), { passive: false });
-    });
-
-    // Dismiss soft keyboard on Esc on mobile
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && isMobile()) {
-            document.activeElement?.blur();
-        }
-    });
+  banner.addEventListener('click', () => {
+    (document.querySelector('#test-mode.active #typing-input') ||
+     document.querySelector('#custom-mode.active #ct-input')   ||
+     document.querySelector('#practice-mode.active #practice-input'))?.focus();
+    banner.style.display = 'none';
+  });
+  document.addEventListener('focusin',  () => { banner.style.display='none'; });
+  document.addEventListener('focusout', e => {
+    if (e.target?.id==='typing-input' && document.getElementById('test-mode')?.classList.contains('active')) {
+      setTimeout(()=>{ if(document.activeElement?.id!=='typing-input') banner.style.display='block'; }, 400);
+    }
+  });
 }
 
 
 // ============================================================
-// INIT — run all injections after DOM is ready
+// HELP MODAL — append new shortcuts
+// ============================================================
+function patchHelpModal() {
+  const ul = document.querySelector('#help-modal ul');
+  if (!ul || ul.dataset.patched) return;
+  ul.dataset.patched = '1';
+  [
+    ['Ctrl+Shift+T', 'Custom Text mode'],
+    ['Language switcher', 'Flag buttons below the nav bar (EN/FR/DE/JA)'],
+    ['⬇ CSV / JSON', 'Export test history from Dashboard'],
+  ].forEach(([k,v]) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<b>${k}</b>: ${v}`;
+    ul.appendChild(li);
+  });
+}
+
+
+// ============================================================
+// BOOT
 // ============================================================
 function initNewFeatures() {
-    injectLanguageSwitcher();
-    injectCustomTextMode();
-    injectExportButtons();
-    injectMobileImprovements();
-
-    // Also patch the helpmodal shortcut list to include new shortcuts
-    const helpList = document.querySelector('#help-modal ul');
-    if (helpList && !helpList.querySelector('[data-new]')) {
-        const newItems = [
-            ['Ctrl + Shift + T', 'Switch to Custom Text mode'],
-            ['Language switcher', 'Below the nav tabs — switch word language'],
-        ];
-        newItems.forEach(([key, desc]) => {
-            const li = document.createElement('li');
-            li.setAttribute('data-new', '1');
-            li.innerHTML = `<b>${key}</b>: ${desc}`;
-            helpList.appendChild(li);
-        });
-    }
+  buildLanguageSwitcher();
+  buildCustomMode();
+  buildCSVExport();
+  buildMobileImprovements();
+  patchHelpModal();
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initNewFeatures);
+if (document.readyState==='loading') {
+  document.addEventListener('DOMContentLoaded', initNewFeatures);
 } else {
-    // DOM already ready (script loaded after DOMContentLoaded)
-    setTimeout(initNewFeatures, 0);
+  setTimeout(initNewFeatures, 0);
 }
