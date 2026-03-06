@@ -1098,7 +1098,7 @@ class LessonEngine {
             }
     }
 
-    reset() {
+    reset(); {
         this.currentPosition = 0; this.correctChars = 0; this.incorrectChars = 0;
         this.isActive = false;   this.startTime = null;
         this.input.value = "";   this.input.disabled = false;
@@ -1106,7 +1106,7 @@ class LessonEngine {
         this.currentText = this.generateLessonText(this.currentLesson);
         this.displayText(); this.updateStats(true);
     }
-}
+
 
 // ============ PRACTICE ENGINE ============
 // ============ LESSON FAIL MODAL EVENTS ============
