@@ -1087,12 +1087,15 @@ class LessonEngine {
                 }
                 document.getElementById("lesson-fail-reason").textContent = reason;
             }
-        var modal = document.getElementById("lesson-complete-modal");
-        modal.classList.remove("hidden");
-        document.getElementById("lesson-result-wpm").textContent = wpm + " WPM";
-        document.getElementById("lesson-result-accuracy").textContent = accuracy + "%";
-        document.getElementById("lesson-result-time").textContent = duration + "s";
-        document.getElementById("lesson-xp-amount").textContent = xp;
+
+            showLessonComplete(wpm, accuracy, duration, xp) {
+                var modal = document.getElementById("lesson-complete-modal");
+                modal.classList.remove("hidden");
+                document.getElementById("lesson-result-wpm").textContent = wpm + " WPM";
+                document.getElementById("lesson-result-accuracy").textContent = accuracy + "%";
+                document.getElementById("lesson-result-time").textContent = duration + "s";
+                document.getElementById("lesson-xp-amount").textContent = xp;
+            }
     }
 
     reset() {
