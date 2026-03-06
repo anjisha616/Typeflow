@@ -911,10 +911,16 @@ function launchConfettiOverModal(modal) {
     if (confettiCanvas) confettiCanvas.remove();
     confettiCanvas = document.createElement('canvas');
     confettiCanvas.id = 'confetti-canvas';
-    confettiCanvas.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:3000;';
-    document.body.appendChild(confettiCanvas);
-    confettiCanvas.width  = window.innerWidth;
-    confettiCanvas.height = window.innerHeight;
+    confettiCanvas.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3000;';
+    modal.appendChild(confettiCanvas);
+    // Use modal bounds
+    const rect = modal.getBoundingClientRect();
+    confettiCanvas.width  = rect.width;
+    confettiCanvas.height = rect.height;
+    confettiCanvas.style.width = rect.width + 'px';
+    confettiCanvas.style.height = rect.height + 'px';
+    confettiCanvas.style.left = '0px';
+    confettiCanvas.style.top = '0px';
     const ctx    = confettiCanvas.getContext('2d');
     const colors = ['#f4a261','#2a9d8f','#e76f51','#e9c46a','#264653','#fff'];
     const particles = Array.from({ length: 80 }, () => ({
@@ -923,7 +929,9 @@ function launchConfettiOverModal(modal) {
         tilt: Math.random() * 10 - 5, tiltAngleInc: (Math.random() * 0.07) + 0.05
     }));
     let frame = 0;
+    let stopped = false;
     function drawConfetti() {
+        if (stopped) return;
         ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
         for (let p of particles) {
             ctx.beginPath();
@@ -935,9 +943,23 @@ function launchConfettiOverModal(modal) {
             if (p.y > confettiCanvas.height + 20) { p.y = Math.random() * -40; p.x = Math.random() * confettiCanvas.width; }
         }
         frame++;
-        if (frame < 90) requestAnimationFrame(drawConfetti); else confettiCanvas.remove();
+        if (frame < 90 && !stopped) requestAnimationFrame(drawConfetti); else confettiCanvas.remove();
     }
     drawConfetti();
+    // Remove confetti if modal is closed early
+    function cleanupConfetti() {
+        stopped = true;
+        if (confettiCanvas && confettiCanvas.parentNode) confettiCanvas.remove();
+    }
+    // Listen for modal close
+    const closeBtns = modal.querySelectorAll('.btn, .close, [data-dismiss], [id^="results"]');
+    closeBtns.forEach(btn => btn.addEventListener('click', cleanupConfetti));
+    // Also listen for Escape key
+    function escListener(e) {
+        if (e.key === 'Escape') cleanupConfetti();
+    }
+    window.addEventListener('keydown', escListener);
+    setTimeout(() => { window.removeEventListener('keydown', escListener); }, 4000);
 }
 
 // ============ LESSON ENGINE ============
