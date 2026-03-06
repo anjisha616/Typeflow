@@ -251,11 +251,17 @@
                 <div class="finger-header">
                     <h2 class="section-title">Finger Placement Training</h2>
                     <p class="section-subtitle">Learn proper finger positioning with visual guidance</p>
-                    <div class="finger-disclaimer" style="margin-top:10px;color:var(--danger);font-size:0.98em;background:rgba(214,69,69,0.08);padding:8px 16px;border-radius:12px;">
-                        <b>Note:</b> Finger mapping is based on the QWERTY layout. Colemak, Dvorak, and other layouts are not yet supported.
-                    </div>
+                    <div class="finger-layout-selector" style="margin-bottom:12px;">
+                    <label for="keyboard-layout-select" style="font-weight:600;font-size:0.98em;margin-right:8px;">Keyboard Layout:</label>
+                    <select id="keyboard-layout-select" style="padding:4px 10px;border-radius:6px;font-size:1em;">
+                        <option value="qwerty" selected>QWERTY</option>
+                        <option value="colemak">Colemak</option>
+                        <option value="dvorak">Dvorak</option>
+                    </select>
                 </div>
-
+                <div class="finger-disclaimer" id="finger-disclaimer" style="margin-top:10px;color:var(--danger);font-size:0.98em;background:rgba(214,69,69,0.08);padding:8px 16px;border-radius:12px;">
+                    <b>Note:</b> Finger mapping is based on the <span id="layout-name">QWERTY</span> layout. Colemak, Dvorak, and other layouts are not yet supported for finger mapping.
+                </div>
                 <div class="finger-guide-card">
                     <h3>Hand Position Guide</h3>
                     <div class="hand-positions">
