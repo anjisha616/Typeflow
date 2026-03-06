@@ -1193,7 +1193,6 @@ body[data-theme="dark"] .form-group textarea, body[data-theme="dark"] .form-grou
     .keyboard-visual, #key-heatmap-grid { max-width: 98vw !important; overflow-x: auto; font-size: 0.85em !important; }
     .finger-mapping { flex-direction: row !important; flex-wrap: wrap !important; gap: 0.3em !important; }
 }
-
 @media (max-width: 480px) {
     .mode-switch-header { top: 14px; right: 16px; }
     .section-title { font-size: 1.4rem; }
