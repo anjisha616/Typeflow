@@ -348,7 +348,9 @@ const FINGER_EMOJIS = { 'left-pinky':'🤙','left-ring':'💍','left-middle':'�
 const PRACTICE_KEYS = Object.keys(FINGER_MAP).filter(k => k.length === 1 && k !== ' ');
 
 // ============ SOUND FEEDBACK ============
+let isMuted = false;
 function playKeyClick() {
+    if (isMuted) return;
     try {
         const ctx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = ctx.createOscillator();
@@ -361,6 +363,17 @@ function playKeyClick() {
         osc.onended = () => ctx.close();
     } catch {}
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const muteBtn = document.getElementById('mute-btn');
+    if (muteBtn) {
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            muteBtn.textContent = isMuted ? '🔈' : '🔇';
+            muteBtn.title = isMuted ? 'Unmute key click sound' : 'Mute key click sound';
+        });
+    }
+});
 
 // ============ TODAY'S GOAL WIDGET ============
 function getDailyGoal() {
