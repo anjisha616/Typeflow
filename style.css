@@ -1,3 +1,17 @@
+/* Lesson Failure Modal Styles */
+#lesson-fail-modal .results-card {
+    border: 2px solid var(--danger);
+    background: rgba(214,69,69,0.07);
+}
+#lesson-fail-modal h2 {
+    color: var(--danger);
+}
+#lesson-fail-reason {
+    color: var(--danger);
+    font-weight: 600;
+    font-size: 1.1em;
+    margin: 1em 0;
+}
 /* =========================================
    TYPEFLOW - TYPING LEARNING PLATFORM
    Style fixes: mode transitions, dark modal, close button, animations
