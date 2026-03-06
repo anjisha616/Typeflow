@@ -626,6 +626,9 @@ class TestEngine {
 
         this.liveWPMHistory = [];
         this.updateMiniWPMChart();
+        // Scroll mini WPM graph into view
+        const miniWPMGraph = document.getElementById('mini-wpm-graph');
+        if (miniWPMGraph) miniWPMGraph.scrollIntoView({ behavior: 'smooth', block: 'center' });
         clearInterval(this.liveWPMInterval);
         this.liveWPMInterval = setInterval(() => {
             if (!this.isActive) return;
