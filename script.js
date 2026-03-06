@@ -1097,7 +1097,6 @@ class LessonEngine {
                 document.getElementById("lesson-xp-amount").textContent = xp;
             }
     }
-
     reset(); {
         this.currentPosition = 0; this.correctChars = 0; this.incorrectChars = 0;
         this.isActive = false;   this.startTime = null;
