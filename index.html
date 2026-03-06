@@ -623,6 +623,32 @@
             </div>
         </div>
     </div>
+
+    <!-- Lesson Failure Modal -->
+    <div class="results hidden" id="lesson-fail-modal" role="dialog" aria-modal="true">
+        <div class="results-card">
+            <h2 style="color:var(--danger)">Lesson Failed</h2>
+            <div class="results-grid">
+                <div class="result-main">
+                    <span>Your Speed</span>
+                    <strong id="lesson-fail-wpm">0 WPM</strong>
+                </div>
+                <div class="result-side">
+                    <span>Accuracy</span>
+                    <strong id="lesson-fail-accuracy">0%</strong>
+                </div>
+                <div class="result-side">
+                    <span>Time Taken</span>
+                    <strong id="lesson-fail-time">0s</strong>
+                </div>
+            </div>
+            <div class="fail-reason" id="lesson-fail-reason" style="margin:1em 0;color:var(--danger);font-size:1.1em;text-align:center;"></div>
+            <div class="results-actions">
+                <button class="btn primary" id="lesson-fail-restart">Retry Lesson</button>
+                <button class="btn ghost" id="lesson-fail-back">Back to Lessons</button>
+            </div>
+        </div>
+    </div>
     <!-- Feedback Button -->
     <button class="feedback-button" id="feedback-btn" aria-label="Give Feedback">
         💬 Feedback
