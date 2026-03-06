@@ -1178,13 +1178,21 @@ class PracticeEngine {
         const countdownEl = document.getElementById('practice-countdown');
         let countdown = 3;
         if (countdownEl) { countdownEl.style.display = ''; countdownEl.textContent = `Well done! Starting next round in ${countdown}…`; }
+        // Prevent multiple countdowns
+        if (this._countdownTimer) { clearTimeout(this._countdownTimer); this._countdownTimer = null; }
         const tick = () => {
             countdown--;
-            if (this.stopRequested) { if (countdownEl) countdownEl.style.display = 'none'; return; }
-            if (countdownEl && countdown > 0) { countdownEl.textContent = `Well done! Starting next round in ${countdown}…`; setTimeout(tick, 1000); }
-            else { if (countdownEl) countdownEl.style.display = 'none'; this.start(); }
+            if (this.stopRequested) { if (countdownEl) countdownEl.style.display = 'none'; this._countdownTimer = null; return; }
+            if (countdownEl && countdown > 0) {
+                countdownEl.textContent = `Well done! Starting next round in ${countdown}…`;
+                this._countdownTimer = setTimeout(tick, 1000);
+            } else {
+                if (countdownEl) countdownEl.style.display = 'none';
+                this._countdownTimer = null;
+                this.start();
+            }
         };
-        setTimeout(tick, 1000);
+        this._countdownTimer = setTimeout(tick, 1000);
     }
 }
 
