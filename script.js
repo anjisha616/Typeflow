@@ -340,7 +340,7 @@ const FINGER_MAP = {
     'j':'right-index','u':'right-index','m':'right-index','y':'right-index','h':'right-index','n':'right-index','6':'right-index','7':'right-index',
     'k':'right-middle','i':'right-middle',',':'right-middle','8':'right-middle',
     'l':'right-ring','o':'right-ring','.':'right-ring','9':'right-ring',
-    ';':'right-pinky','p':'right-pinky','/':'right-pinky','0':'right-pinky','-':'right-pinky','=':'right-pinky','[':'right-pinky',']':'right-pinky','\\':'right-pinky',"'":'right-pinky',
+    ';':'right-pinky','p':'right-pinky','/':'right-pinky','0':'right-pinky','-':'right-pinky','=':'right-pinky','[':'right-pinky',']':'right-pinky','\\':'right-pinky','\'':'right-pinky',
     ' ':'thumb'
 };
 const FINGER_NAMES  = { 'left-pinky':'Left Pinky','left-ring':'Left Ring','left-middle':'Left Middle','left-index':'Left Index','right-index':'Right Index','right-middle':'Right Middle','right-ring':'Right Ring','right-pinky':'Right Pinky','thumb':'Thumb' };
