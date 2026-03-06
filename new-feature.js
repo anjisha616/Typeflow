@@ -279,11 +279,15 @@ function buildCustomMode() {
   const ta        = document.getElementById('cst-ta');
   const startBtn  = document.getElementById('cst-start-btn');
   const charCount = document.getElementById('cst-char-count');
+  // Restore from sessionStorage if available
+  if (ta) ta.value = sessionStorage.getItem('typeflow-custom-text') || '';
   function syncCount() {
     const n = ta.value.trim().length;
     charCount.textContent  = `${n.toLocaleString()} chars`;
     startBtn.disabled      = n < 20;
     startBtn.style.opacity = n >= 20 ? '1' : '.4';
+    // Save to sessionStorage
+    sessionStorage.setItem('typeflow-custom-text', ta.value);
   }
   ta.addEventListener('input', syncCount);
   ta.addEventListener('focus', () => { ta.style.borderColor = 'var(--accent)'; ta.style.boxShadow = '0 0 0 4px rgba(224,122,95,.12)'; });
@@ -372,6 +376,10 @@ function buildCustomMode() {
         customSec.style.opacity       = '1';
         customSec.style.transform     = 'translateY(0)';
         customSec.style.pointerEvents = 'auto';
+        // Restore textarea value from sessionStorage
+        const ta = document.getElementById('cst-ta');
+        if (ta) ta.value = sessionStorage.getItem('typeflow-custom-text') || '';
+        if (typeof ta?.dispatchEvent === 'function') ta.dispatchEvent(new Event('input'));
       } else {
         customSec.classList.remove('active');
         customSec.style.opacity       = '0';
