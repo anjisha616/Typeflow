@@ -332,7 +332,7 @@ const topRowWords    = ["we","were","where","quiet","quit","quote","rope","tire"
 const bottomRowWords = ["can","van","ban","man","cab","nab","venom","cabin","cannot","banana","zinc","mix"];
 
 // ============ FINGER TRAINING DATA ============
-const FINGER_MAP = {
+const activeFingerMap = {
     'a':'left-pinky','q':'left-pinky','z':'left-pinky','1':'left-pinky','`':'left-pinky',
     's':'left-ring','w':'left-ring','x':'left-ring','2':'left-ring',
     'd':'left-middle','e':'left-middle','c':'left-middle','3':'left-middle',
@@ -345,7 +345,7 @@ const FINGER_MAP = {
 };
 const FINGER_NAMES  = { 'left-pinky':'Left Pinky','left-ring':'Left Ring','left-middle':'Left Middle','left-index':'Left Index','right-index':'Right Index','right-middle':'Right Middle','right-ring':'Right Ring','right-pinky':'Right Pinky','thumb':'Thumb' };
 const FINGER_EMOJIS = { 'left-pinky':'🤙','left-ring':'💍','left-middle':'🖕','left-index':'☝️','right-index':'☝️','right-middle':'🖕','right-ring':'💍','right-pinky':'🤙','thumb':'👍' };
-const PRACTICE_KEYS = Object.keys(FINGER_MAP).filter(k => k.length === 1 && k !== ' ');
+const PRACTICE_KEYS = Object.keys(activeFingerMap).filter(k => k.length === 1 && k !== ' ');
 
 // ============ SOUND FEEDBACK ============
 let isMuted = false;
@@ -1227,7 +1227,7 @@ class FingerTrainingEngine {
     }
 
     highlightFingerForKey(keyChar) {
-        const finger = FINGER_MAP[keyChar.toLowerCase()];
+        const finger = activeFingerMap[keyChar.toLowerCase()];
         if (!finger) return;
         this.targetFingerIcon.classList.add('finger-highlight');
         this.targetFingerName.classList.add('finger-highlight');
@@ -1239,7 +1239,7 @@ class FingerTrainingEngine {
         this.targetFingerIcon.classList.remove('finger-highlight');
         this.targetFingerName.classList.remove('finger-highlight');
         if (this.currentKey) {
-            const finger = FINGER_MAP[this.currentKey];
+            const finger = activeFingerMap[this.currentKey];
             this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
             this.targetFingerName.textContent = FINGER_NAMES[finger];
         } else {
@@ -1249,7 +1249,7 @@ class FingerTrainingEngine {
     }
 
     showKeyInfo(keyChar) {
-        const finger = FINGER_MAP[keyChar.toLowerCase()];
+        const finger = activeFingerMap[keyChar.toLowerCase()];
         if (!finger) return;
         this.currentKey               = keyChar.toLowerCase();
         this.targetKeyChar.textContent    = keyChar.toUpperCase();
@@ -1258,15 +1258,10 @@ class FingerTrainingEngine {
         this.highlightKey(keyChar.toLowerCase());
     }
 
-    highlightKey(keyChar) {
-        this.keyboardKeys.forEach(k => k.classList.remove('highlight'));
-        this.keyboardKeys.forEach(key => { if (key.dataset.key === keyChar) key.classList.add('highlight'); });
-    }
-
     handleKeyPress(e) {
         if (e.key === 'Tab' || e.key === 'Enter') e.preventDefault();
         const pressedKey = e.key.toLowerCase();
-        if (FINGER_MAP[pressedKey] && !this.drillActive) this.showKeyInfo(pressedKey);
+        if (activeFingerMap[pressedKey] && !this.drillActive) this.showKeyInfo(pressedKey);
         if (this.drillActive && this.currentKey) {
             if (pressedKey === this.currentKey) {
                 this.correctCount++; this.updateStats();
@@ -1274,7 +1269,7 @@ class FingerTrainingEngine {
                 this.nextRandomKey();
             } else {
                 this.wrongCount++; this.updateStats();
-                if (FINGER_MAP[pressedKey]) this.flashWrongKey(pressedKey);
+                if (activeFingerMap[pressedKey]) this.flashWrongKey(pressedKey);
             }
         }
     }
