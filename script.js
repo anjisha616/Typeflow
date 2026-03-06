@@ -1063,18 +1063,36 @@ class LessonEngine {
             if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) progressManager.unlockAchievement('all-lessons');
             renderLessons();
         } else {
-            showToast(`Need ${this.currentLesson.minAccuracy}% accuracy & ${this.currentLesson.minWPM} WPM. Keep going!`, 'warning', 4000);
-            this.reset();
+            // Show persistent failure modal
+            this.showLessonFail(wpm, accuracy, duration, this.currentLesson.minAccuracy, this.currentLesson.minWPM);
         }
     }
 
     showLessonComplete(wpm, accuracy, duration, xp) {
-        const modal = document.getElementById("lesson-complete-modal");
+            }
+
+            showLessonFail(wpm, accuracy, duration, minAccuracy, minWPM) {
+                var modal = document.getElementById("lesson-fail-modal");
+                modal.classList.remove("hidden");
+                document.getElementById("lesson-fail-wpm").textContent = wpm + " WPM";
+                document.getElementById("lesson-fail-accuracy").textContent = accuracy + "%";
+                document.getElementById("lesson-fail-time").textContent = duration + "s";
+                var reason = "";
+                if (accuracy < minAccuracy && wpm < minWPM) {
+                    reason = "You need at least " + minAccuracy + "% accuracy and " + minWPM + " WPM to pass.";
+                } else if (accuracy < minAccuracy) {
+                    reason = "Accuracy too low. Required: " + minAccuracy + "%.";
+                } else if (wpm < minWPM) {
+                    reason = "Speed too low. Required: " + minWPM + " WPM.";
+                }
+                document.getElementById("lesson-fail-reason").textContent = reason;
+            }
+        var modal = document.getElementById("lesson-complete-modal");
         modal.classList.remove("hidden");
-        document.getElementById("lesson-result-wpm").textContent      = `${wpm} WPM`;
-        document.getElementById("lesson-result-accuracy").textContent = `${accuracy}%`;
-        document.getElementById("lesson-result-time").textContent     = `${duration}s`;
-        document.getElementById("lesson-xp-amount").textContent       = xp;
+        document.getElementById("lesson-result-wpm").textContent = wpm + " WPM";
+        document.getElementById("lesson-result-accuracy").textContent = accuracy + "%";
+        document.getElementById("lesson-result-time").textContent = duration + "s";
+        document.getElementById("lesson-xp-amount").textContent = xp;
     }
 
     reset() {
@@ -1088,6 +1106,25 @@ class LessonEngine {
 }
 
 // ============ PRACTICE ENGINE ============
+// ============ LESSON FAIL MODAL EVENTS ============
+document.addEventListener("DOMContentLoaded", () => {
+    const failModal = document.getElementById("lesson-fail-modal");
+    if (failModal) {
+        document.getElementById("lesson-fail-restart").addEventListener("click", () => {
+            failModal.classList.add("hidden");
+            // Restart lesson
+            if (window.lessonEngine && lessonEngine.currentLesson) {
+                lessonEngine.startLesson(lessonEngine.currentLesson);
+            }
+        });
+        document.getElementById("lesson-fail-back").addEventListener("click", () => {
+            failModal.classList.add("hidden");
+            // Go back to lessons view
+            document.getElementById("lesson-practice").classList.add("hidden");
+            document.getElementById("lessons-grid").classList.remove("hidden");
+        });
+    }
+});
 class PracticeEngine {
     constructor() {
         this.stopRequested    = false; this.currentText = ""; this.highlightIndices = new Set();
