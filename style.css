@@ -864,6 +864,24 @@ body[data-theme="dark"] .todays-goal-widget { background: rgba(24,34,49,0.65); b
 body[data-theme="dark"] .goal-progress-bar-container { background: rgba(255,255,255,0.1); }
 .goal-progress-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent), var(--accent-strong)); border-radius: 999px; transition: width 0.25s ease; }
 .goal-progress-label { margin-top: 8px; font-size: 0.9rem; color: var(--muted); }
+.goal-suggestion { font-size: 0.85rem; color: var(--muted); }
+.goal-input-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.goal-input-row input[type="number"] {
+    width: 110px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,0,0,0.14);
+    background: rgba(255,255,255,0.75);
+    color: var(--text);
+}
+body[data-theme="dark"] .goal-input-row input[type="number"] {
+    border-color: rgba(255,255,255,0.16);
+    background: rgba(16,24,35,0.8);
+    color: var(--text);
+}
+.goal-history-title { margin-top: 10px; font-size: 0.86rem; font-weight: 700; letter-spacing: 0.04em; color: var(--muted); text-transform: uppercase; }
+.goal-history-item { margin-top: 6px; padding: 8px 10px; border-radius: 10px; background: rgba(0,0,0,0.04); font-size: 0.92rem; color: var(--text); }
+body[data-theme="dark"] .goal-history-item { background: rgba(255,255,255,0.06); }
 
 /* Dashboard charts */
 .dashboard-chart-section, .dashboard-heatmap-section {
