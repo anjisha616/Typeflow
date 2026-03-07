@@ -1761,13 +1761,10 @@ function applyTheme(theme) {
     document.body.setAttribute("data-theme", theme);
     safeLocalStorage.setItem("typeflow-theme", theme);
     updateThemeToggle(theme);
-    // Re-render charts with new theme colours
-    if (typeof renderWPMLineChart === 'function') {
-        try { renderWPMLineChart(); } catch {}
-    }
     if (typeof testEngine !== 'undefined' && testEngine) {
         try { testEngine.updateMiniWPMChart(); } catch {}
     }
+    if (typeof renderWPMLineChart === 'function') renderWPMLineChart();
 }
 
 function toggleTheme() { applyTheme(document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"); }
