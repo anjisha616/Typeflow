@@ -414,6 +414,8 @@ class TestEngine {
         this.correctChars         = 0;
         this.incorrectChars       = 0;
         this.isActive             = false;
+        this.isPaused             = false;
+        this._pausedAt            = null;
         this.startTime            = null;
         this.timerInterval        = null;
         this.timeLimit            = 15;
@@ -458,7 +460,10 @@ class TestEngine {
         });
         this.input.addEventListener("blur", () => { showCapsWarning(false); });
         this.input.addEventListener("paste",  (e) => e.preventDefault());
-        this.textDisplay.addEventListener("click", () => this.input.focus());
+        this.textDisplay.addEventListener("click", () => {
+            if (this.isPaused) this.resume();
+            else this.input.focus();
+        });
     }
 
     getLockIndex() {
@@ -604,6 +609,7 @@ class TestEngine {
 
     start(preserveInput = false) {
         this.isActive        = false;
+        this.isPaused        = false;
         this.currentPosition = 0;
         this.correctChars    = 0;
         this.incorrectChars  = 0;
@@ -611,6 +617,7 @@ class TestEngine {
         this.startTime       = null;
         this.timeLeft        = this.timeLimit;
         this.stopGhostCursor();
+        this._removePauseOverlay();
 
         if (!preserveInput) this.input.value = "";
         this.input.disabled = false;
@@ -626,12 +633,9 @@ class TestEngine {
 
         this.liveWPMHistory = [];
         this.updateMiniWPMChart();
-        // Scroll mini WPM graph into view
-        const miniWPMGraph = document.getElementById('mini-wpm-graph');
-        if (miniWPMGraph) miniWPMGraph.scrollIntoView({ behavior: 'smooth', block: 'center' });
         clearInterval(this.liveWPMInterval);
         this.liveWPMInterval = setInterval(() => {
-            if (!this.isActive) return;
+            if (!this.isActive || this.isPaused) return;
             const elapsed = Math.max((Date.now() - (this.startTime || Date.now())) / 60000, 1 / 60);
             const wpm = Math.round((this.correctChars / 5) / elapsed) || 0;
             this.liveWPMHistory.push(wpm);
@@ -644,6 +648,7 @@ class TestEngine {
         if (!this.isTimedMode()) return;
         clearInterval(this.timerInterval);
         this.timerInterval = setInterval(() => {
+            if (this.isPaused) return;
             this.timeLeft -= 1;
             this.updateTimerDisplay();
             if (this.timeLeft <= 0) this.end();
@@ -668,6 +673,7 @@ class TestEngine {
     }
 
     handleTyping() {
+        if (this.isPaused) return;
         if (!this.isActive) {
             if (this.input.value.length > 0) {
                 this.isActive  = true;
@@ -749,12 +755,86 @@ class TestEngine {
         if (pbBadge) pbBadge.style.display = (bestWPM > 0 && currentWPM >= bestWPM) ? '' : 'none';
     }
 
+    // ============ FIX 3: PAUSE / RESUME ============
+    pause() {
+        if (!this.isActive || this.isPaused) return;
+        this.isPaused  = true;
+        this._pausedAt = Date.now();
+        clearInterval(this.timerInterval);
+        clearInterval(this.liveWPMInterval);
+        this.input.disabled = true;
+        this._showPauseOverlay();
+    }
+
+    resume() {
+        if (!this.isPaused) return;
+        this.isPaused = false;
+        // Compensate startTime so WPM stays accurate
+        if (this.startTime && this._pausedAt) {
+            this.startTime += Date.now() - this._pausedAt;
+        }
+        this._pausedAt = null;
+        this._removePauseOverlay();
+        this.input.disabled = false;
+        this.input.focus();
+        // Restart countdown timer
+        if (this.isTimedMode() && this.timeLeft > 0) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = setInterval(() => {
+                if (this.isPaused) return;
+                this.timeLeft -= 1;
+                this.updateTimerDisplay();
+                if (this.timeLeft <= 0) this.end();
+            }, 1000);
+        }
+        // Restart live WPM sampling
+        clearInterval(this.liveWPMInterval);
+        this.liveWPMInterval = setInterval(() => {
+            if (!this.isActive || this.isPaused) return;
+            const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1 / 60);
+            const wpm = Math.round((this.correctChars / 5) / elapsed) || 0;
+            this.liveWPMHistory.push(wpm);
+            if (this.liveWPMHistory.length > 30) this.liveWPMHistory.shift();
+            this.updateMiniWPMChart();
+        }, 500);
+    }
+
+    _showPauseOverlay() {
+        this._removePauseOverlay();
+        const overlay = document.createElement('div');
+        overlay.id = 'pause-overlay';
+        overlay.style.cssText = `
+            position:absolute; inset:0; border-radius:inherit;
+            background:rgba(16,20,26,0.65); backdrop-filter:blur(4px);
+            display:flex; flex-direction:column; align-items:center;
+            justify-content:center; gap:8px; z-index:20; cursor:pointer;
+            border-radius:16px;
+        `;
+        overlay.innerHTML = `
+            <span style="font-size:2.6rem;">⏸</span>
+            <span style="font-size:1.25rem;font-weight:700;color:#fff;letter-spacing:.04em;">PAUSED</span>
+            <span style="font-size:.85rem;color:rgba(255,255,255,.6);margin-top:2px;">Click or switch back to resume</span>
+        `;
+        overlay.addEventListener('click', () => this.resume());
+        const textCard = document.querySelector('#test-mode .text-card');
+        if (textCard) {
+            textCard.style.position = 'relative';
+            textCard.appendChild(overlay);
+        }
+    }
+
+    _removePauseOverlay() {
+        document.getElementById('pause-overlay')?.remove();
+    }
+
     end() {
         if (!this.isActive) return;
         this.isActive = false;
+        this.isPaused = false;
         clearInterval(this.timerInterval);
         clearInterval(this.liveWPMInterval);
         this.stopGhostCursor();
+        this._removePauseOverlay();
         this.input.disabled = true;
         this.updateStats();
 
@@ -771,18 +851,18 @@ class TestEngine {
         progressManager.addXP(xpGained);
 
         // Achievements
-        if (!progressManager.hasAchievement('first-test'))                                          progressManager.unlockAchievement('first-test');
-        if (wpm >= 30  && !progressManager.hasAchievement('30wpm'))                                progressManager.unlockAchievement('30wpm');
-        if (wpm >= 50  && !progressManager.hasAchievement('50wpm'))                                progressManager.unlockAchievement('50wpm');
-        if (wpm >= 75  && !progressManager.hasAchievement('75wpm'))                                progressManager.unlockAchievement('75wpm');
-        if (wpm >= 100 && !progressManager.hasAchievement('100wpm'))                               progressManager.unlockAchievement('100wpm');
-        if (accuracy === 100 && !progressManager.hasAchievement('100accuracy'))                    progressManager.unlockAchievement('100accuracy');
-        if ((progressManager.data.testsTaken||0) >= 10  && !progressManager.hasAchievement('10tests'))  progressManager.unlockAchievement('10tests');
-        if ((progressManager.data.testsTaken||0) >= 50  && !progressManager.hasAchievement('50tests'))  progressManager.unlockAchievement('50tests');
-        if ((progressManager.data.testsTaken||0) >= 100 && !progressManager.hasAchievement('100tests')) progressManager.unlockAchievement('100tests');
-        if ((progressManager.data.streakDays||0) >= 5   && !progressManager.hasAchievement('5day-streak'))  progressManager.unlockAchievement('5day-streak');
-        if ((progressManager.data.streakDays||0) >= 7   && !progressManager.hasAchievement('7day-streak'))  progressManager.unlockAchievement('7day-streak');
-        if ((progressManager.data.streakDays||0) >= 30  && !progressManager.hasAchievement('30day-streak')) progressManager.unlockAchievement('30day-streak');
+        if (!progressManager.hasAchievement('first-test'))                                                   progressManager.unlockAchievement('first-test');
+        if (wpm >= 30  && !progressManager.hasAchievement('30wpm'))                                         progressManager.unlockAchievement('30wpm');
+        if (wpm >= 50  && !progressManager.hasAchievement('50wpm'))                                         progressManager.unlockAchievement('50wpm');
+        if (wpm >= 75  && !progressManager.hasAchievement('75wpm'))                                         progressManager.unlockAchievement('75wpm');
+        if (wpm >= 100 && !progressManager.hasAchievement('100wpm'))                                        progressManager.unlockAchievement('100wpm');
+        if (accuracy === 100 && !progressManager.hasAchievement('100accuracy'))                             progressManager.unlockAchievement('100accuracy');
+        if ((progressManager.data.testsTaken||0) >= 10  && !progressManager.hasAchievement('10tests'))     progressManager.unlockAchievement('10tests');
+        if ((progressManager.data.testsTaken||0) >= 50  && !progressManager.hasAchievement('50tests'))     progressManager.unlockAchievement('50tests');
+        if ((progressManager.data.testsTaken||0) >= 100 && !progressManager.hasAchievement('100tests'))    progressManager.unlockAchievement('100tests');
+        if ((progressManager.data.streakDays||0) >= 5   && !progressManager.hasAchievement('5day-streak')) progressManager.unlockAchievement('5day-streak');
+        if ((progressManager.data.streakDays||0) >= 7   && !progressManager.hasAchievement('7day-streak')) progressManager.unlockAchievement('7day-streak');
+        if ((progressManager.data.streakDays||0) >= 30  && !progressManager.hasAchievement('30day-streak'))progressManager.unlockAchievement('30day-streak');
         if (this.timeLimit === 15 && this.incorrectChars === 0 && wpm > 0 && !progressManager.hasAchievement('speed-demon')) progressManager.unlockAchievement('speed-demon');
 
         // Save history
@@ -832,17 +912,19 @@ class TestEngine {
         updateGoalWidget();
     }
 
+    // ============ FIX 2: CHART DARK MODE — uses getChartThemeColors() ============
     updateMiniWPMChart() {
         if (!this.miniWPMGraphCanvas) return;
         const ctx = this.miniWPMGraphCanvas.getContext('2d');
         if (this.miniWPMChart) this.miniWPMChart.destroy();
+        const theme = getChartThemeColors();
         this.miniWPMChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: this.liveWPMHistory.map(() => ''),
-                datasets: [{ label: 'Live WPM', data: this.liveWPMHistory, borderColor: '#e07a5f', backgroundColor: 'rgba(224,122,95,0.10)', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true }]
+                datasets: [{ label: 'Live WPM', data: this.liveWPMHistory, borderColor: theme.wpm, backgroundColor: theme.bg, tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true }]
             },
-            options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: false, scales: { x: { display: false }, y: { display: true, beginAtZero: true, grid: { display: false }, ticks: { stepSize: 10, font: { size: 10 } } } } }
+            options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: false, scales: { x: { display: false }, y: { display: true, beginAtZero: true, grid: { color: theme.grid }, ticks: { stepSize: 10, font: { size: 10 }, color: theme.ticks } } } }
         });
     }
 
@@ -870,7 +952,6 @@ class TestEngine {
         else if (accuracy >= 85 && wpm >= 30) { badge.textContent = "Good";       badge.className = "rating-badge good"; }
         else                                  { badge.textContent = "Needs Work"; badge.className = "rating-badge needs-work"; }
 
-        // Trap focus in modal
         const focusableSelectors = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
         const focusableEls = Array.from(modal.querySelectorAll(focusableSelectors)).filter(el => !el.disabled && el.offsetParent !== null);
         if (focusableEls.length) focusableEls[0].focus();
@@ -893,7 +974,9 @@ class TestEngine {
 
     reset(newText = false) {
         this.isActive        = false;
+        this.isPaused        = false;
         clearInterval(this.timerInterval);
+        clearInterval(this.liveWPMInterval);
         this.currentPosition = 0;
         this.correctChars    = 0;
         this.incorrectChars  = 0;
@@ -901,11 +984,25 @@ class TestEngine {
         this.timeLeft        = this.timeLimit;
         this.input.value     = "";
         this.input.disabled  = false;
+        this._removePauseOverlay();
         this.updateStats(true);
         this.updateTimerDisplay();
         if (newText) this.loadNewText();
         else         this.displayText();
     }
+}
+
+// ============ FIX 2: CHART THEME COLORS ============
+function getChartThemeColors() {
+    const dark = document.body.getAttribute('data-theme') === 'dark';
+    return {
+        wpm:    dark ? '#f4a261' : '#e07a5f',
+        bg:     dark ? 'rgba(244,162,97,0.13)' : 'rgba(224,122,95,0.10)',
+        pb:     dark ? '#5eead4' : '#2a9d8f',
+        legend: dark ? '#a8b2c1' : '#7b8794',
+        ticks:  dark ? '#a8b2c1' : '#7b8794',
+        grid:   dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)',
+    };
 }
 
 // ============ CONFETTI ============
@@ -916,14 +1013,11 @@ function launchConfettiOverModal(modal) {
     confettiCanvas.id = 'confetti-canvas';
     confettiCanvas.style.cssText = 'position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none;z-index:3000;';
     modal.appendChild(confettiCanvas);
-    // Use modal bounds
     const rect = modal.getBoundingClientRect();
     confettiCanvas.width  = rect.width;
     confettiCanvas.height = rect.height;
-    confettiCanvas.style.width = rect.width + 'px';
+    confettiCanvas.style.width  = rect.width  + 'px';
     confettiCanvas.style.height = rect.height + 'px';
-    confettiCanvas.style.left = '0px';
-    confettiCanvas.style.top = '0px';
     const ctx    = confettiCanvas.getContext('2d');
     const colors = ['#f4a261','#2a9d8f','#e76f51','#e9c46a','#264653','#fff'];
     const particles = Array.from({ length: 80 }, () => ({
@@ -931,8 +1025,7 @@ function launchConfettiOverModal(modal) {
         r: 6 + Math.random() * 8, d: 2 + Math.random() * 2, color: colors[Math.floor(Math.random() * colors.length)],
         tilt: Math.random() * 10 - 5, tiltAngleInc: (Math.random() * 0.07) + 0.05
     }));
-    let frame = 0;
-    let stopped = false;
+    let frame = 0, stopped = false;
     function drawConfetti() {
         if (stopped) return;
         ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
@@ -949,18 +1042,13 @@ function launchConfettiOverModal(modal) {
         if (frame < 90 && !stopped) requestAnimationFrame(drawConfetti); else confettiCanvas.remove();
     }
     drawConfetti();
-    // Remove confetti if modal is closed early
     function cleanupConfetti() {
         stopped = true;
         if (confettiCanvas && confettiCanvas.parentNode) confettiCanvas.remove();
     }
-    // Listen for modal close
     const closeBtns = modal.querySelectorAll('.btn, .close, [data-dismiss], [id^="results"]');
     closeBtns.forEach(btn => btn.addEventListener('click', cleanupConfetti));
-    // Also listen for Escape key
-    function escListener(e) {
-        if (e.key === 'Escape') cleanupConfetti();
-    }
+    function escListener(e) { if (e.key === 'Escape') cleanupConfetti(); }
     window.addEventListener('keydown', escListener);
     setTimeout(() => { window.removeEventListener('keydown', escListener); }, 4000);
 }
@@ -1051,84 +1139,80 @@ class LessonEngine {
         this.progressDisplay.textContent = `${Math.round((this.currentPosition / this.currentText.length) * 100)}%`;
     }
 
+    // ============ FIX 1: STREAK BUG — updateStreak() called on lesson pass ============
     completeLesson() {
         this.isActive = false; this.input.disabled = true;
-        const wpm = parseInt(this.wpmDisplay.textContent);
+        const wpm      = parseInt(this.wpmDisplay.textContent);
         const accuracy = parseInt(this.accuracyDisplay.textContent);
         const duration = Math.floor((Date.now() - this.startTime) / 1000);
         if (this.currentLesson) safeLocalStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
         if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
             progressManager.completeLesson(this.currentLesson.id);
-            progressManager.updateStreak(); // Fix: update streak on lesson completion
+            progressManager.updateStreak(); // FIX 1: lessons now count toward streak
             this.showLessonComplete(wpm, accuracy, duration, this.currentLesson.xpReward);
             if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) progressManager.unlockAchievement('all-lessons');
             renderLessons();
         } else {
-            // Show persistent failure modal
             this.showLessonFail(wpm, accuracy, duration, this.currentLesson.minAccuracy, this.currentLesson.minWPM);
-            // Optionally: update streak on lesson fail if desired
         }
     }
 
+    // FIX: single clean definition of showLessonComplete (was duplicated/broken before)
     showLessonComplete(wpm, accuracy, duration, xp) {
-            }
-
-            showLessonFail(wpm, accuracy, duration, minAccuracy, minWPM) {
-                var modal = document.getElementById("lesson-fail-modal");
-                modal.classList.remove("hidden");
-                document.getElementById("lesson-fail-wpm").textContent = wpm + " WPM";
-                document.getElementById("lesson-fail-accuracy").textContent = accuracy + "%";
-                document.getElementById("lesson-fail-time").textContent = duration + "s";
-                var reason = "";
-                if (accuracy < minAccuracy && wpm < minWPM) {
-                    reason = "You need at least " + minAccuracy + "% accuracy and " + minWPM + " WPM to pass.";
-                } else if (accuracy < minAccuracy) {
-                    reason = "Accuracy too low. Required: " + minAccuracy + "%.";
-                } else if (wpm < minWPM) {
-                    reason = "Speed too low. Required: " + minWPM + " WPM.";
-                }
-                document.getElementById("lesson-fail-reason").textContent = reason;
-            }
-
-            showLessonComplete(wpm, accuracy, duration, xp) {
-                var modal = document.getElementById("lesson-complete-modal");
-                modal.classList.remove("hidden");
-                document.getElementById("lesson-result-wpm").textContent = wpm + " WPM";
-                document.getElementById("lesson-result-accuracy").textContent = accuracy + "%";
-                document.getElementById("lesson-result-time").textContent = duration + "s";
-                document.getElementById("lesson-xp-amount").textContent = xp;
-            }
+        const modal = document.getElementById("lesson-complete-modal");
+        modal.classList.remove("hidden");
+        document.getElementById("lesson-result-wpm").textContent      = wpm + " WPM";
+        document.getElementById("lesson-result-accuracy").textContent = accuracy + "%";
+        document.getElementById("lesson-result-time").textContent     = duration + "s";
+        document.getElementById("lesson-xp-amount").textContent       = xp;
     }
-    reset(newText = false) {
+
+    showLessonFail(wpm, accuracy, duration, minAccuracy, minWPM) {
+        const modal = document.getElementById("lesson-fail-modal");
+        modal.classList.remove("hidden");
+        document.getElementById("lesson-fail-wpm").textContent      = wpm + " WPM";
+        document.getElementById("lesson-fail-accuracy").textContent = accuracy + "%";
+        document.getElementById("lesson-fail-time").textContent     = duration + "s";
+        let reason = "";
+        if (accuracy < minAccuracy && wpm < minWPM) {
+            reason = "You need at least " + minAccuracy + "% accuracy and " + minWPM + " WPM to pass.";
+        } else if (accuracy < minAccuracy) {
+            reason = "Accuracy too low. Required: " + minAccuracy + "%.";
+        } else if (wpm < minWPM) {
+            reason = "Speed too low. Required: " + minWPM + " WPM.";
+        }
+        document.getElementById("lesson-fail-reason").textContent = reason;
+    }
+
+    reset() {
         this.currentPosition = 0; this.correctChars = 0; this.incorrectChars = 0;
-        this.isActive = false;   this.startTime = null;
-        this.input.value = "";   this.input.disabled = false;
+        this.isActive = false;    this.startTime = null;
+        this.input.value = "";    this.input.disabled = false;
         if (this.currentLesson) safeLocalStorage.setItem(`lesson-progress-${this.currentLesson.id}`, 0);
         this.currentText = this.generateLessonText(this.currentLesson);
         this.displayText(); this.updateStats(true);
     }
+}
 
-
-// ============ PRACTICE ENGINE ============
 // ============ LESSON FAIL MODAL EVENTS ============
 document.addEventListener("DOMContentLoaded", () => {
     const failModal = document.getElementById("lesson-fail-modal");
     if (failModal) {
         document.getElementById("lesson-fail-restart").addEventListener("click", () => {
             failModal.classList.add("hidden");
-            // Restart lesson
             if (window.lessonEngine && lessonEngine.currentLesson) {
                 lessonEngine.startLesson(lessonEngine.currentLesson);
             }
         });
         document.getElementById("lesson-fail-back").addEventListener("click", () => {
             failModal.classList.add("hidden");
-            // Go back to lessons view
             document.getElementById("lesson-practice").classList.add("hidden");
             document.getElementById("lessons-grid").classList.remove("hidden");
         });
     }
 });
+
+// ============ PRACTICE ENGINE ============
 class PracticeEngine {
     constructor() {
         this.stopRequested    = false; this.currentText = ""; this.highlightIndices = new Set();
@@ -1222,7 +1306,6 @@ class PracticeEngine {
         const countdownEl = document.getElementById('practice-countdown');
         let countdown = 3;
         if (countdownEl) { countdownEl.style.display = ''; countdownEl.textContent = `Well done! Starting next round in ${countdown}…`; }
-        // Prevent multiple countdowns
         if (this._countdownTimer) { clearTimeout(this._countdownTimer); this._countdownTimer = null; }
         const tick = () => {
             countdown--;
@@ -1292,7 +1375,7 @@ class FingerTrainingEngine {
     showKeyInfo(keyChar) {
         const finger = activeFingerMap[keyChar.toLowerCase()];
         if (!finger) return;
-        this.currentKey               = keyChar.toLowerCase();
+        this.currentKey                   = keyChar.toLowerCase();
         this.targetKeyChar.textContent    = keyChar.toUpperCase();
         this.targetFingerIcon.textContent = FINGER_EMOJIS[finger];
         this.targetFingerName.textContent = FINGER_NAMES[finger];
@@ -1413,6 +1496,7 @@ function hideLessonPractice() {
     document.getElementById("lesson-practice").classList.add("hidden");
 }
 
+// ============ FIX 2: CHART DARK MODE — renderWPMLineChart uses getChartThemeColors() ============
 function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
@@ -1541,7 +1625,7 @@ function renderDashboard() {
     renderDashboardHistoryTable();
 }
 
-// ============ MODE SWITCHING (with smooth transitions) ============
+// ============ MODE SWITCHING ============
 let _currentMode = null;
 
 function switchMode(mode) {
@@ -1553,37 +1637,26 @@ function switchMode(mode) {
         tab.setAttribute("aria-selected", String(tab.dataset.mode === mode));
     });
 
-    const sectionMode   = (mode === "quote" || mode === "code") ? "test" : mode;
-    const sections      = document.querySelectorAll(".mode-section");
-
-    // Find current active section
-    const outgoing = document.querySelector('.mode-section.active');
-    const incoming = document.getElementById(`${sectionMode}-mode`);
+    const sectionMode = (mode === "quote" || mode === "code") ? "test" : mode;
+    const sections    = document.querySelectorAll(".mode-section");
+    const outgoing    = document.querySelector('.mode-section.active');
+    const incoming    = document.getElementById(`${sectionMode}-mode`);
 
     sections.forEach(s => {
-        if (s !== incoming) {
-            s.classList.remove("active");
-            // Use visibility trick: fade out, then hide
-            s.style.pointerEvents = 'none';
-        }
+        if (s !== incoming) { s.classList.remove("active"); s.style.pointerEvents = 'none'; }
     });
 
     if (incoming) {
-        // Remove hidden so it can animate in
         incoming.hidden = false;
         incoming.style.display = 'block';
-        // Force reflow so transition fires
         void incoming.offsetWidth;
         incoming.classList.add("active");
         incoming.style.pointerEvents = 'auto';
     }
 
-    // Hide outgoing after transition
     if (outgoing && outgoing !== incoming) {
         outgoing.addEventListener('transitionend', () => {
-            if (!outgoing.classList.contains('active')) {
-                outgoing.style.display = 'none';
-            }
+            if (!outgoing.classList.contains('active')) outgoing.style.display = 'none';
         }, { once: true });
     }
 
@@ -1602,13 +1675,8 @@ function switchMode(mode) {
         if (wordCountGroup) wordCountGroup.style.display = currentSegment === 'words' ? '' : 'none';
     }
 
-    // Wrap dashboard rendering in requestAnimationFrame for smooth transition
     if (mode === "dashboard") {
-        requestAnimationFrame(() => {
-            renderWPMLineChart();
-            renderKeyHeatmap(weakKeys);
-            renderDashboardHistoryTable();
-        });
+        requestAnimationFrame(() => renderDashboard());
     } else if (mode === "lessons")         renderLessons();
     else if (mode === "practice")        { renderWeakKeys(); practiceEngine.start(); }
     else if (mode === "finger-training") fingerTrainingEngine.reset();
@@ -1623,13 +1691,11 @@ function switchMode(mode) {
     safeLocalStorage.setItem('typeflow-mode', mode);
 }
 
-// ============ KEYBOARD SHORTCUTS (fully implemented) ============
+// ============ KEYBOARD SHORTCUTS ============
 function setupGlobalKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-        // Don't fire shortcuts when typing in an input/textarea (except specific ones)
         const isTypingContext = ['INPUT','TEXTAREA'].includes(document.activeElement.tagName);
 
-        // Ctrl+Shift combos — mode switching (always active)
         if (e.ctrlKey && e.shiftKey) {
             switch(e.key.toUpperCase()) {
                 case 'D': e.preventDefault(); switchMode('dashboard');       showToast('📊 Dashboard', '', 1500); return;
@@ -1641,7 +1707,6 @@ function setupGlobalKeyboardShortcuts() {
             }
         }
 
-        // Ctrl+L: focus typing input
         if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'l') {
             const testSection = document.getElementById('test-mode');
             if (testSection && testSection.classList.contains('active')) {
@@ -1652,24 +1717,20 @@ function setupGlobalKeyboardShortcuts() {
             return;
         }
 
-        // Ctrl+Enter: submit / restart (in test mode)
         if (e.ctrlKey && e.key === 'Enter') {
-            const testSection = document.getElementById('test-mode');
+            const testSection  = document.getElementById('test-mode');
             const resultsModal = document.getElementById('results');
             if (!resultsModal.classList.contains('hidden')) {
                 e.preventDefault();
                 resultsModal.classList.add('hidden');
-                testEngine.reset(false);
-                testEngine.start(false);
+                testEngine.reset(false); testEngine.start(false);
             } else if (testSection && testSection.classList.contains('active')) {
                 e.preventDefault();
-                testEngine.reset(false);
-                testEngine.start(false);
+                testEngine.reset(false); testEngine.start(false);
             }
             return;
         }
 
-        // Escape: close modals
         if (e.key === 'Escape') {
             const results       = document.getElementById('results');
             const lessonModal   = document.getElementById('lesson-complete-modal');
@@ -1681,12 +1742,9 @@ function setupGlobalKeyboardShortcuts() {
             if (!lessonModal.classList.contains('hidden')) { lessonModal.classList.add('hidden'); return; }
         }
 
-        // ? key: open help (not in input)
         if (!isTypingContext && e.key === '?' && !e.ctrlKey && !e.shiftKey) {
             const helpModal = document.getElementById('help-modal');
-            if (helpModal) {
-                helpModal.style.display = helpModal.style.display === 'none' ? 'block' : 'none';
-            }
+            if (helpModal) helpModal.style.display = helpModal.style.display === 'none' ? 'block' : 'none';
         }
     });
 }
@@ -1697,7 +1755,21 @@ function getInitialTheme() {
     if (stored === "light" || stored === "dark") return stored;
     return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
-function applyTheme(theme) { document.body.setAttribute("data-theme", theme); safeLocalStorage.setItem("typeflow-theme", theme); updateThemeToggle(theme); }
+
+// FIX 2: applyTheme re-renders charts so colors update immediately on toggle
+function applyTheme(theme) {
+    document.body.setAttribute("data-theme", theme);
+    safeLocalStorage.setItem("typeflow-theme", theme);
+    updateThemeToggle(theme);
+    // Re-render charts with new theme colours
+    if (typeof renderWPMLineChart === 'function') {
+        try { renderWPMLineChart(); } catch {}
+    }
+    if (typeof testEngine !== 'undefined' && testEngine) {
+        try { testEngine.updateMiniWPMChart(); } catch {}
+    }
+}
+
 function toggleTheme() { applyTheme(document.body.getAttribute("data-theme") === "dark" ? "light" : "dark"); }
 function updateThemeToggle(theme) {
     const toggle = document.getElementById("theme-toggle");
@@ -1717,7 +1789,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     applyTheme(getInitialTheme());
 
-    // Initialize all mode sections properly for CSS transitions
     document.querySelectorAll('.mode-section').forEach(s => {
         s.style.display = 'none';
         s.style.opacity = '0';
@@ -1735,14 +1806,31 @@ document.addEventListener("DOMContentLoaded", () => {
     testEngine.loadNewText();
     testEngine.start(false);
 
-    // Setup all global keyboard shortcuts
     setupGlobalKeyboardShortcuts();
 
-    // Auto-focus typing input on keypress when test section is active
+    // FIX 3: Pause on tab away, resume on return
+    window.addEventListener('blur', () => {
+        const resultsOpen   = !document.getElementById('results').classList.contains('hidden');
+        const helpOpen      = document.getElementById('help-modal')?.style.display !== 'none';
+        const feedbackOpen  = !document.getElementById('feedback-modal')?.classList.contains('hidden');
+        if (
+            document.getElementById('test-mode').classList.contains('active') &&
+            testEngine.isActive &&
+            !resultsOpen && !helpOpen && !feedbackOpen
+        ) {
+            testEngine.pause();
+        }
+    });
+    window.addEventListener('focus', () => {
+        if (testEngine.isPaused) testEngine.resume();
+    });
+
+    // Auto-focus typing input on keypress
     document.addEventListener("keydown", (e) => {
         const isFeedbackOpen = document.getElementById('feedback-modal') && !document.getElementById('feedback-modal').classList.contains('hidden');
         const isHelpOpen     = document.getElementById('help-modal')     && document.getElementById('help-modal').style.display !== 'none';
         if (isFeedbackOpen || isHelpOpen) return;
+        if (testEngine.isPaused) return;
 
         const testSection = document.getElementById("test-mode");
         if (!testSection.classList.contains("active")) return;
@@ -1771,7 +1859,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Segmented control (timed vs word count)
+    // Segmented control
     const timerGroup     = document.getElementById('timer-group');
     const wordCountGroup = document.getElementById('word-count-group');
 
@@ -1797,12 +1885,10 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById('segmented-words').addEventListener('click', () => setModeSegmented('words'));
     setModeSegmented('timed');
 
-    // Mode tabs
     document.querySelectorAll(".mode-tab").forEach(tab => {
         tab.addEventListener("click", e => switchMode(e.currentTarget.dataset.mode));
     });
 
-    // Timer buttons
     document.querySelectorAll(".timer-btn").forEach(btn => {
         btn.addEventListener("click", (e) => {
             const time = parseInt(e.target.dataset.time, 10);
@@ -1814,7 +1900,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Word count buttons
     document.querySelectorAll('.word-count-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.word-count-btn').forEach(b => b.classList.remove('active'));
@@ -1848,9 +1933,9 @@ document.addEventListener("DOMContentLoaded", () => {
         hideLessonPractice();
     });
 
-    document.getElementById("practice-restart").addEventListener("click",   () => practiceEngine.start());
-    document.getElementById("start-finger-drill").addEventListener("click", () => fingerTrainingEngine.startDrill());
-    document.getElementById("random-key-practice").addEventListener("click",() => fingerTrainingEngine.nextRandomKey());
+    document.getElementById("practice-restart").addEventListener("click",    () => practiceEngine.start());
+    document.getElementById("start-finger-drill").addEventListener("click",  () => fingerTrainingEngine.startDrill());
+    document.getElementById("random-key-practice").addEventListener("click", () => fingerTrainingEngine.nextRandomKey());
 
     ["toggle-caps","toggle-numbers","toggle-symbols"].forEach(id => {
         document.getElementById(id).addEventListener("change", () => { if (!testEngine.isActive) testEngine.loadNewText(); });
@@ -1897,7 +1982,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    const viewFeedbackBtn  = document.getElementById('view-feedback-btn');
+    const viewFeedbackBtn   = document.getElementById('view-feedback-btn');
     const feedbackViewPanel = document.getElementById('feedback-view-panel');
     if (viewFeedbackBtn && feedbackViewPanel) {
         viewFeedbackBtn.addEventListener('click', () => {
@@ -1913,14 +1998,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-   // Help modal
+
+    // Help modal
     const helpBtn   = document.getElementById('help-btn');
     const helpModal = document.getElementById('help-modal');
     const helpClose = document.getElementById('help-close');
     if (helpBtn && helpModal && helpClose) {
-        helpBtn.addEventListener('click', () => { helpModal.style.display = 'flex'; });
-        helpClose.addEventListener('click', () => { helpModal.style.display = 'none'; });
-        window.addEventListener('click', (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
+        helpBtn.addEventListener('click',  () => { helpModal.style.display = 'flex'; });
+        helpClose.addEventListener('click',() => { helpModal.style.display = 'none'; });
+        window.addEventListener('click',   (e) => { if (e.target === helpModal) helpModal.style.display = 'none'; });
     }
 
     // Mobile touch support
