@@ -755,43 +755,30 @@ class TestEngine {
         if (pbBadge) pbBadge.style.display = (bestWPM > 0 && currentWPM >= bestWPM) ? '' : 'none';
     }
 
-    // ============ FIX 3: PAUSE / RESUME ============
+    // ============ FIX 4: PAUSE / RESUME ============
     pause() {
         if (!this.isActive || this.isPaused) return;
-        this.isPaused  = true;
+        this.isPaused = true;
         this._pausedAt = Date.now();
         clearInterval(this.timerInterval);
         clearInterval(this.liveWPMInterval);
         this.input.disabled = true;
-        this._showPauseOverlay();
+        this.textDisplay.insertAdjacentHTML('beforebegin',
+            '<div id="pause-overlay" style="text-align:center;padding:18px;font-size:1.3rem;font-weight:700;color:var(--accent);letter-spacing:.05em;">⏸ PAUSED - click or switch back to resume</div>');
     }
 
     resume() {
         if (!this.isPaused) return;
         this.isPaused = false;
-        // Compensate startTime so WPM stays accurate
-        if (this.startTime && this._pausedAt) {
-            this.startTime += Date.now() - this._pausedAt;
-        }
-        this._pausedAt = null;
-        this._removePauseOverlay();
+        if (this.startTime) this.startTime += Date.now() - this._pausedAt;
+        document.getElementById('pause-overlay')?.remove();
         this.input.disabled = false;
         this.input.focus();
-        // Restart countdown timer
-        if (this.isTimedMode() && this.timeLeft > 0) {
-            clearInterval(this.timerInterval);
-            this.timerInterval = setInterval(() => {
-                if (this.isPaused) return;
-                this.timeLeft -= 1;
-                this.updateTimerDisplay();
-                if (this.timeLeft <= 0) this.end();
-            }, 1000);
-        }
-        // Restart live WPM sampling
+        if (this.isTimedMode() && this.timeLeft > 0) this.startTimer();
         clearInterval(this.liveWPMInterval);
         this.liveWPMInterval = setInterval(() => {
-            if (!this.isActive || this.isPaused) return;
-            const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1 / 60);
+            if (!this.isActive) return;
+            const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1/60);
             const wpm = Math.round((this.correctChars / 5) / elapsed) || 0;
             this.liveWPMHistory.push(wpm);
             if (this.liveWPMHistory.length > 30) this.liveWPMHistory.shift();
