@@ -1428,16 +1428,27 @@ function renderWPMLineChart() {
     const wpmData = visible.map(e => e.wpm);
     const pb = wpmData.length ? Math.max(...wpmData) : null;
     const pbLine = pb !== null ? Array(wpmData.length).fill(pb) : [];
+    const theme = getChartThemeColors();
     window._wpmChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: visible.map((e) => `Test #${e.idx}`),
             datasets: [
-                { label: 'WPM', data: wpmData, borderColor: '#e07a5f', backgroundColor: 'rgba(224,122,95,0.12)', tension: 0.3, pointRadius: 4, pointBackgroundColor: '#e07a5f', fill: true },
-                { label: 'Personal Best', data: pbLine, borderColor: '#2a9d8f', borderDash: [6, 6], pointRadius: 0, pointHitRadius: 0, fill: false, tension: 0, borderWidth: 2, order: 0 }
+                { label: 'WPM', data: wpmData, borderColor: theme.wpm, backgroundColor: theme.bg, tension: 0.3, pointRadius: 4, pointBackgroundColor: theme.wpm, fill: true },
+                { label: 'Personal Best', data: pbLine, borderColor: theme.pb, borderDash: [6, 6], pointRadius: 0, pointHitRadius: 0, fill: false, tension: 0, borderWidth: 2, order: 0 }
             ]
         },
-        options: { responsive: true, plugins: { legend: { display: true }, tooltip: { enabled: true } }, scales: { x: { display: true, grid: { display: false } }, y: { display: true, beginAtZero: true, grid: { color: 'rgba(0,0,0,0.05)' }, ticks: { stepSize: 10 } } } }
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true, labels: { color: theme.legend } },
+                tooltip: { enabled: true }
+            },
+            scales: {
+                x: { display: true, grid: { display: false }, ticks: { color: theme.ticks } },
+                y: { display: true, beginAtZero: true, grid: { color: theme.grid }, ticks: { stepSize: 10, color: theme.ticks } }
+            }
+        }
     });
 }
 
