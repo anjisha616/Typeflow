@@ -1589,16 +1589,22 @@ function switchMode(mode) {
         if (wordCountGroup) wordCountGroup.style.display = currentSegment === 'words' ? '' : 'none';
     }
 
-    if      (mode === "lessons")         renderLessons();
+    // Wrap dashboard rendering in requestAnimationFrame for smooth transition
+    if (mode === "dashboard") {
+        requestAnimationFrame(() => {
+            renderWPMLineChart();
+            renderKeyHeatmap(weakKeys);
+            renderDashboardHistoryTable();
+        });
+    } else if (mode === "lessons")         renderLessons();
     else if (mode === "practice")        { renderWeakKeys(); practiceEngine.start(); }
-    else if (mode === "dashboard")       renderDashboard();
     else if (mode === "finger-training") fingerTrainingEngine.reset();
     else if (mode === "test" || mode === "quote" || mode === "code") {
         testEngine.reset(true);
         setTimeout(() => {
             const input = document.getElementById("typing-input");
             if (input && !input.disabled) input.focus();
-        }, 50);
+        }, 120);
     }
 
     safeLocalStorage.setItem('typeflow-mode', mode);
