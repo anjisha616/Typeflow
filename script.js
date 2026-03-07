@@ -1059,12 +1059,14 @@ class LessonEngine {
         if (this.currentLesson) safeLocalStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
         if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
             progressManager.completeLesson(this.currentLesson.id);
+            progressManager.updateStreak(); // Fix: update streak on lesson completion
             this.showLessonComplete(wpm, accuracy, duration, this.currentLesson.xpReward);
             if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) progressManager.unlockAchievement('all-lessons');
             renderLessons();
         } else {
             // Show persistent failure modal
             this.showLessonFail(wpm, accuracy, duration, this.currentLesson.minAccuracy, this.currentLesson.minWPM);
+            // Optionally: update streak on lesson fail if desired
         }
     }
 
