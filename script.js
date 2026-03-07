@@ -837,6 +837,17 @@ class TestEngine {
         const xpGained = this.calculateXP(wpm, accuracy);
         progressManager.addXP(xpGained);
 
+        const hitWPMGoal = recordWPMGoalAchieved(wpm);
+        if (hitWPMGoal) {
+            showToast(`🎯 WPM goal hit: ${getWPMGoal()} WPM`, 'success', 2500);
+            setTimeout(() => {
+                const resultsModal = document.getElementById('results');
+                if (resultsModal && !resultsModal.classList.contains('hidden')) {
+                    launchConfettiOverModal(resultsModal);
+                }
+            }, 0);
+        }
+
         // Achievements
         if (!progressManager.hasAchievement('first-test'))                                                   progressManager.unlockAchievement('first-test');
         if (wpm >= 30  && !progressManager.hasAchievement('30wpm'))                                         progressManager.unlockAchievement('30wpm');
@@ -1567,6 +1578,92 @@ function renderKeyHeatmap(weakKeys) {
     });
 }
 
+function getWPMGoal() {
+    const stored = parseInt(safeLocalStorage.getItem('typeflow-wpm-goal') || '', 10);
+    if (Number.isFinite(stored) && stored > 0) return stored;
+    const suggested = suggestWPMGoal();
+    safeLocalStorage.setItem('typeflow-wpm-goal', suggested);
+    return suggested;
+}
+
+function setWPMGoal(value) {
+    const parsed = parseInt(value, 10);
+    if (!Number.isFinite(parsed)) return;
+    const clamped = Math.max(10, Math.min(250, parsed));
+    safeLocalStorage.setItem('typeflow-wpm-goal', clamped);
+    updateWPMGoalWidget();
+}
+
+function getWPMGoalHistory() {
+    const raw = safeLocalStorage.parse(safeLocalStorage.getItem('typeflow-wpm-goal-history') || '[]', []);
+    return Array.isArray(raw) ? raw : [];
+}
+
+function recordWPMGoalAchieved(wpm) {
+    const goal = getWPMGoal();
+    if (wpm < goal) return false;
+
+    const today = new Date().toDateString();
+    const history = getWPMGoalHistory();
+    const existing = history.find(item => item.date === today);
+
+    if (existing) {
+        existing.goal = goal;
+        if (wpm > existing.wpm) existing.wpm = wpm;
+        safeLocalStorage.setItem('typeflow-wpm-goal-history', safeLocalStorage.stringify(history));
+        return false;
+    }
+
+    history.unshift({ date: today, goal, wpm });
+    safeLocalStorage.setItem('typeflow-wpm-goal-history', safeLocalStorage.stringify(history.slice(0, 20)));
+    return true;
+}
+
+function suggestWPMGoal() {
+    const best = progressManager?.data?.bestWPM || 0;
+    if (!best) return 35;
+    return Math.max(20, Math.round((best * 0.9) / 5) * 5);
+}
+
+function updateWPMGoalWidget() {
+    const goal = getWPMGoal();
+    const suggestion = suggestWPMGoal();
+    const currentEl = document.getElementById('wpm-goal-current');
+    const inputEl = document.getElementById('wpm-goal-input');
+    const suggestionEl = document.getElementById('wpm-goal-suggestion');
+    const statusEl = document.getElementById('wpm-goal-status');
+    const historyEl = document.getElementById('wpm-goal-history');
+
+    if (currentEl) currentEl.textContent = String(goal);
+    if (inputEl && !inputEl.matches(':focus')) inputEl.value = String(goal);
+    if (suggestionEl) suggestionEl.textContent = `Suggested: ${suggestion} WPM`;
+
+    const today = new Date().toDateString();
+    const history = getWPMGoalHistory();
+    const todayHit = history.find(item => item.date === today);
+
+    if (statusEl) {
+        statusEl.textContent = todayHit
+            ? `Today achieved: ${todayHit.wpm} WPM (goal ${todayHit.goal})`
+            : `Today's target: ${goal} WPM`;
+    }
+
+    if (historyEl) {
+        historyEl.innerHTML = '';
+        const recent = history.slice(0, 5);
+        if (!recent.length) {
+            historyEl.innerHTML = '<div class="goal-history-item">No WPM goal hits yet.</div>';
+        } else {
+            recent.forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'goal-history-item';
+                row.textContent = `${item.date} - ${item.wpm} WPM (goal ${item.goal})`;
+                historyEl.appendChild(row);
+            });
+        }
+    }
+}
+
 function renderDashboard() {
     const data         = progressManager.data;
     const currentLevel = progressManager.getCurrentLevel();
@@ -1610,6 +1707,7 @@ function renderDashboard() {
     renderWPMLineChart();
     renderKeyHeatmap(weakKeys);
     renderDashboardHistoryTable();
+    updateWPMGoalWidget();
 }
 
 // ============ MODE SWITCHING ============
@@ -1831,6 +1929,20 @@ document.addEventListener("DOMContentLoaded", () => {
     if (goalSelect) {
         goalSelect.value = getDailyGoal();
         goalSelect.addEventListener('change', e => setDailyGoal(e.target.value));
+    }
+
+    const wpmGoalInput = document.getElementById('wpm-goal-input');
+    const wpmGoalSetBtn = document.getElementById('wpm-goal-set-btn');
+    if (wpmGoalInput) wpmGoalInput.value = String(getWPMGoal());
+    if (wpmGoalSetBtn) {
+        wpmGoalSetBtn.addEventListener('click', () => {
+            if (wpmGoalInput) setWPMGoal(wpmGoalInput.value);
+        });
+    }
+    if (wpmGoalInput) {
+        wpmGoalInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') setWPMGoal(wpmGoalInput.value);
+        });
     }
 
     // Stop practicing button
