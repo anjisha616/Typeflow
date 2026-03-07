@@ -454,6 +454,19 @@
                     <div class="goal-progress-label"><span id="goal-progress-count">0</span>/<span id="goal-total-2">3</span> tests</div>
                 </div>
 
+                <div class="todays-goal-widget" id="wpm-goal-widget">
+                    <div class="goal-title">WPM Goal</div>
+                    <div class="goal-desc">Hit at least <span id="wpm-goal-current">40</span> WPM in one test today.</div>
+                    <div class="goal-input-row">
+                        <input id="wpm-goal-input" type="number" min="10" max="250" step="1" value="40" aria-label="WPM goal">
+                        <button class="btn ghost" id="wpm-goal-set-btn" type="button">Set Goal</button>
+                        <span class="goal-suggestion" id="wpm-goal-suggestion"></span>
+                    </div>
+                    <div class="goal-progress-label" id="wpm-goal-status">No goal hit yet today.</div>
+                    <div class="goal-history-title">Recent Goal Hits</div>
+                    <div id="wpm-goal-history"></div>
+                </div>
+
                 <!-- Achievements -->
                 <section id="dashboard-achievements-section" class="dashboard-chart-section" style="margin-bottom:1.5em;">
                     <h3>Achievements</h3>
