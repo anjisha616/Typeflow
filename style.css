@@ -562,7 +562,11 @@ body[data-theme="dark"] .word-count-btn:hover { background: rgba(255,255,255,0.0
 }
 
 /* Quote / Code display */
-.quote-main { display: inline; }
+.quote-main {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+}
 .quote-author {
     display: block;
     margin-top: 12px;
