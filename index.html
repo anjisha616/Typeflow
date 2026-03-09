@@ -542,6 +542,14 @@
                 <!-- FIX: WPM Chart — canvas element was missing from HTML -->
                 <div class="dashboard-chart-section" style="margin-top: 1.5em;">
                     <h3 class="dashboard-chart-title">WPM Over Time</h3>
+                    <div class="dashboard-filter-row" style="margin-bottom: 0.7em;">
+                        <label for="wpm-date-filter" style="font-size:0.98em;margin-right:8px;color:var(--muted);">Show:</label>
+                        <select id="wpm-date-filter" style="padding:4px 10px;border-radius:6px;font-size:1em;">
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="all" selected>All Time</option>
+                        </select>
+                    </div>
                     <canvas id="wpm-line-chart" height="120"></canvas>
                 </div>
 
