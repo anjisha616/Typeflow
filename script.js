@@ -1109,7 +1109,13 @@ class LessonEngine {
         if (this._boundHandler) this.input.removeEventListener("input", this._boundHandler);
         this._boundHandler = () => this.handleTyping();
         this.input.addEventListener("input", this._boundHandler);
-        this.input.addEventListener("keydown", () => playKeyClick());
+        this.input.addEventListener("keydown", (e) => {
+            playKeyClick();
+            highlightLessonKey(e.key);
+        });
+        this.input.addEventListener("keyup", () => {
+            clearLessonKeyHighlight();
+        });
     }
 
     displayText() {
@@ -1123,6 +1129,33 @@ class LessonEngine {
             html += `<span class="${cls}">${char === " " ? " " : char}</span>`;
         }
         this.textDisplay.innerHTML = html;
+        // Also highlight current key if typing
+        if (this.input === document.activeElement && this.currentPosition < this.currentText.length) {
+            const nextChar = this.currentText[this.currentPosition];
+            highlightLessonKey(nextChar);
+        } else {
+            clearLessonKeyHighlight();
+        }
+    // Keyboard highlight helpers for lessons
+    function highlightLessonKey(char) {
+        const visual = document.getElementById("lesson-keyboard-visual");
+        if (!visual) return;
+        // Normalize char for spacebar
+        let key = char;
+        if (key === " ") key = " ";
+        key = key.toLowerCase();
+        // Remove previous highlight
+        clearLessonKeyHighlight();
+        // Highlight matching key
+        const el = visual.querySelector(`.key[data-key='${key}']`);
+        if (el) el.classList.add("active-key");
+    }
+
+    function clearLessonKeyHighlight() {
+        const visual = document.getElementById("lesson-keyboard-visual");
+        if (!visual) return;
+        visual.querySelectorAll(".key.active-key").forEach(el => el.classList.remove("active-key"));
+    }
     }
 
     handleTyping() {
