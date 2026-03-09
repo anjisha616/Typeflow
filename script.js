@@ -950,7 +950,7 @@ class TestEngine {
         if ((progressManager.data.streakDays||0) >= 30  && !progressManager.hasAchievement('30day-streak'))progressManager.unlockAchievement('30day-streak');
         if (this.timeLimit === 15 && this.incorrectChars === 0 && wpm > 0 && !progressManager.hasAchievement('speed-demon')) progressManager.unlockAchievement('speed-demon');
 
-        // Save history
+        // Save history (include custom mode)
         let wpmHistory = {};
         try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
         if (Array.isArray(wpmHistory)) {
@@ -960,7 +960,14 @@ class TestEngine {
         let nextIndex = 1;
         const indices = Object.keys(wpmHistory).map(Number).filter(n => !isNaN(n));
         if (indices.length > 0) nextIndex = Math.max(...indices) + 1;
-        wpmHistory[nextIndex] = { date: new Date().toDateString(), wpm, accuracy };
+        // Determine mode
+        const mode = this.getCurrentMode();
+        let entry = { date: new Date().toDateString(), wpm, accuracy, mode };
+        // If custom mode, mark as custom and include custom text
+        if (mode === 'custom') {
+            entry.customText = this.currentText;
+        }
+        wpmHistory[nextIndex] = entry;
         safeLocalStorage.setItem('typeflow-wpm-history', JSON.stringify(wpmHistory));
 
         // Accuracy breakdown chart
