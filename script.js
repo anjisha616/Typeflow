@@ -82,6 +82,49 @@ const safeLocalStorage = {
 
 // ============ DASHBOARD HISTORY TABLE ============
 function renderDashboardHistoryTable() {
+        // Update WPM chart with filter
+        const filterSelect = document.getElementById('wpm-date-filter');
+        if (filterSelect) {
+            filterSelect.onchange = renderWPMChartWithFilter;
+            renderWPMChartWithFilter();
+        }
+    }
+
+    function renderWPMChartWithFilter() {
+        let history = {};
+        try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
+        const filter = document.getElementById('wpm-date-filter')?.value || 'all';
+        const now = new Date();
+        let filtered = Object.values(history);
+        if (filter === 'week') {
+            const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+            filtered = filtered.filter(e => {
+                const d = new Date(e.date);
+                return d >= weekAgo && d <= now;
+            });
+        } else if (filter === 'month') {
+            const monthAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+            filtered = filtered.filter(e => {
+                const d = new Date(e.date);
+                return d >= monthAgo && d <= now;
+            });
+        }
+        // Show last 20 filtered
+        const chartData = filtered.slice(-20);
+        const labels = chartData.map(e => e.date || '');
+        const wpms = chartData.map(e => e.wpm || 0);
+        const canvas = document.getElementById('wpm-line-chart');
+        if (!canvas) return;
+        if (window.wpmLineChart) window.wpmLineChart.destroy();
+        window.wpmLineChart = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{ label: 'WPM', data: wpms, borderColor: '#e07a5f', backgroundColor: 'rgba(224,122,95,0.10)', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true }]
+            },
+            options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: true } }, animation: false, scales: { x: { display: true }, y: { display: true, beginAtZero: true } } }
+        });
+    }
     const tbody = document.getElementById('dashboard-history-body');
     if (!tbody) return;
     let history = {};
