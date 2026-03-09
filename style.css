@@ -1024,7 +1024,6 @@ body[data-theme="dark"] .xp-gained { background: rgba(244,162,97,0.1); border-co
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: translateY(0); }
 }
-
 /* ============ UTILITY ============ */
 .hidden { display: none !important; }
 
