@@ -155,7 +155,7 @@ function renderDashboardHistoryTable() {
     // Show WPM consistency
     const { std, percent } = progressManager.getWPMConsistency();
     document.getElementById('wpm-consistency').textContent = `${percent}% (std: ${std})`;
-}
+
 
 document.addEventListener('DOMContentLoaded', () => { renderDashboardHistoryTable(); });
 
