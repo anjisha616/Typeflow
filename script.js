@@ -593,7 +593,10 @@ class TestEngine {
         }
 
         const currentChar = this.textDisplay.querySelector('.current');
-        if (currentChar) currentChar.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        if (currentChar) {
+            // Improved scroll: center horizontally, smooth
+            currentChar.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
+        }
     }
 
     getHideUntilIndex(typedText) {
