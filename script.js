@@ -934,7 +934,6 @@ class TestEngine {
                 }
             }, 0);
         }
-
         // Achievements
         if (!progressManager.hasAchievement('first-test'))                                                   progressManager.unlockAchievement('first-test');
         if (wpm >= 30  && !progressManager.hasAchievement('30wpm'))                                         progressManager.unlockAchievement('30wpm');
