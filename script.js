@@ -551,18 +551,34 @@ class TestEngine {
     generateText() {
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
-            const allQuotes = Object.values(famousQuotes).flat();
-            let candidates = allQuotes.filter(q => {
+            // Get filters
+            const category = document.getElementById('quote-category-filter')?.value || 'all';
+            const difficulty = document.getElementById('quote-difficulty-filter')?.value || 'all';
+            // Get quotes by category
+            let quotes = category === 'all' ? Object.values(famousQuotes).flat() : (famousQuotes[category] || []);
+            // Filter by difficulty
+            quotes = quotes.filter(q => {
                 const match = q.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
                 const text = match ? match[1] : q;
-                return text && text.length >= 80;
+                if (difficulty === 'short') return text.length < 80;
+                if (difficulty === 'long') return text.length >= 80;
+                return true;
             });
-            if (candidates.length === 0) candidates = allQuotes;
-            const raw = candidates[Math.floor(Math.random() * candidates.length)];
+            if (quotes.length === 0) quotes = Object.values(famousQuotes).flat();
+            const raw = quotes[Math.floor(Math.random() * quotes.length)];
             const match = raw.match(/^(.*?)(?:\s*[\u2014-]\s*|\s*-\s*)(.+)$/);
             if (match) { this.currentAuthor = match[2]; return match[1]; }
             else { this.currentAuthor = ''; return raw; }
         }
+            // Show/hide quote filter controls based on mode
+            const quoteFilterRow = document.getElementById('quote-filter-row');
+            const modeTabs = document.querySelectorAll('.mode-tab');
+            modeTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const mode = tab.dataset.mode;
+                    if (quoteFilterRow) quoteFilterRow.style.display = (mode === 'quote') ? 'flex' : 'none';
+                });
+            });
         if (mode === 'code') {
             this.currentAuthor = '';
             return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
