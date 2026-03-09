@@ -100,12 +100,37 @@ function renderDashboardHistoryTable() {
             <td style="text-align:right;padding:6px 8px;">${r.accuracy}%</td>
         </tr>`
     ).join('');
+
+    // Update dashboard metrics
+    let historyAll = {};
+    try { historyAll = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { historyAll = {}; }
+    const wpms = Object.values(historyAll).map(e => e.wpm).filter(w => typeof w === 'number' && !isNaN(w));
+    const bestWPM = wpms.length ? Math.max(...wpms) : 0;
+    const avgAcc = Object.values(historyAll).map(e => e.accuracy).filter(a => typeof a === 'number' && !isNaN(a)).reduce((a, b) => a + b, 0) / (Object.values(historyAll).length || 1);
+    document.getElementById('best-wpm-display').textContent = bestWPM;
+    document.getElementById('avg-accuracy').textContent = Math.round(avgAcc) + '%';
+    // Show WPM consistency
+    const { std, percent } = progressManager.getWPMConsistency();
+    document.getElementById('wpm-consistency').textContent = `${percent}% (std: ${std})`;
 }
 
 document.addEventListener('DOMContentLoaded', () => { renderDashboardHistoryTable(); });
 
 // ============ PROGRESS MANAGER ============
 class ProgressManager {
+        // Calculate WPM consistency (standard deviation and percentage)
+        getWPMConsistency() {
+            let wpmHistory = {};
+            try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
+            const wpms = Object.values(wpmHistory).map(e => e.wpm).filter(w => typeof w === 'number' && !isNaN(w));
+            if (wpms.length < 2) return { std: 0, percent: 100 };
+            const avg = wpms.reduce((a, b) => a + b, 0) / wpms.length;
+            const variance = wpms.reduce((sum, w) => sum + Math.pow(w - avg, 2), 0) / wpms.length;
+            const std = Math.sqrt(variance);
+            // Consistency %: 100 - (std/avg * 100), capped between 0-100
+            const percent = Math.max(0, Math.min(100, Math.round(100 - (std / avg * 100))));
+            return { std: Math.round(std * 10) / 10, percent };
+        }
     constructor() { this.loadProgress(); }
 
     loadProgress() {
@@ -936,6 +961,9 @@ class TestEngine {
     }
 
     showResults(wpm, accuracy, xpGained, isNewBest = false) {
+            // Show session WPM consistency
+            const { std, percent } = progressManager.getWPMConsistency();
+            document.getElementById('result-consistency').textContent = `Consistency: ${percent}% (std: ${std})`;
         const modal = document.getElementById("results");
         modal.classList.remove("hidden");
 
