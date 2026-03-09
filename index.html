@@ -113,6 +113,22 @@
                 </div>
 
                 <div class="options-row" role="group" aria-label="Text options">
+                                        <!-- Quote mode filters -->
+                                        <div id="quote-filter-row" style="margin-top:0.7em;display:none;gap:12px;align-items:center;">
+                                            <label for="quote-category-filter" style="font-size:0.98em;margin-right:8px;color:var(--muted);">Category:</label>
+                                            <select id="quote-category-filter" style="padding:4px 10px;border-radius:6px;font-size:1em;">
+                                                <option value="all" selected>All</option>
+                                                <option value="motivational">Motivational</option>
+                                                <option value="literary">Literary</option>
+                                                <option value="philosophical">Philosophical</option>
+                                            </select>
+                                            <label for="quote-difficulty-filter" style="font-size:0.98em;margin-left:16px;color:var(--muted);">Difficulty:</label>
+                                            <select id="quote-difficulty-filter" style="padding:4px 10px;border-radius:6px;font-size:1em;">
+                                                <option value="all" selected>All</option>
+                                                <option value="short">Short</option>
+                                                <option value="long">Long</option>
+                                            </select>
+                                        </div>
                     <label class="toggle">
                         <input type="checkbox" id="toggle-caps">
                         <span>Include capitals</span>
