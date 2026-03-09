@@ -948,6 +948,20 @@ class TestEngine {
         document.getElementById("result-incorrect").textContent = this.incorrectChars;
         document.getElementById("xp-amount").textContent        = xpGained;
 
+        // PB comparison
+        const pb = progressManager.data.bestWPM || 0;
+        const diff = wpm - pb;
+        const pbComp = document.getElementById("pb-comparison");
+        if (pb === 0) {
+            pbComp.textContent = "No PB yet. Set your first!";
+        } else if (diff > 0) {
+            pbComp.textContent = `+${diff} WPM above your PB (${pb})`;
+        } else if (diff < 0) {
+            pbComp.textContent = `${Math.abs(diff)} WPM below your PB (${pb})`;
+        } else {
+            pbComp.textContent = `Matched your PB (${pb})!`;
+        }
+
         const badge = document.getElementById("rating-badge");
         if (accuracy >= 95 && wpm >= 40)      { badge.textContent = "Excellent";  badge.className = "rating-badge excellent"; }
         else if (accuracy >= 85 && wpm >= 30) { badge.textContent = "Good";       badge.className = "rating-badge good"; }
