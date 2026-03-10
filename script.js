@@ -124,8 +124,10 @@ function renderDashboardHistoryTable() {
     document.getElementById('best-wpm-display').textContent = bestWPM;
     document.getElementById('avg-accuracy').textContent = Math.round(avgAcc) + '%';
 
-    const { std, percent } = progressManager.getWPMConsistency();
-    document.getElementById('wpm-consistency').textContent = `${percent}% (std: ${std})`;
+    const consistency = progressManager?.getWPMConsistency
+        ? progressManager.getWPMConsistency()
+        : { std: 0, percent: 100 };
+    document.getElementById('wpm-consistency').textContent = `${consistency.percent}% (std: ${consistency.std})`;
 }
 
 function renderWPMChartWithFilter() {
@@ -156,7 +158,18 @@ function renderWPMChartWithFilter() {
     const canvas = document.getElementById('wpm-line-chart');
 
     if (!canvas) return;
-    if (window.wpmLineChart) window.wpmLineChart.destroy();
+
+    // Avoid Chart.js "Canvas is already in use" when other renderers use the same canvas.
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) existingChart.destroy();
+    if (window.wpmLineChart) {
+        try { window.wpmLineChart.destroy(); } catch {}
+        window.wpmLineChart = null;
+    }
+    if (window._wpmChart) {
+        try { window._wpmChart.destroy(); } catch {}
+        window._wpmChart = null;
+    }
 
     window.wpmLineChart = new Chart(canvas.getContext('2d'), {
         type: 'line',
@@ -181,8 +194,6 @@ function renderWPMChartWithFilter() {
         }
     });
 }
-
-document.addEventListener('DOMContentLoaded', () => { renderDashboardHistoryTable(); });
 
 // ============ PROGRESS MANAGER ============
 class ProgressManager {
@@ -1599,7 +1610,17 @@ function renderWPMLineChart() {
     }
     const allEntries = Object.entries(wpmHistory).map(([idx, e]) => ({ ...e, idx: parseInt(idx, 10) })).sort((a, b) => a.idx - b.idx);
     const visible = allEntries.slice(-20);
-    if (window._wpmChart) window._wpmChart.destroy();
+    // Avoid conflicts with other chart renderers on the same canvas.
+    const existingChart = Chart.getChart(canvas);
+    if (existingChart) existingChart.destroy();
+    if (window._wpmChart) {
+        try { window._wpmChart.destroy(); } catch {}
+        window._wpmChart = null;
+    }
+    if (window.wpmLineChart) {
+        try { window.wpmLineChart.destroy(); } catch {}
+        window.wpmLineChart = null;
+    }
     const wpmData = visible.map(e => e.wpm);
     const pb = wpmData.length ? Math.max(...wpmData) : null;
     const pbLine = pb !== null ? Array(wpmData.length).fill(pb) : [];
