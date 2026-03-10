@@ -93,22 +93,23 @@ const _storage = (function () {
   };
 })();
 
-let currentLang = _storage.getItem('typeflow-language') || 'en';
+let _tfCurrentLang = _storage.getItem('typeflow-language') || 'en';
 
 // [BUG-2] Return a shallow copy for 'en' so reference-equality guard in patchLang stays reliable
 function getWordBank() {
-  return EXTRA_WORD_BANKS[currentLang] || baseWords.slice();
+  return EXTRA_WORD_BANKS[_tfCurrentLang] || baseWords.slice();
 }
 
-// [BUG-1] Deferred patch — called from initNewFeatures() after script.js has fully loaded.
-// Running this as an immediate IIFE caused "TestEngine is not defined" because the class
-// hadn't been declared yet. Wrapping in try/finally ensures baseWords is always restored.
+// [BUG-1] Patch runs at DOMContentLoaded using a MutationObserver trick to guarantee
+// it fires after script.js's own DOMContentLoaded (which sets up testEngine).
+// TestEngine class is top-level in script.js so its prototype is available immediately,
+// but we still defer via requestAnimationFrame to be safe.
 let _langPatched = false;
 function patchLang() {
   if (_langPatched) return;
-  // Guard: TestEngine must exist (defined by script.js)
-  if (typeof TestEngine === 'undefined' || typeof TestEngine.prototype.generateText !== 'function') {
-    console.warn('[TypeFlow] patchLang: TestEngine not found — language switching unavailable.');
+  if (typeof TestEngine === 'undefined') {
+    // Should not happen since script.js loads first, but log clearly if it does
+    console.warn('[TypeFlow] patchLang: TestEngine class not found. Ensure script.js loads before new-feature.js.');
     return;
   }
   _langPatched = true;
@@ -116,7 +117,7 @@ function patchLang() {
   TestEngine.prototype.generateText = function () {
     const bank = getWordBank();
     // If English (no custom bank), call original directly
-    if (!EXTRA_WORD_BANKS[currentLang]) return orig.call(this);
+    if (!EXTRA_WORD_BANKS[_tfCurrentLang]) return orig.call(this);
     const saved = baseWords.splice(0);
     baseWords.push(...bank);
     try {
@@ -149,7 +150,7 @@ function buildLanguageSwitcher() {
   function renderBtns() {
     wrap.innerHTML = '';
     Object.entries(LANG_META).forEach(([code, meta]) => {
-      const active = code === currentLang;
+      const active = code === _tfCurrentLang;
       const btn = document.createElement('button');
       btn.title = meta.name;
       btn.textContent = `${meta.flag} ${meta.label}`;
@@ -160,7 +161,7 @@ function buildLanguageSwitcher() {
         color:${active ? '#fff' : 'var(--muted)'};
       `;
       btn.addEventListener('click', () => {
-        currentLang = code;
+        _tfCurrentLang = code;
         _storage.setItem('typeflow-language', code);
         renderBtns();
         if (typeof testEngine !== 'undefined' && !testEngine.isActive) testEngine.loadNewText();
@@ -840,25 +841,20 @@ function patchHelpModal() {
 // This eliminates the "TestEngine not defined" race that occurred when both files
 // registered DOMContentLoaded listeners and ours fired before script.js finished.
 
-function initNewFeaturesPhase1() {
+function initNewFeatures() {
   buildLanguageSwitcher();
   buildCustomMode();
   buildCSVExport();
   buildMobileImprovements();
   patchHelpModal();
-}
-
-function initNewFeaturesPhase2() {
-  patchLang(); // safe now — TestEngine class and testEngine instance both exist
+  // patchLang patches TestEngine.prototype. The class is top-level in script.js
+  // so it's always available here. requestAnimationFrame pushes past any remaining
+  // synchronous setup in script.js's own DOMContentLoaded handler.
+  requestAnimationFrame(patchLang);
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    initNewFeaturesPhase1();
-    setTimeout(initNewFeaturesPhase2, 0);
-  });
+  document.addEventListener('DOMContentLoaded', initNewFeatures);
 } else {
-  // DOM already ready (script loaded after DOMContentLoaded fired)
-  initNewFeaturesPhase1();
-  setTimeout(initNewFeaturesPhase2, 0);
+  initNewFeatures();
 }
