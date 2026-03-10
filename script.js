@@ -123,26 +123,26 @@ function renderDashboardHistoryTable() {
                 datasets: [{ label: 'WPM', data: wpms, borderColor: '#e07a5f', backgroundColor: 'rgba(224,122,95,0.10)', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true }]
             },
             options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: true } }, animation: false, scales: { x: { display: true }, y: { display: true, beginAtZero: true } } }
-        });
-    }
-    const tbody = document.getElementById('dashboard-history-body');
-    if (!tbody) return;
-    let history = {};
-    try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
-    const rows = Object.values(history)
-        .map(e => ({ date: e.date || '', wpm: e.wpm || 0, accuracy: e.accuracy || 0 }))
-        .slice(-10).reverse();
-    if (rows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:10px;">No test history yet.</td></tr>';
-        // Removed stray return statement outside function
-    }
-    tbody.innerHTML = rows.map(r =>
-        `<tr>
-            <td style="padding:6px 8px;">${r.date}</td>
-            <td style="text-align:right;padding:6px 8px;">${r.wpm}</td>
-            <td style="text-align:right;padding:6px 8px;">${r.accuracy}%</td>
-        </tr>`
-    ).join('');
+
+        // Move this block inside the function
+        const tbody = document.getElementById('dashboard-history-body');
+        if (!tbody) return;
+        let history = {};
+        try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
+        const rows = Object.values(history)
+            .map(e => ({ date: e.date || '', wpm: e.wpm || 0, accuracy: e.accuracy || 0 }))
+            .slice(-10).reverse();
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:10px;">No test history yet.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = rows.map(r =>
+            `<tr>
+                <td style="padding:6px 8px;">${r.date}</td>
+                <td style="text-align:right;padding:6px 8px;">${r.wpm}</td>
+                <td style="text-align:right;padding:6px 8px;">${r.accuracy}%</td>
+            </tr>`
+        ).join('');
 
     // Update dashboard metrics
     let historyAll = {};
