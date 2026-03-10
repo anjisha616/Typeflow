@@ -1949,7 +1949,7 @@ function setupGlobalKeyboardShortcuts() {
             if (!lessonModal.classList.contains('hidden')) { lessonModal.classList.add('hidden'); return; }
         }
 
-        if (!isTypingContext && e.key === '?' && !e.ctrlKey && !e.shiftKey) {
+        if (!isTypingContext && e.key === '?' && !e.ctrlKey && !e.altKey && !e.metaKey) {
             const helpModal = document.getElementById('help-modal');
             if (helpModal) helpModal.style.display = helpModal.style.display === 'none' ? 'block' : 'none';
         }
