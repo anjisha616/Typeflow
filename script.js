@@ -206,6 +206,9 @@ class ProgressManager {
             const avg = wpms.reduce((a, b) => a + b, 0) / wpms.length;
             const variance = wpms.reduce((sum, w) => sum + Math.pow(w - avg, 2), 0) / wpms.length;
             const std = Math.sqrt(variance);
+            if (!Number.isFinite(avg) || avg <= 0) {
+                return { std: Math.round(std * 10) / 10, percent: 100 };
+            }
             // Consistency %: 100 - (std/avg * 100), capped between 0-100
             const percent = Math.max(0, Math.min(100, Math.round(100 - (std / avg * 100))));
             return { std: Math.round(std * 10) / 10, percent };
@@ -215,8 +218,15 @@ class ProgressManager {
     loadProgress() {
         const saved = safeLocalStorage.getItem('typeflow-progress');
         if (saved) {
-            this.data = JSON.parse(saved);
+            this.data = safeLocalStorage.parse(saved, null);
+            if (!this.data || typeof this.data !== 'object') {
+                this.data = null;
+            }
         } else {
+            this.data = null;
+        }
+
+        if (!this.data) {
             this.data = {
                 bestWPM: 0, averageAccuracy: 0, totalPracticeTime: 0,
                 completedLessons: [], weakKeys: {}, streakDays: 0,
