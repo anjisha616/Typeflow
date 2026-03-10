@@ -235,7 +235,6 @@ class ProgressManager {
             };
         }
     }
-
     save() { safeLocalStorage.setItem('typeflow-progress', JSON.stringify(this.data)); }
     hasAchievement(id) { return (this.data.achievements || []).includes(id); }
 
