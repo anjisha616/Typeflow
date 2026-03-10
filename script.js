@@ -82,80 +82,105 @@ const safeLocalStorage = {
 
 // ============ DASHBOARD HISTORY TABLE ============
 function renderDashboardHistoryTable() {
-        // Update WPM chart with filter
-        const filterSelect = document.getElementById('wpm-date-filter');
-        if (filterSelect) {
-            filterSelect.onchange = renderWPMChartWithFilter;
-            renderWPMChartWithFilter();
-        }
+    const filterSelect = document.getElementById('wpm-date-filter');
+    if (filterSelect) {
+        filterSelect.onchange = renderWPMChartWithFilter;
+        renderWPMChartWithFilter();
     }
 
-    function renderWPMChartWithFilter() {
-        let history = {};
-        try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
-        const filter = document.getElementById('wpm-date-filter')?.value || 'all';
-        const now = new Date();
-        let filtered = Object.values(history);
-        if (filter === 'week') {
-            const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
-            filtered = filtered.filter(e => {
-                const d = new Date(e.date);
-                return d >= weekAgo && d <= now;
-            });
-        } else if (filter === 'month') {
-            const monthAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
-            filtered = filtered.filter(e => {
-                const d = new Date(e.date);
-                return d >= monthAgo && d <= now;
-            });
-        }
-        // Show last 20 filtered
-        const chartData = filtered.slice(-20);
-        const labels = chartData.map(e => e.date || '');
-        const wpms = chartData.map(e => e.wpm || 0);
-        const canvas = document.getElementById('wpm-line-chart');
-        if (!canvas) return;
-        if (window.wpmLineChart) window.wpmLineChart.destroy();
-        window.wpmLineChart = new Chart(canvas.getContext('2d'), {
-            type: 'line',
-            data: {
-                labels,
-                datasets: [{ label: 'WPM', data: wpms, borderColor: '#e07a5f', backgroundColor: 'rgba(224,122,95,0.10)', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true }]
-            },
-            options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: true } }, animation: false, scales: { x: { display: true }, y: { display: true, beginAtZero: true } } }
+    const tbody = document.getElementById('dashboard-history-body');
+    if (!tbody) return;
 
-        // Move this block inside the function
-        const tbody = document.getElementById('dashboard-history-body');
-        if (!tbody) return;
-        let history = {};
-        try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
-        const rows = Object.values(history)
-            .map(e => ({ date: e.date || '', wpm: e.wpm || 0, accuracy: e.accuracy || 0 }))
-            .slice(-10).reverse();
-        if (rows.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:10px;">No test history yet.</td></tr>';
-            return;
-        }
-        tbody.innerHTML = rows.map(r =>
-            `<tr>
-                <td style="padding:6px 8px;">${r.date}</td>
-                <td style="text-align:right;padding:6px 8px;">${r.wpm}</td>
-                <td style="text-align:right;padding:6px 8px;">${r.accuracy}%</td>
-            </tr>`
-        ).join('');
+    let history = {};
+    try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
 
-    // Update dashboard metrics
+    const rows = Object.values(history)
+        .map(e => ({ date: e.date || '', wpm: e.wpm || 0, accuracy: e.accuracy || 0 }))
+        .slice(-10)
+        .reverse();
+
+    if (rows.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:10px;">No test history yet.</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = rows.map(r =>
+        `<tr>
+            <td style="padding:6px 8px;">${r.date}</td>
+            <td style="text-align:right;padding:6px 8px;">${r.wpm}</td>
+            <td style="text-align:right;padding:6px 8px;">${r.accuracy}%</td>
+        </tr>`
+    ).join('');
+
     let historyAll = {};
     try { historyAll = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { historyAll = {}; }
-    const wpms = Object.values(historyAll).map(e => e.wpm).filter(w => typeof w === 'number' && !isNaN(w));
-    const bestWPM = wpms.length ? Math.max(...wpms) : 0;
-    const avgAcc = Object.values(historyAll).map(e => e.accuracy).filter(a => typeof a === 'number' && !isNaN(a)).reduce((a, b) => a + b, 0) / (Object.values(historyAll).length || 1);
+    const wpmsAll = Object.values(historyAll).map(e => e.wpm).filter(w => typeof w === 'number' && !isNaN(w));
+    const bestWPM = wpmsAll.length ? Math.max(...wpmsAll) : 0;
+    const avgAcc = Object.values(historyAll)
+        .map(e => e.accuracy)
+        .filter(a => typeof a === 'number' && !isNaN(a))
+        .reduce((a, b) => a + b, 0) / (Object.values(historyAll).length || 1);
+
     document.getElementById('best-wpm-display').textContent = bestWPM;
     document.getElementById('avg-accuracy').textContent = Math.round(avgAcc) + '%';
-    // Show WPM consistency
+
     const { std, percent } = progressManager.getWPMConsistency();
     document.getElementById('wpm-consistency').textContent = `${percent}% (std: ${std})`;
+}
 
+function renderWPMChartWithFilter() {
+    let history = {};
+    try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
+
+    const filter = document.getElementById('wpm-date-filter')?.value || 'all';
+    const now = new Date();
+    let filtered = Object.values(history);
+
+    if (filter === 'week') {
+        const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+        filtered = filtered.filter(e => {
+            const d = new Date(e.date);
+            return d >= weekAgo && d <= now;
+        });
+    } else if (filter === 'month') {
+        const monthAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+        filtered = filtered.filter(e => {
+            const d = new Date(e.date);
+            return d >= monthAgo && d <= now;
+        });
+    }
+
+    const chartData = filtered.slice(-20);
+    const labels = chartData.map(e => e.date || '');
+    const wpms = chartData.map(e => e.wpm || 0);
+    const canvas = document.getElementById('wpm-line-chart');
+
+    if (!canvas) return;
+    if (window.wpmLineChart) window.wpmLineChart.destroy();
+
+    window.wpmLineChart = new Chart(canvas.getContext('2d'), {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'WPM',
+                data: wpms,
+                borderColor: '#e07a5f',
+                backgroundColor: 'rgba(224,122,95,0.10)',
+                tension: 0.3,
+                pointRadius: 0,
+                borderWidth: 2,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            animation: false,
+            scales: { x: { display: true }, y: { display: true, beginAtZero: true } }
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', () => { renderDashboardHistoryTable(); });
 
