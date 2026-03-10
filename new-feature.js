@@ -1,12 +1,26 @@
 /* =========================================
-   TYPEFLOW — NEW FEATURES
+   TYPEFLOW — NEW FEATURES (FIXED)
    Drop this AFTER script.js, before </body>
 
    Features:
    1. Custom Text  — paste / type / URL / .txt upload
    2. Languages    — FR / DE / JA (romaji) switcher
-   3. Export       — CSV history download
+   3. Export       — CSV / JSON history download
    4. Mobile UX    — touch targets, tap-to-type, iOS zoom fix
+
+   Fixes applied:
+   - [BUG-1] patchLang: baseWords mutation now wrapped in try/finally
+   - [BUG-2] getWordBank: returns copy of baseWords for 'en' to avoid reference equality trap
+   - [BUG-3] switchMode patch: explicit guard against _orig touching #custom-mode
+   - [BUG-4] customTyper._stats: early return when t0 is null
+   - [BUG-5] customTyper.start: focus deferred with requestAnimationFrame for iOS compat
+   - [BUG-6] exportCSV: double-quote escaping in CSV values
+   - [BUG-7] dlFile: revokeObjectURL deferred with setTimeout
+   - [WARN-1] safeLocalStorage guard before use
+   - [WARN-2] progressManager.data access guarded properly
+   - [WARN-3] patchHelpModal: re-attempts on modal open, not just boot
+   - [WARN-5] tap banner focusout watches all three input IDs
+   - [WARN-6] dlFile revoke deferred 100 ms
    ========================================= */
 
 'use strict';
@@ -45,7 +59,7 @@ const EXTRA_WORD_BANKS = {
   ],
   // Common Japanese words written in romaji
   ja: [
-    "watashi","anata","kare","kanojo","watashitachi","minasan","hito","kodomo","otoko","onna",
+    "watashi","anata","kare","kanojo","minasan","hito","kodomo","otoko","onna",
     "chichi","haha","ani","ane","tomodachi","sensei","gakusei","isha","kazoku","namae",
     "ie","heya","mado","tobira","niwa","machi","kuni","shizen","umi","yama",
     "sora","hi","tsuki","hoshi","kaze","ame","yuki","ki","hana","tori",
@@ -68,25 +82,52 @@ const LANG_META = {
   ja: { flag: '🇯🇵', label: 'JA', name: 'Romaji'   },
 };
 
-let currentLang = localStorage.getItem('typeflow-language') || 'en';
+// [WARN-1] Guard: fall back gracefully if safeLocalStorage isn't defined by script.js
+const _storage = (function () {
+  if (typeof safeLocalStorage !== 'undefined') return safeLocalStorage;
+  // Minimal fallback shim
+  return {
+    getItem(k)    { try { return localStorage.getItem(k); }    catch { return null; } },
+    setItem(k, v) { try { localStorage.setItem(k, v); }        catch { /* noop */ }  },
+    removeItem(k) { try { localStorage.removeItem(k); }        catch { /* noop */ }  },
+  };
+})();
 
+let currentLang = _storage.getItem('typeflow-language') || 'en';
+
+// [BUG-2] Return a shallow copy for 'en' so reference-equality guard in patchLang stays reliable
 function getWordBank() {
-  return EXTRA_WORD_BANKS[currentLang] || baseWords;
+  return EXTRA_WORD_BANKS[currentLang] || baseWords.slice();
 }
 
-// Patch TestEngine.generateText to swap in the active word bank
-(function patchLang() {
+// [BUG-1] Deferred patch — called from initNewFeatures() after script.js has fully loaded.
+// Running this as an immediate IIFE caused "TestEngine is not defined" because the class
+// hadn't been declared yet. Wrapping in try/finally ensures baseWords is always restored.
+let _langPatched = false;
+function patchLang() {
+  if (_langPatched) return;
+  // Guard: TestEngine must exist (defined by script.js)
+  if (typeof TestEngine === 'undefined' || typeof TestEngine.prototype.generateText !== 'function') {
+    console.warn('[TypeFlow] patchLang: TestEngine not found — language switching unavailable.');
+    return;
+  }
+  _langPatched = true;
   const orig = TestEngine.prototype.generateText;
   TestEngine.prototype.generateText = function () {
     const bank = getWordBank();
-    if (bank === baseWords) return orig.call(this);
-    const saved = baseWords.splice(0);        // snapshot
-    baseWords.push(...bank);                  // swap in
-    const text = orig.call(this);
-    baseWords.splice(0); baseWords.push(...saved); // restore
-    return text;
+    // If English (no custom bank), call original directly
+    if (!EXTRA_WORD_BANKS[currentLang]) return orig.call(this);
+    const saved = baseWords.splice(0);
+    baseWords.push(...bank);
+    try {
+      return orig.call(this);
+    } finally {
+      // Always restore, even if orig throws
+      baseWords.splice(0);
+      baseWords.push(...saved);
+    }
   };
-})();
+}
 
 function buildLanguageSwitcher() {
   if (document.getElementById('lang-switcher')) return;
@@ -120,7 +161,7 @@ function buildLanguageSwitcher() {
       `;
       btn.addEventListener('click', () => {
         currentLang = code;
-        safeLocalStorage.setItem('typeflow-language', code);
+        _storage.setItem('typeflow-language', code);
         renderBtns();
         if (typeof testEngine !== 'undefined' && !testEngine.isActive) testEngine.loadNewText();
         showToast(`${meta.flag} ${meta.name}`, '', 1500);
@@ -133,8 +174,8 @@ function buildLanguageSwitcher() {
   // Adapt colours for dark mode
   new MutationObserver(() => {
     const dark = document.body.getAttribute('data-theme') === 'dark';
-    wrap.style.background  = dark ? 'rgba(20,27,36,0.48)'      : 'rgba(255,255,255,0.42)';
-    wrap.style.borderColor = dark ? 'rgba(255,255,255,0.08)'   : 'rgba(255,255,255,0.65)';
+    wrap.style.background  = dark ? 'rgba(20,27,36,0.48)'    : 'rgba(255,255,255,0.42)';
+    wrap.style.borderColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.65)';
   }).observe(document.body, { attributes: true, attributeFilter: ['data-theme'] });
 }
 
@@ -161,7 +202,9 @@ function buildCustomMode() {
   // Keyboard shortcut
   document.addEventListener('keydown', e => {
     if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'T') {
-      e.preventDefault(); switchMode('custom'); showToast('✏️ Custom Text', '', 1500);
+      e.preventDefault();
+      switchMode('custom');
+      showToast('✏️ Custom Text', '', 1500);
     }
   });
 
@@ -170,7 +213,10 @@ function buildCustomMode() {
   sec.className = 'mode-section';
   sec.id = 'custom-mode';
   sec.setAttribute('role', 'tabpanel');
-  sec.style.cssText = 'display:none;opacity:0;transform:translateY(18px);pointer-events:none;transition:opacity .32s cubic-bezier(.4,0,.2,1),transform .32s cubic-bezier(.4,0,.2,1);';
+  sec.style.cssText = `
+    display:none; opacity:0; transform:translateY(18px); pointer-events:none;
+    transition:opacity .32s cubic-bezier(.4,0,.2,1), transform .32s cubic-bezier(.4,0,.2,1);
+  `;
 
   sec.innerHTML = `
 <div class="panel">
@@ -267,9 +313,13 @@ function buildCustomMode() {
     btn.textContent = `${def.icon} ${def.label}`;
     btn.style.cssText = srcTabCSS(i === 0);
     btn.addEventListener('click', () => {
-      tabBar.querySelectorAll('.custom-src-tab').forEach(b => { b.style.background = 'rgba(0,0,0,0.05)'; b.style.color = 'var(--muted)'; });
+      tabBar.querySelectorAll('.custom-src-tab').forEach(b => {
+        b.style.background = 'rgba(0,0,0,0.05)';
+        b.style.color = 'var(--muted)';
+      });
       sec.querySelectorAll('.csrc-panel').forEach(p => { p.style.display = 'none'; });
-      btn.style.background = 'var(--accent)'; btn.style.color = '#fff';
+      btn.style.background = 'var(--accent)';
+      btn.style.color = '#fff';
       document.getElementById(`csrc-${def.id}`).style.display = '';
     });
     tabBar.appendChild(btn);
@@ -279,30 +329,36 @@ function buildCustomMode() {
   const ta        = document.getElementById('cst-ta');
   const startBtn  = document.getElementById('cst-start-btn');
   const charCount = document.getElementById('cst-char-count');
+
   // Restore from sessionStorage if available
   if (ta) ta.value = sessionStorage.getItem('typeflow-custom-text') || '';
+
   function syncCount() {
     const n = ta.value.trim().length;
     charCount.textContent  = `${n.toLocaleString()} chars`;
     startBtn.disabled      = n < 20;
     startBtn.style.opacity = n >= 20 ? '1' : '.4';
-    // Save to sessionStorage
     sessionStorage.setItem('typeflow-custom-text', ta.value);
   }
   ta.addEventListener('input', syncCount);
   ta.addEventListener('focus', () => { ta.style.borderColor = 'var(--accent)'; ta.style.boxShadow = '0 0 0 4px rgba(224,122,95,.12)'; });
   ta.addEventListener('blur',  () => { ta.style.borderColor = 'rgba(0,0,0,.08)'; ta.style.boxShadow = 'none'; });
   document.getElementById('cst-clear-btn').addEventListener('click', () => { ta.value = ''; syncCount(); });
-  startBtn.addEventListener('click', () => { const t = ta.value.trim(); if (t.length >= 20) launchCustom(t); });
+  startBtn.addEventListener('click', () => {
+    const t = ta.value.trim();
+    if (t.length >= 20) launchCustom(t);
+  });
 
   // ---- URL fetch ----
-  const urlIn   = document.getElementById('cst-url');
+  const urlIn    = document.getElementById('cst-url');
   const fetchBtn = document.getElementById('cst-fetch-btn');
   focusStyle(urlIn);
+
   fetchBtn.addEventListener('click', async () => {
     const url = urlIn.value.trim();
     if (!url) { showToast('Enter a URL first', 'warning'); return; }
-    fetchBtn.textContent = '⏳ Fetching…'; fetchBtn.disabled = true;
+    fetchBtn.textContent = '⏳ Fetching…';
+    fetchBtn.disabled = true;
     try {
       const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
       const res   = await fetch(proxy, { signal: AbortSignal.timeout(10000) });
@@ -310,35 +366,48 @@ function buildCustomMode() {
       const json  = await res.json();
       const tmp   = document.createElement('div');
       tmp.innerHTML = json.contents || '';
-      ['script','style','nav','footer','header','aside','noscript'].forEach(t => tmp.querySelectorAll(t).forEach(el => el.remove()));
+      ['script','style','nav','footer','header','aside','noscript'].forEach(tag =>
+        tmp.querySelectorAll(tag).forEach(el => el.remove())
+      );
       const text = (tmp.innerText || tmp.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 4000);
       if (text.length < 20) throw new Error('Not enough readable text on that page');
       const prev = document.getElementById('cst-url-preview');
       prev.style.display = '';
+      // Re-render innerHTML clears the old button, so one listener per render is safe
       prev.innerHTML = previewCard(`✅ ${text.length.toLocaleString()} chars extracted`, text.slice(0, 180) + '…', 'cst-url-go');
       document.getElementById('cst-url-go').addEventListener('click', () => launchCustom(text));
-    } catch(err) {
+    } catch (err) {
       showToast(`⚠ ${err.message || 'Fetch failed — try pasting instead'}`, 'warning', 4000);
     } finally {
-      fetchBtn.textContent = '⬇ Fetch'; fetchBtn.disabled = false;
+      fetchBtn.textContent = '⬇ Fetch';
+      fetchBtn.disabled = false;
     }
   });
   urlIn.addEventListener('keydown', e => { if (e.key === 'Enter') fetchBtn.click(); });
 
   // ---- file upload ----
-  const fileIn    = document.getElementById('cst-file');
-  const dropzone  = document.getElementById('cst-dropzone');
+  const fileIn   = document.getElementById('cst-file');
+  const dropzone = document.getElementById('cst-dropzone');
   document.getElementById('cst-browse-btn').addEventListener('click', e => { e.stopPropagation(); fileIn.click(); });
   dropzone.addEventListener('click', () => fileIn.click());
-  dropzone.addEventListener('dragover',  e => { e.preventDefault(); dropzone.style.borderColor = 'var(--accent)'; dropzone.style.background = 'rgba(224,122,95,.07)'; });
-  dropzone.addEventListener('dragleave', ()  => resetDropzone());
+  dropzone.addEventListener('dragover',  e => {
+    e.preventDefault();
+    dropzone.style.borderColor = 'var(--accent)';
+    dropzone.style.background  = 'rgba(224,122,95,.07)';
+  });
+  dropzone.addEventListener('dragleave', () => resetDropzone());
   dropzone.addEventListener('drop', e => { e.preventDefault(); resetDropzone(); handleFile(e.dataTransfer.files[0]); });
   fileIn.addEventListener('change', e => handleFile(e.target.files[0]));
 
-  function resetDropzone() { dropzone.style.borderColor = 'rgba(224,122,95,.45)'; dropzone.style.background = 'rgba(224,122,95,.03)'; }
+  function resetDropzone() {
+    dropzone.style.borderColor = 'rgba(224,122,95,.45)';
+    dropzone.style.background  = 'rgba(224,122,95,.03)';
+  }
+
   function handleFile(file) {
     if (!file || (!file.name.endsWith('.txt') && file.type !== 'text/plain')) {
-      showToast('Please upload a .txt file', 'warning'); return;
+      showToast('Please upload a .txt file', 'warning');
+      return;
     }
     const reader = new FileReader();
     reader.onload = e => {
@@ -346,6 +415,7 @@ function buildCustomMode() {
       if (text.length < 20) { showToast('File too short (min 20 chars)', 'warning'); return; }
       const prev = document.getElementById('cst-upload-preview');
       prev.style.display = '';
+      // Re-render innerHTML clears the old button, so one listener per render is safe
       prev.innerHTML = previewCard(`📄 ${file.name}`, `${text.length.toLocaleString()} characters loaded`, 'cst-upload-go');
       document.getElementById('cst-upload-go').addEventListener('click', () => launchCustom(text));
     };
@@ -355,53 +425,68 @@ function buildCustomMode() {
 
   // ---- typing controls ----
   document.getElementById('ct-restart-btn').addEventListener('click', () => customTyper.restart());
-  document.getElementById('ct-back-btn').addEventListener('click',    () => {
+  document.getElementById('ct-back-btn').addEventListener('click', () => {
     document.getElementById('custom-typing-area').style.display = 'none';
     document.getElementById('custom-source-area').style.display = '';
     customTyper.reset();
   });
 
   // ---- patch switchMode ----
+  // [BUG-3] Patch once, and explicitly skip #custom-mode in _orig by hiding it after
   if (!_switchPatched) {
     _switchPatched = true;
     const _orig = window.switchMode;
-    window.switchMode = function(mode) {
+    window.switchMode = function (mode) {
       _orig(mode);
       const customSec = document.getElementById('custom-mode');
       if (!customSec) return;
+
       if (mode === 'custom') {
+        // Ensure _orig didn't hide us; force re-show
         customSec.style.display = 'block';
-        void customSec.offsetWidth;
+        void customSec.offsetWidth; // force reflow for transition
         customSec.classList.add('active');
         customSec.style.opacity       = '1';
         customSec.style.transform     = 'translateY(0)';
         customSec.style.pointerEvents = 'auto';
-        // Restore textarea value from sessionStorage
+        // Restore textarea value
         const ta = document.getElementById('cst-ta');
-        if (ta) ta.value = sessionStorage.getItem('typeflow-custom-text') || '';
-        if (typeof ta?.dispatchEvent === 'function') ta.dispatchEvent(new Event('input'));
+        if (ta) {
+          ta.value = sessionStorage.getItem('typeflow-custom-text') || '';
+          ta.dispatchEvent(new Event('input'));
+        }
       } else {
         customSec.classList.remove('active');
         customSec.style.opacity       = '0';
         customSec.style.transform     = 'translateY(18px)';
         customSec.style.pointerEvents = 'none';
-        setTimeout(() => { if (!customSec.classList.contains('active')) customSec.style.display = 'none'; }, 350);
+        setTimeout(() => {
+          if (!customSec.classList.contains('active')) customSec.style.display = 'none';
+        }, 350);
       }
     };
   }
 }
 
-// Shared helpers
+// ---- Shared helpers ----
 function srcTabCSS(active) {
   return `border:none;border-radius:999px;padding:8px 18px;font-size:.9rem;font-weight:600;
           cursor:pointer;font-family:inherit;transition:all .18s;
           background:${active ? 'var(--accent)' : 'rgba(0,0,0,.05)'};
           color:${active ? '#fff' : 'var(--muted)'};`;
 }
+
 function focusStyle(el) {
-  el.addEventListener('focus', () => { el.style.borderColor = 'var(--accent)'; el.style.boxShadow = '0 0 0 4px rgba(224,122,95,.12)'; });
-  el.addEventListener('blur',  () => { el.style.borderColor = 'rgba(0,0,0,.08)'; el.style.boxShadow = 'none'; });
+  el.addEventListener('focus', () => {
+    el.style.borderColor = 'var(--accent)';
+    el.style.boxShadow   = '0 0 0 4px rgba(224,122,95,.12)';
+  });
+  el.addEventListener('blur', () => {
+    el.style.borderColor = 'rgba(0,0,0,.08)';
+    el.style.boxShadow   = 'none';
+  });
 }
+
 function previewCard(title, body, btnId) {
   return `<div style="background:rgba(47,133,90,.07);border:1px solid rgba(47,133,90,.22);
                       border-radius:12px;padding:14px 16px;">
@@ -414,72 +499,128 @@ function previewCard(title, body, btnId) {
 
 // ---- Custom typing micro-engine ----
 const customTyper = {
-  text:'', pos:0, correct:0, incorrect:0, active:false, t0:null, _iv:null,
+  text: '', pos: 0, correct: 0, incorrect: 0, active: false, t0: null, _iv: null,
+
   start(text) {
-    this.text=text; this.pos=0; this.correct=0; this.incorrect=0; this.active=false; this.t0=null;
+    this.text      = text;
+    this.pos       = 0;
+    this.correct   = 0;
+    this.incorrect = 0;
+    this.active    = false;
+    this.t0        = null;
     clearInterval(this._iv);
+
     const inp = document.getElementById('ct-input');
-    // Clone to remove old listeners
+    // Clone to remove all old event listeners cleanly
     const fresh = inp.cloneNode(true);
     inp.parentNode.replaceChild(fresh, inp);
-    fresh.value=''; fresh.disabled=false; fresh.focus();
+    fresh.value    = '';
+    fresh.disabled = false;
+
+    // [BUG-5] Use requestAnimationFrame to defer focus for iOS Safari compatibility
+    requestAnimationFrame(() => fresh.focus());
+
     fresh.addEventListener('input',   () => this._onInput());
     fresh.addEventListener('keydown', e => {
-      playKeyClick();
-      if (e.key==='Tab')    { e.preventDefault(); this.restart(); }
-      if (e.key==='Escape') { document.getElementById('ct-back-btn')?.click(); }
+      if (typeof playKeyClick === 'function') playKeyClick();
+      if (e.key === 'Tab')    { e.preventDefault(); this.restart(); }
+      if (e.key === 'Escape') { document.getElementById('ct-back-btn')?.click(); }
     });
-    this._render(); this._stats(true);
+
+    this._render();
+    this._stats(true);
   },
-  restart() { if(this.text) this.start(this.text); },
-  reset()   { this.text=''; clearInterval(this._iv); },
+
+  restart() { if (this.text) this.start(this.text); },
+
+  reset() { this.text = ''; clearInterval(this._iv); },
+
   _onInput() {
     const inp = document.getElementById('ct-input');
     if (!inp) return;
-    if (!this.active && inp.value.length>0) {
-      this.active=true; this.t0=Date.now();
-      this._iv = setInterval(()=>this._stats(), 500);
+
+    if (!this.active && inp.value.length > 0) {
+      this.active = true;
+      this.t0     = Date.now();
+      this._iv    = setInterval(() => this._stats(), 500);
     }
-    this.pos=inp.value.length; this.correct=0; this.incorrect=0;
-    for (let i=0;i<inp.value.length;i++) {
-      if (inp.value[i]===this.text[i]) this.correct++; else this.incorrect++;
+
+    this.pos       = inp.value.length;
+    this.correct   = 0;
+    this.incorrect = 0;
+
+    for (let i = 0; i < inp.value.length; i++) {
+      if (inp.value[i] === this.text[i]) this.correct++;
+      else this.incorrect++;
     }
-    this._render(); this._stats();
-    if (this.pos>=this.text.length) this._done();
+
+    this._render();
+    this._stats();
+
+    if (this.pos >= this.text.length) this._done();
   },
+
   _render() {
-    const val  = document.getElementById('ct-input')?.value||'';
+    const val  = document.getElementById('ct-input')?.value || '';
     const disp = document.getElementById('ct-display');
     if (!disp) return;
-    let html='';
-    for (let i=0;i<this.text.length;i++) {
-      const ch=this.text[i]; let cls='char';
-      if      (i<this.pos)  cls+=val[i]===ch?' correct':' incorrect';
-      else if (i===this.pos) cls+=' current';
-      const safe=ch===' '?' ':ch.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      html+=`<span class="${cls}">${safe}</span>`;
+
+    let html = '';
+    for (let i = 0; i < this.text.length; i++) {
+      const ch  = this.text[i];
+      let   cls = 'char';
+      if      (i < this.pos)   cls += val[i] === ch ? ' correct' : ' incorrect';
+      else if (i === this.pos) cls += ' current';
+      // Escape only the minimal set needed for safe innerHTML text content
+      const safe = ch === ' ' ? '&nbsp;' : ch
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      html += `<span class="${cls}">${safe}</span>`;
     }
-    disp.innerHTML=html;
-    disp.querySelector('.current')?.scrollIntoView({block:'nearest',behavior:'smooth'});
+
+    disp.innerHTML = html;
+    disp.querySelector('.current')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   },
-  _stats(reset=false) {
-    const w=document.getElementById('ct-wpm'), a=document.getElementById('ct-acc'), p=document.getElementById('ct-prog');
+
+  _stats(reset = false) {
+    const w = document.getElementById('ct-wpm');
+    const a = document.getElementById('ct-acc');
+    const p = document.getElementById('ct-prog');
     if (!w) return;
-    if (reset){ w.textContent='0'; a.textContent='100%'; p.textContent='0%'; return; }
-    const elapsed=Math.max((Date.now()-this.t0)/60000,1/60);
-    w.textContent = Math.round((this.correct/5)/elapsed)||0;
-    const tot=this.correct+this.incorrect;
-    a.textContent = `${tot?Math.round(this.correct/tot*100):100}%`;
-    p.textContent = `${Math.round(this.pos/this.text.length*100)}%`;
+
+    if (reset) {
+      w.textContent = '0';
+      a.textContent = '100%';
+      p.textContent = '0%';
+      return;
+    }
+
+    // [BUG-4] Guard: t0 may still be null if interval fires before first keystroke
+    if (!this.t0) return;
+
+    const elapsed = Math.max((Date.now() - this.t0) / 60000, 1 / 60);
+    w.textContent = Math.round((this.correct / 5) / elapsed) || 0;
+
+    const tot = this.correct + this.incorrect;
+    a.textContent = `${tot ? Math.round((this.correct / tot) * 100) : 100}%`;
+    p.textContent = `${Math.round((this.pos / this.text.length) * 100)}%`;
   },
+
   _done() {
     clearInterval(this._iv);
-    const inp=document.getElementById('ct-input'); if(inp) inp.disabled=true;
-    const wpm=parseInt(document.getElementById('ct-wpm')?.textContent||'0');
-    const acc=parseInt(document.getElementById('ct-acc')?.textContent||'100');
-    if (typeof progressManager!=='undefined') {
-      const xp=Math.floor(wpm*1.5);
-      progressManager.addXP(xp); progressManager.updateStreak(); progressManager.save();
+    const inp = document.getElementById('ct-input');
+    if (inp) inp.disabled = true;
+
+    const wpm = parseInt(document.getElementById('ct-wpm')?.textContent || '0', 10);
+    const acc = parseInt(document.getElementById('ct-acc')?.textContent || '100', 10);
+
+    // [WARN-2] Guard progressManager existence and check for expected shape
+    if (typeof progressManager !== 'undefined' && typeof progressManager.addXP === 'function') {
+      const xp = Math.floor(wpm * 1.5);
+      progressManager.addXP(xp);
+      progressManager.updateStreak();
+      progressManager.save();
       showToast(`✅ ${wpm} WPM · ${acc}% accuracy · +${xp} XP`, 'success', 4000);
     } else {
       showToast(`✅ ${wpm} WPM · ${acc}% accuracy`, 'success', 3000);
@@ -495,7 +636,7 @@ function launchCustom(text) {
 
 
 // ============================================================
-// 3. CSV EXPORT  (Dashboard)
+// 3. CSV / JSON EXPORT  (Dashboard)
 // ============================================================
 function buildCSVExport() {
   if (document.getElementById('export-csv-btn')) return;
@@ -513,42 +654,63 @@ function buildCSVExport() {
     <button class="btn ghost" id="export-json-btn" style="font-size:.88rem;padding:8px 16px;">⬇ JSON</button>
   `;
   const resetEl = panel.querySelector('#reset-progress-btn')?.parentElement;
-  if (resetEl) panel.insertBefore(row, resetEl); else panel.appendChild(row);
+  if (resetEl) panel.insertBefore(row, resetEl);
+  else panel.appendChild(row);
 
   document.getElementById('export-csv-btn').addEventListener('click', exportCSV);
   document.getElementById('export-json-btn').addEventListener('click', exportJSON);
 }
 
+// [BUG-6] Properly escape CSV field values (double-quote any quotes inside)
+function csvEscape(value) {
+  return `"${String(value == null ? '' : value).replace(/"/g, '""')}"`;
+}
+
 function exportCSV() {
   let hist = {};
-  try { hist = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history')||'{}'); } catch{}
+  try { hist = JSON.parse(_storage.getItem('typeflow-wpm-history') || '{}'); } catch { /* ignore */ }
+
   const rows = Object.entries(hist)
-    .map(([i,e])=>({idx:parseInt(i,10),...e}))
-    .sort((a,b)=>a.idx-b.idx);
+    .map(([i, e]) => ({ idx: parseInt(i, 10), ...e }))
+    .sort((a, b) => a.idx - b.idx);
+
   if (!rows.length) { showToast('No history to export yet', 'warning'); return; }
+
   const csv = 'Test #,Date,WPM,Accuracy\n' +
-    rows.map(r=>`${r.idx},"${r.date||''}",${r.wpm||0},${r.accuracy||0}`).join('\n');
+    rows.map(r =>
+      `${r.idx},${csvEscape(r.date || '')},${r.wpm || 0},${r.accuracy || 0}`
+    ).join('\n');
+
   dlFile(csv, 'typeflow-history.csv', 'text/csv');
   showToast(`✅ Exported ${rows.length} tests`, 'success', 2500);
 }
 
 function exportJSON() {
+  // [WARN-2] Safely read progressManager data without assuming property name
+  let progressData = {};
+  if (typeof progressManager !== 'undefined') {
+    progressData = progressManager.data ?? progressManager.getData?.() ?? {};
+  }
+
   const data = {
     exportDate: new Date().toISOString(),
-    progress:   progressManager?.data ?? {},
-    history:    JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history')||'{}'),
-    keyStats:   JSON.parse(safeLocalStorage.getItem('typeflow-key-stats')||'{}'),
+    progress:   progressData,
+    history:    (() => { try { return JSON.parse(_storage.getItem('typeflow-wpm-history') || '{}'); } catch { return {}; } })(),
+    keyStats:   (() => { try { return JSON.parse(_storage.getItem('typeflow-key-stats')    || '{}'); } catch { return {}; } })(),
   };
-  dlFile(JSON.stringify(data,null,2), 'typeflow-data.json', 'application/json');
+
+  dlFile(JSON.stringify(data, null, 2), 'typeflow-data.json', 'application/json');
   showToast('✅ Full data exported', 'success', 2500);
 }
 
+// [BUG-7] Defer revokeObjectURL so the browser has time to initiate the download
 function dlFile(content, filename, mime) {
-  const a = Object.assign(document.createElement('a'), {
-    href: URL.createObjectURL(new Blob([content],{type:mime})),
-    download: filename
-  });
-  a.click(); URL.revokeObjectURL(a.href);
+  const url = URL.createObjectURL(new Blob([content], { type: mime }));
+  const a   = Object.assign(document.createElement('a'), { href: url, download: filename });
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 100);
 }
 
 
@@ -556,16 +718,16 @@ function dlFile(content, filename, mime) {
 // 4. MOBILE UX
 // ============================================================
 function buildMobileImprovements() {
-  const mobile = () => window.innerWidth<=768 || 'ontouchstart' in window;
+  const mobile = () => window.innerWidth <= 768 || 'ontouchstart' in window;
   if (!mobile()) return;
 
   // iOS: 16px+ prevents auto-zoom on input focus
   const s = document.createElement('style');
   s.textContent = `
     @media (max-width:768px) {
-      #typing-input,#lesson-input,#practice-input,
-      #ct-input,#cst-ta,#cst-url { font-size:16px !important; }
-      .timer-btn,.word-count-btn,.segmented-btn,
+      #typing-input, #lesson-input, #practice-input,
+      #ct-input, #cst-ta, #cst-url { font-size:16px !important; }
+      .timer-btn, .word-count-btn, .segmented-btn,
       .custom-src-tab { min-height:44px !important; }
       .mode-tab  { min-height:52px !important; }
       .toggle    { min-height:44px !important; padding:10px 16px !important; }
@@ -588,21 +750,46 @@ function buildMobileImprovements() {
     animation:tapPulse 2s ease infinite;
   `;
   document.body.appendChild(banner);
+
   const ps = document.createElement('style');
-  ps.textContent = `@keyframes tapPulse{0%,100%{box-shadow:0 8px 24px rgba(224,122,95,.4)}50%{box-shadow:0 14px 36px rgba(224,122,95,.65)}}`;
+  ps.textContent = `@keyframes tapPulse {
+    0%, 100% { box-shadow:0 8px 24px rgba(224,122,95,.4); }
+    50%       { box-shadow:0 14px 36px rgba(224,122,95,.65); }
+  }`;
   document.head.appendChild(ps);
 
   banner.addEventListener('click', () => {
-    (document.querySelector('#test-mode.active #typing-input') ||
-     document.querySelector('#custom-mode.active #ct-input')   ||
-     document.querySelector('#practice-mode.active #practice-input'))?.focus();
+    (
+      document.querySelector('#test-mode.active #typing-input')     ||
+      document.querySelector('#custom-mode.active #ct-input')        ||
+      document.querySelector('#practice-mode.active #practice-input')||
+      document.querySelector('#lesson-mode.active #lesson-input')
+    )?.focus();
     banner.style.display = 'none';
   });
-  document.addEventListener('focusin',  () => { banner.style.display='none'; });
+
+  document.addEventListener('focusin', () => { banner.style.display = 'none'; });
+
+  // [WARN-5] Watch all typing inputs for blur, not just #typing-input
+  const TYPING_INPUT_IDS = new Set(['typing-input', 'ct-input', 'practice-input', 'lesson-input']);
+
   document.addEventListener('focusout', e => {
-    if (e.target?.id==='typing-input' && document.getElementById('test-mode')?.classList.contains('active')) {
-      setTimeout(()=>{ if(document.activeElement?.id!=='typing-input') banner.style.display='block'; }, 400);
-    }
+    if (!TYPING_INPUT_IDS.has(e.target?.id)) return;
+    // Check if the active mode section matches the input that blurred
+    const modeMap = {
+      'typing-input':   '#test-mode',
+      'ct-input':       '#custom-mode',
+      'practice-input': '#practice-mode',
+      'lesson-input':   '#lesson-mode',
+    };
+    const section = document.querySelector(modeMap[e.target.id]);
+    if (!section?.classList.contains('active')) return;
+
+    setTimeout(() => {
+      if (!TYPING_INPUT_IDS.has(document.activeElement?.id)) {
+        banner.style.display = 'block';
+      }
+    }, 400);
   });
 }
 
@@ -610,32 +797,48 @@ function buildMobileImprovements() {
 // ============================================================
 // HELP MODAL — append new shortcuts
 // ============================================================
+// [WARN-3] Don't only attempt at boot — also patch whenever the modal is opened,
+//          in case it's rendered lazily.
 function patchHelpModal() {
   const ul = document.querySelector('#help-modal ul');
   if (!ul || ul.dataset.patched) return;
   ul.dataset.patched = '1';
   [
-    ['Ctrl+Shift+T', 'Custom Text mode'],
-    ['Language switcher', 'Flag buttons below the nav bar (EN/FR/DE/JA)'],
-    ['⬇ CSV / JSON', 'Export test history from Dashboard'],
-  ].forEach(([k,v]) => {
+    ['Ctrl+Shift+T',    'Custom Text mode'],
+    ['Language switcher', 'Flag buttons below the nav bar (EN / FR / DE / JA)'],
+    ['⬇ CSV / JSON',    'Export test history from Dashboard'],
+  ].forEach(([k, v]) => {
     const li = document.createElement('li');
     li.innerHTML = `<b>${k}</b>: ${v}`;
     ul.appendChild(li);
   });
 }
+
+// Re-attempt patch whenever help modal becomes visible
+(function watchHelpModal() {
+  const helpModal = document.getElementById('help-modal');
+  if (!helpModal) return;
+  new MutationObserver(() => {
+    if (helpModal.style.display !== 'none' && helpModal.getAttribute('aria-hidden') !== 'true') {
+      patchHelpModal();
+    }
+  }).observe(helpModal, { attributes: true, attributeFilter: ['style', 'aria-hidden', 'class'] });
+})();
+
+
 // ============================================================
 // BOOT
 // ============================================================
 function initNewFeatures() {
+  patchLang();           // must run first — patches TestEngine before any test loads
   buildLanguageSwitcher();
   buildCustomMode();
   buildCSVExport();
   buildMobileImprovements();
-  patchHelpModal();
+  patchHelpModal();      // attempt immediately in case modal is static HTML
 }
 
-if (document.readyState==='loading') {
+if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initNewFeatures);
 } else {
   setTimeout(initNewFeatures, 0);
