@@ -68,7 +68,7 @@ const LANG_META = {
   ja: { flag: '🇯🇵', label: 'JA', name: 'Romaji'   },
 };
 
-let currentLang = safeLocalStorage.getItem('typeflow-language') || 'en';
+let currentLang = localStorage.getItem('typeflow-language') || 'en';
 
 function getWordBank() {
   return EXTRA_WORD_BANKS[currentLang] || baseWords;
