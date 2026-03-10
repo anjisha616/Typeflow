@@ -1230,82 +1230,83 @@ class LessonEngine {
             clearLessonKeyHighlight();
         }
     // Keyboard highlight helpers for lessons
-    function highlightLessonKey(char) {
-        const visual = document.getElementById("lesson-keyboard-visual");
-        if (!visual) return;
-        // Normalize char for spacebar
-        let key = char;
-        if (key === " ") key = " ";
-        key = key.toLowerCase();
-        // Remove previous highlight
-        clearLessonKeyHighlight();
-        // Highlight matching key
-        const el = visual.querySelector(`.key[data-key='${key}']`);
-        if (el) el.classList.add("active-key");
-    }
 
-    function clearLessonKeyHighlight() {
-        const visual = document.getElementById("lesson-keyboard-visual");
-        if (!visual) return;
-        visual.querySelectorAll(".key.active-key").forEach(el => el.classList.remove("active-key"));
-    }
-    }
 
-    handleTyping() {
-        if (!this.isActive && this.input.value.length > 0) { this.isActive = true; this.startTime = Date.now(); }
-        this.currentPosition = this.input.value.length;
-        if (this.currentLesson && !progressManager.data.completedLessons.includes(this.currentLesson.id)) {
-            const percent = Math.round((this.currentPosition / this.currentText.length) * 100);
-            safeLocalStorage.setItem(`lesson-progress-${this.currentLesson.id}`, percent);
+    function renderDashboardHistoryTable() {
+        // Update WPM chart with filter
+        const filterSelect = document.getElementById('wpm-date-filter');
+        if (filterSelect) {
+            filterSelect.onchange = renderWPMChartWithFilter;
+            renderWPMChartWithFilter();
         }
-        if (this.currentPosition >= this.currentText.length) { this.completeLesson(); return; }
-        this.recalculateFromInput(); this.updateStats(); this.displayText();
-    }
 
-    recalculateFromInput() {
-        const typedText = this.input.value; this.correctChars = 0; this.incorrectChars = 0;
-        for (let i = 0; i < typedText.length; i++) {
-            if (typedText[i] === this.currentText[i]) this.correctChars++; else this.incorrectChars++;
+        // Dashboard history table
+        const tbody = document.getElementById('dashboard-history-body');
+        if (!tbody) return;
+        let history = {};
+        try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
+        const rows = Object.values(history)
+            .map(e => ({ date: e.date || '', wpm: e.wpm || 0, accuracy: e.accuracy || 0 }))
+            .slice(-10).reverse();
+        if (rows.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:10px;">No test history yet.</td></tr>';
+            return;
         }
+        tbody.innerHTML = rows.map(r =>
+            `<tr>
+                <td style="padding:6px 8px;">${r.date}</td>
+                <td style="text-align:right;padding:6px 8px;">${r.wpm}</td>
+                <td style="text-align:right;padding:6px 8px;">${r.accuracy}%</td>
+            </tr>`
+        ).join('');
+
+        // Update dashboard metrics
+        let historyAll = {};
+        try { historyAll = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { historyAll = {}; }
+        const wpmsAll = Object.values(historyAll).map(e => e.wpm).filter(w => typeof w === 'number' && !isNaN(w));
+        const bestWPM = wpmsAll.length ? Math.max(...wpmsAll) : 0;
+        const avgAcc = Object.values(historyAll).map(e => e.accuracy).filter(a => typeof a === 'number' && !isNaN(a)).reduce((a, b) => a + b, 0) / (Object.values(historyAll).length || 1);
+        document.getElementById('best-wpm-display').textContent = bestWPM;
+        document.getElementById('avg-accuracy').textContent = Math.round(avgAcc) + '%';
+        // Show WPM consistency
+        const { std, percent } = progressManager.getWPMConsistency();
+        document.getElementById('wpm-consistency').textContent = `${percent}% (std: ${std})`;
     }
 
-    updateStats(reset = false) {
-        if (reset) { this.wpmDisplay.textContent = "0"; this.accuracyDisplay.textContent = "100%"; this.progressDisplay.textContent = "0%"; return; }
-        if (this.startTime) {
-            const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1/60);
-            this.wpmDisplay.textContent = Math.round((this.correctChars / 5) / elapsed) || 0;
+    function renderWPMChartWithFilter() {
+        let history = {};
+        try { history = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { history = {}; }
+        const filter = document.getElementById('wpm-date-filter')?.value || 'all';
+        const now = new Date();
+        let filtered = Object.values(history);
+        if (filter === 'week') {
+            const weekAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
+            filtered = filtered.filter(e => {
+                const d = new Date(e.date);
+                return d >= weekAgo && d <= now;
+            });
+        } else if (filter === 'month') {
+            const monthAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29);
+            filtered = filtered.filter(e => {
+                const d = new Date(e.date);
+                return d >= monthAgo && d <= now;
+            });
         }
-        const total = this.correctChars + this.incorrectChars;
-        this.accuracyDisplay.textContent = `${total > 0 ? Math.round((this.correctChars / total) * 100) : 100}%`;
-        this.progressDisplay.textContent = `${Math.round((this.currentPosition / this.currentText.length) * 100)}%`;
-    }
-
-    // ============ FIX 1: STREAK BUG — updateStreak() called on lesson pass ============
-    completeLesson() {
-        this.isActive = false; this.input.disabled = true;
-        const wpm      = parseInt(this.wpmDisplay.textContent);
-        const accuracy = parseInt(this.accuracyDisplay.textContent);
-        const duration = Math.floor((Date.now() - this.startTime) / 1000);
-        if (this.currentLesson) safeLocalStorage.removeItem(`lesson-progress-${this.currentLesson.id}`);
-        if (accuracy >= this.currentLesson.minAccuracy && wpm >= this.currentLesson.minWPM) {
-            progressManager.completeLesson(this.currentLesson.id);
-            progressManager.updateStreak(); // FIX 1: lessons now count toward streak
-            this.showLessonComplete(wpm, accuracy, duration, this.currentLesson.xpReward);
-            if ((progressManager.data.completedLessons || []).length === LESSON_DATA.length) progressManager.unlockAchievement('all-lessons');
-            renderLessons();
-        } else {
-            this.showLessonFail(wpm, accuracy, duration, this.currentLesson.minAccuracy, this.currentLesson.minWPM);
-        }
-    }
-
-    // FIX: single clean definition of showLessonComplete (was duplicated/broken before)
-    showLessonComplete(wpm, accuracy, duration, xp) {
-        const modal = document.getElementById("lesson-complete-modal");
-        modal.classList.remove("hidden");
-        document.getElementById("lesson-result-wpm").textContent      = wpm + " WPM";
-        document.getElementById("lesson-result-accuracy").textContent = accuracy + "%";
-        document.getElementById("lesson-result-time").textContent     = duration + "s";
-        document.getElementById("lesson-xp-amount").textContent       = xp;
+        // Show last 20 filtered
+        const chartData = filtered.slice(-20);
+        const labels = chartData.map(e => e.date || '');
+        const wpms = chartData.map(e => e.wpm || 0);
+        const canvas = document.getElementById('wpm-line-chart');
+        if (!canvas) return;
+        if (window.wpmLineChart) window.wpmLineChart.destroy();
+        window.wpmLineChart = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{ label: 'WPM', data: wpms, borderColor: '#e07a5f', backgroundColor: 'rgba(224,122,95,0.10)', tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true }]
+            },
+            options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: true } }, animation: false, scales: { x: { display: true }, y: { display: true, beginAtZero: true } } }
+        });
     }
 
     showLessonFail(wpm, accuracy, duration, minAccuracy, minWPM) {
