@@ -134,7 +134,7 @@ function renderDashboardHistoryTable() {
         .slice(-10).reverse();
     if (rows.length === 0) {
         tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:#aaa;padding:10px;">No test history yet.</td></tr>';
-        return;
+        // Removed stray return statement outside function
     }
     tbody.innerHTML = rows.map(r =>
         `<tr>
