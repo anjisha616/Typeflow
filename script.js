@@ -549,6 +549,7 @@ class TestEngine {
 
         this.miniWPMGraphCanvas = document.getElementById("mini-wpm-graph");
         this.miniWPMChart       = null;
+        this.resultsWPMChart    = null;
         this.liveWPMHistory     = [];
         this.liveWPMInterval    = null;
 
@@ -1068,6 +1069,80 @@ class TestEngine {
         });
     }
 
+    renderResultsConsistencyChart() {
+        const canvas = document.getElementById('results-consistency-chart');
+        const wrap = document.getElementById('results-consistency-breakdown');
+        if (!canvas || !wrap) return;
+
+        if (this.resultsWPMChart) {
+            this.resultsWPMChart.destroy();
+            this.resultsWPMChart = null;
+        }
+
+        if (!this.liveWPMHistory || this.liveWPMHistory.length < 2) {
+            wrap.style.display = 'none';
+            return;
+        }
+
+        wrap.style.display = '';
+        const theme = getChartThemeColors();
+        const labels = this.liveWPMHistory.map((_, i) => `${i + 1}`);
+        this.resultsWPMChart = new Chart(canvas.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label: 'Live WPM',
+                    data: this.liveWPMHistory,
+                    borderColor: theme.wpm,
+                    backgroundColor: theme.bg,
+                    tension: 0.25,
+                    pointRadius: 1.8,
+                    pointHoverRadius: 3,
+                    borderWidth: 2,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: false,
+                animation: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                },
+                scales: {
+                    x: {
+                        display: true,
+                        grid: { color: theme.grid },
+                        ticks: {
+                            color: theme.ticks,
+                            callback: function(value, index) {
+                                const label = this.getLabelForValue(value);
+                                if (index === 0 || index === labels.length - 1) return label;
+                                return index % 5 === 0 ? label : '';
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Progress Samples',
+                            color: theme.ticks
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: theme.grid },
+                        ticks: { color: theme.ticks },
+                        title: {
+                            display: true,
+                            text: 'WPM',
+                            color: theme.ticks
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     calculateXP(wpm, accuracy) {
         let xp = Math.floor(wpm * 2);
         if (accuracy >= 95) xp += 50; else if (accuracy >= 90) xp += 30; else if (accuracy >= 85) xp += 15;
@@ -1089,6 +1164,7 @@ class TestEngine {
         document.getElementById("result-correct").textContent   = this.correctChars;
         document.getElementById("result-incorrect").textContent = this.incorrectChars;
         document.getElementById("xp-amount").textContent        = xpGained;
+        this.renderResultsConsistencyChart();
 
         // PB comparison
         const pb = progressManager.data.bestWPM || 0;
@@ -1978,6 +2054,7 @@ function applyTheme(theme) {
     updateThemeToggle(theme);
     if (typeof testEngine !== 'undefined' && testEngine) {
         try { testEngine.updateMiniWPMChart(); } catch {}
+        try { if (!document.getElementById('results')?.classList.contains('hidden')) testEngine.renderResultsConsistencyChart(); } catch {}
     }
     if (typeof renderWPMLineChart === 'function') renderWPMLineChart();
 }
