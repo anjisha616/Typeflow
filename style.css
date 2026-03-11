@@ -916,6 +916,7 @@ body[data-theme="dark"] .dashboard-heatmap-section { background: rgba(24,34,49,0
     font-weight: 600; border: 2px solid transparent;
     cursor: default; position: relative; transition: transform 0.15s ease;
 }
+
 .heatmap-key-cell:hover { transform: translateY(-2px); }
 .heatmap-key-cell .heatmap-tooltip {
     display: none; position: absolute; left: 50%; top: -36px;
