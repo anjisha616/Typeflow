@@ -1025,6 +1025,23 @@ body[data-theme="dark"] .xp-gained { background: rgba(244,162,97,0.1); border-co
 .xp-text { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
 .results-actions { display: flex; justify-content: center; gap: 10px; }
 .results-breakdown { margin: 1em 0; text-align: center; }
+#results-consistency-breakdown {
+    margin-top: 0.4em;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+body[data-theme="dark"] #results-consistency-breakdown {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+}
+#results-consistency-chart {
+    display: block;
+    width: 100%;
+    max-width: 460px;
+    margin: 0 auto;
+}
 
 /* ============ ANIMATIONS ============ */
 @keyframes popIn {
