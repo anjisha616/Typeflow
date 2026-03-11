@@ -542,6 +542,7 @@ class TestEngine {
 
         this.textDisplay     = document.getElementById("text-display");
         this.input           = document.getElementById("typing-input");
+        this.customTextInput = document.getElementById("custom-text-input");
         this.wpmDisplay      = document.getElementById("wpm");
         this.accuracyDisplay = document.getElementById("accuracy");
         this.timerDisplay    = document.getElementById("timer");
@@ -594,6 +595,13 @@ class TestEngine {
         return (mode === 'test') && !document.querySelector('.word-count-btn.active');
     }
 
+    getCustomPracticeText() {
+        const fallback = "The quick brown fox jumps over the lazy dog.";
+        const raw = this.customTextInput?.value || '';
+        const normalized = raw.replace(/\s+/g, ' ').trim();
+        return normalized || fallback;
+    }
+
     generateText() {
         const mode = document.querySelector('.mode-tab.active')?.dataset.mode;
         if (mode === 'quote') {
@@ -616,18 +624,13 @@ class TestEngine {
             if (match) { this.currentAuthor = match[2]; return match[1]; }
             else { this.currentAuthor = ''; return raw; }
         }
-            // Show/hide quote filter controls based on mode
-            const quoteFilterRow = document.getElementById('quote-filter-row');
-            const modeTabs = document.querySelectorAll('.mode-tab');
-            modeTabs.forEach(tab => {
-                tab.addEventListener('click', () => {
-                    const mode = tab.dataset.mode;
-                    if (quoteFilterRow) quoteFilterRow.style.display = (mode === 'quote') ? 'flex' : 'none';
-                });
-            });
         if (mode === 'code') {
             this.currentAuthor = '';
             return codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+        }
+        if (mode === 'custom') {
+            this.currentAuthor = '';
+            return this.getCustomPracticeText();
         }
         let wordCount = this.getWordCountForTime(this.timeLimit);
         const wordCountMode = document.querySelector('.word-count-btn.active')?.dataset.count;
@@ -1844,7 +1847,7 @@ function switchMode(mode) {
         tab.setAttribute("aria-selected", String(tab.dataset.mode === mode));
     });
 
-    const sectionMode = (mode === "quote" || mode === "code") ? "test" : mode;
+    const sectionMode = (mode === "quote" || mode === "code" || mode === "custom") ? "test" : mode;
     const sections    = document.querySelectorAll(".mode-section");
     const outgoing    = document.querySelector('.mode-section.active');
     const incoming    = document.getElementById(`${sectionMode}-mode`);
@@ -1870,8 +1873,10 @@ function switchMode(mode) {
     const optionsRow     = document.querySelector('.options-row');
     const timerGroup     = document.querySelector('.timer-group');
     const wordCountGroup = document.querySelector('.word-count-group');
+    const quoteFilterRow = document.getElementById('quote-filter-row');
+    const customTextRow  = document.getElementById('custom-text-row');
 
-    if (mode === 'quote' || mode === 'code') {
+    if (mode === 'quote' || mode === 'code' || mode === 'custom') {
         if (optionsRow)     optionsRow.style.display     = 'none';
         if (timerGroup)     timerGroup.style.display     = 'none';
         if (wordCountGroup) wordCountGroup.style.display = 'none';
@@ -1881,13 +1886,15 @@ function switchMode(mode) {
         if (timerGroup)     timerGroup.style.display     = currentSegment === 'timed' ? '' : 'none';
         if (wordCountGroup) wordCountGroup.style.display = currentSegment === 'words' ? '' : 'none';
     }
+    if (quoteFilterRow) quoteFilterRow.style.display = mode === 'quote' ? 'flex' : 'none';
+    if (customTextRow) customTextRow.style.display = mode === 'custom' ? 'block' : 'none';
 
     if (mode === "dashboard") {
         requestAnimationFrame(() => renderDashboard());
     } else if (mode === "lessons")         renderLessons();
     else if (mode === "practice")        { renderWeakKeys(); practiceEngine.start(); }
     else if (mode === "finger-training") fingerTrainingEngine.reset();
-    else if (mode === "test" || mode === "quote" || mode === "code") {
+    else if (mode === "test" || mode === "quote" || mode === "code" || mode === "custom") {
         testEngine.reset(true);
         setTimeout(() => {
             const input = document.getElementById("typing-input");
@@ -1908,6 +1915,7 @@ function setupGlobalKeyboardShortcuts() {
                 case 'D': e.preventDefault(); switchMode('dashboard');       showToast('📊 Dashboard', '', 1500); return;
                 case 'Q': e.preventDefault(); switchMode('quote');           showToast('❝ Quote mode', '', 1500); return;
                 case 'C': e.preventDefault(); switchMode('code');            showToast('💻 Code mode', '', 1500); return;
+                case 'U': e.preventDefault(); switchMode('custom');          showToast('📝 Custom text mode', '', 1500); return;
                 case 'P': e.preventDefault(); switchMode('practice');        showToast('🎯 Weak Keys mode', '', 1500); return;
                 case 'F': e.preventDefault(); switchMode('finger-training'); showToast('🖐️ Finger Training', '', 1500); return;
                 case 'L': e.preventDefault(); switchMode('lessons');         showToast('📚 Lessons', '', 1500); return;
@@ -2158,6 +2166,22 @@ document.addEventListener("DOMContentLoaded", () => {
     ["toggle-caps","toggle-numbers","toggle-symbols"].forEach(id => {
         document.getElementById(id).addEventListener("change", () => { if (!testEngine.isActive) testEngine.loadNewText(); });
     });
+
+    const quoteCategoryFilter = document.getElementById('quote-category-filter');
+    const quoteDifficultyFilter = document.getElementById('quote-difficulty-filter');
+    [quoteCategoryFilter, quoteDifficultyFilter].forEach(filter => {
+        if (!filter) return;
+        filter.addEventListener('change', () => {
+            if (!testEngine.isActive && testEngine.getCurrentMode() === 'quote') testEngine.loadNewText();
+        });
+    });
+
+    const customTextInput = document.getElementById('custom-text-input');
+    if (customTextInput) {
+        customTextInput.addEventListener('input', () => {
+            if (!testEngine.isActive && testEngine.getCurrentMode() === 'custom') testEngine.loadNewText();
+        });
+    }
 
     const resetBtn = document.getElementById('reset-progress-btn');
     if (resetBtn) {
