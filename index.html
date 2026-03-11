@@ -30,6 +30,7 @@
                     <li><b>Ctrl + Shift + D</b>: Open dashboard</li>
                     <li><b>Ctrl + Shift + Q</b>: Switch to quote mode</li>
                     <li><b>Ctrl + Shift + C</b>: Switch to code mode</li>
+                    <li><b>Ctrl + Shift + U</b>: Switch to custom text mode</li>
                     <li><b>Ctrl + Shift + P</b>: Switch to practice mode</li>
                     <li><b>Ctrl + Shift + F</b>: Switch to finger training</li>
                     <li><b>Ctrl + Shift + L</b>: Switch to lessons</li>
@@ -58,6 +59,10 @@
             <button class="mode-tab" data-mode="code" role="tab" aria-selected="false">
                 <span class="tab-icon">💻</span>
                 <span class="tab-label">Code</span>
+            </button>
+            <button class="mode-tab" data-mode="custom" role="tab" aria-selected="false">
+                <span class="tab-icon">📝</span>
+                <span class="tab-label">Custom</span>
             </button>
             <button class="mode-tab" data-mode="lessons" role="tab" aria-selected="false">
                 <span class="tab-icon">📚</span>
@@ -129,6 +134,10 @@
                                                 <option value="short">Short</option>
                                                 <option value="long">Long</option>
                                             </select>
+                                        </div>
+                                        <div id="custom-text-row" style="margin-top:0.7em;display:none;flex:1 1 100%;">
+                                            <label for="custom-text-input" style="display:block;font-size:0.98em;margin-bottom:6px;color:var(--muted);">Custom practice text:</label>
+                                            <textarea id="custom-text-input" rows="4" placeholder="Paste or type the text you want to practice here...">The quick brown fox jumps over the lazy dog.</textarea>
                                         </div>
                     <label class="toggle">
                         <input type="checkbox" id="toggle-caps">
