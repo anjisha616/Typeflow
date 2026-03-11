@@ -55,12 +55,12 @@ const ACHIEVEMENTS = [
 ];
 
 const LESSON_DATA = [
-    { id: 1, title: "Home Row Fundamentals", description: "Master the foundation - ASDF JKL;",        focusKeys: "asdf jkl;",           minAccuracy: 90, minWPM: 15, xpReward: 100 },
-    { id: 2, title: "Top Row Basics",        description: "Expand upward - QWERT YUIOP",              focusKeys: "qwert yuiop",         minAccuracy: 90, minWPM: 18, xpReward: 150 },
-    { id: 3, title: "Bottom Row Training",   description: "Complete the alphabet - ZXCVBNM",          focusKeys: "zxcvbnm",             minAccuracy: 90, minWPM: 20, xpReward: 150 },
-    { id: 4, title: "Full Alphabet",         description: "Combine all letters with confidence",      focusKeys: "all letters",         minAccuracy: 92, minWPM: 25, xpReward: 200 },
-    { id: 5, title: "Numbers Integration",   description: "Add numeric proficiency",                  focusKeys: "0-9",                 minAccuracy: 90, minWPM: 25, xpReward: 200 },
-    { id: 6, title: "Symbols Mastery",       description: "Complete typing - symbols & punctuation",  focusKeys: "! @ # $ % & * + - ?", minAccuracy: 88, minWPM: 30, xpReward: 250 }
+    { id: 1, title: "Home Row Fundamentals", description: "Master the foundation - ASDF JKL;",        focusKeys: "asdf jkl;",           minAccuracy: 90, minWPM: 15, maxDuration: 90, xpReward: 100 },
+    { id: 2, title: "Top Row Basics",        description: "Expand upward - QWERT YUIOP",              focusKeys: "qwert yuiop",         minAccuracy: 90, minWPM: 18, maxDuration: 90, xpReward: 150 },
+    { id: 3, title: "Bottom Row Training",   description: "Complete the alphabet - ZXCVBNM",          focusKeys: "zxcvbnm",             minAccuracy: 90, minWPM: 20, maxDuration: 90, xpReward: 150 },
+    { id: 4, title: "Full Alphabet",         description: "Combine all letters with confidence",      focusKeys: "all letters",         minAccuracy: 92, minWPM: 25, maxDuration: 90, xpReward: 200 },
+    { id: 5, title: "Numbers Integration",   description: "Add numeric proficiency",                  focusKeys: "0-9",                 minAccuracy: 90, minWPM: 25, maxDuration: 90, xpReward: 200 },
+    { id: 6, title: "Symbols Mastery",       description: "Complete typing - symbols & punctuation",  focusKeys: "! @ # $ % & * + - ?", minAccuracy: 88, minWPM: 30, maxDuration: 90, xpReward: 250 }
 ];
 
 const LEVEL_THRESHOLDS = [
@@ -1361,19 +1361,113 @@ class LessonEngine {
         }
     }
 
-    showLessonFail(wpm, accuracy, duration, minAccuracy, minWPM) {
+    handleTyping() {
+        if (!this.isActive && this.input.value.length > 0) {
+            this.isActive = true;
+            this.startTime = Date.now();
+        }
+
+        this.currentPosition = this.input.value.length;
+        this.recalculateFromInput();
+        this.updateStats();
+        this.displayText();
+
+        if (this.currentPosition >= this.currentText.length) {
+            this.completeLessonAttempt();
+        }
+    }
+
+    recalculateFromInput() {
+        const typedText = this.input.value;
+        this.correctChars = 0;
+        this.incorrectChars = 0;
+        for (let i = 0; i < typedText.length; i++) {
+            if (typedText[i] === this.currentText[i]) this.correctChars++;
+            else this.incorrectChars++;
+        }
+    }
+
+    updateStats(reset = false) {
+        if (reset) {
+            this.wpmDisplay.textContent = "0";
+            this.accuracyDisplay.textContent = "100%";
+            this.progressDisplay.textContent = "0%";
+            return;
+        }
+
+        if (this.startTime) {
+            const elapsed = Math.max((Date.now() - this.startTime) / 60000, 1 / 60);
+            this.wpmDisplay.textContent = Math.round((this.correctChars / 5) / elapsed) || 0;
+        }
+        const total = this.correctChars + this.incorrectChars;
+        const accuracy = total > 0 ? Math.round((this.correctChars / total) * 100) : 100;
+        const progress = this.currentText.length > 0 ? Math.round((this.currentPosition / this.currentText.length) * 100) : 0;
+
+        this.accuracyDisplay.textContent = `${accuracy}%`;
+        this.progressDisplay.textContent = `${Math.min(progress, 100)}%`;
+        if (this.currentLesson) {
+            safeLocalStorage.setItem(`lesson-progress-${this.currentLesson.id}`, String(Math.min(progress, 100)));
+        }
+    }
+
+    completeLessonAttempt() {
+        this.isActive = false;
+        this.input.disabled = true;
+
+        const wpm = parseInt(this.wpmDisplay.textContent, 10) || 0;
+        const accuracy = parseInt(this.accuracyDisplay.textContent, 10) || 0;
+        const duration = Math.max(1, Math.floor((Date.now() - (this.startTime || Date.now())) / 1000));
+        const lesson = this.currentLesson;
+        if (!lesson) return;
+
+        const maxDuration = lesson.maxDuration || 90;
+        const passed = accuracy >= lesson.minAccuracy && wpm >= lesson.minWPM && duration <= maxDuration;
+
+        if (!passed) {
+            this.showLessonFail(wpm, accuracy, duration, lesson.minAccuracy, lesson.minWPM, maxDuration);
+            return;
+        }
+
+        progressManager.completeLesson(lesson.id);
+        safeLocalStorage.setItem(`lesson-progress-${lesson.id}`, '100');
+
+        document.getElementById("lesson-result-wpm").textContent = `${wpm} WPM`;
+        document.getElementById("lesson-result-accuracy").textContent = `${accuracy}%`;
+        document.getElementById("lesson-result-time").textContent = `${duration}s`;
+        document.getElementById("lesson-xp-amount").textContent = lesson.xpReward;
+        document.getElementById("lesson-complete-modal").classList.remove("hidden");
+
+        if (progressManager.data.completedLessons.length === LESSON_DATA.length && !progressManager.hasAchievement('all-lessons')) {
+            progressManager.unlockAchievement('all-lessons');
+        }
+
+        renderLessons();
+    }
+
+    showLessonFail(wpm, accuracy, duration, minAccuracy, minWPM, maxDuration = 90) {
         const modal = document.getElementById("lesson-fail-modal");
         modal.classList.remove("hidden");
         document.getElementById("lesson-fail-wpm").textContent      = wpm + " WPM";
         document.getElementById("lesson-fail-accuracy").textContent = accuracy + "%";
         document.getElementById("lesson-fail-time").textContent     = duration + "s";
+        const missedAccuracy = accuracy < minAccuracy;
+        const missedSpeed = wpm < minWPM;
+        const missedTime = duration > maxDuration;
         let reason = "";
-        if (accuracy < minAccuracy && wpm < minWPM) {
-            reason = "You need at least " + minAccuracy + "% accuracy and " + minWPM + " WPM to pass.";
-        } else if (accuracy < minAccuracy) {
+        if (missedAccuracy && missedSpeed && missedTime) {
+            reason = `You need at least ${minAccuracy}% accuracy, ${minWPM} WPM, and to finish within ${maxDuration}s.`;
+        } else if (missedAccuracy && missedSpeed) {
+            reason = `You need at least ${minAccuracy}% accuracy and ${minWPM} WPM to pass.`;
+        } else if (missedAccuracy && missedTime) {
+            reason = `Accuracy too low and time too slow. Targets: ${minAccuracy}% and <= ${maxDuration}s.`;
+        } else if (missedSpeed && missedTime) {
+            reason = `Speed and timing too low. Targets: ${minWPM} WPM and <= ${maxDuration}s.`;
+        } else if (missedAccuracy) {
             reason = "Accuracy too low. Required: " + minAccuracy + "%.";
-        } else if (wpm < minWPM) {
+        } else if (missedSpeed) {
             reason = "Speed too low. Required: " + minWPM + " WPM.";
+        } else if (missedTime) {
+            reason = `Time challenge missed. Finish within ${maxDuration}s.`;
         }
         document.getElementById("lesson-fail-reason").textContent = reason;
     }
@@ -1708,7 +1802,7 @@ function renderLessons() {
         card.className    = `lesson-card ${isLocked && !isCompleted ? "locked" : ""} ${isCompleted ? "completed" : ""}`;
         if (isLocked && !isCompleted) {
             let prevLesson = LESSON_DATA[idx - 1];
-            let tooltip = prevLesson ? `Unlock by completing previous lesson with ≥${prevLesson.minAccuracy}% accuracy & ≥${prevLesson.minWPM} WPM` : "Complete previous lesson to unlock";
+            let tooltip = prevLesson ? `Unlock by completing previous lesson with >=${prevLesson.minAccuracy}% accuracy, >=${prevLesson.minWPM} WPM, and <=${prevLesson.maxDuration || 90}s` : "Complete previous lesson to unlock";
             let tooltipClass = "lesson-tooltip";
             if (lesson.id === 5) tooltipClass += " tooltip-left";
             if (lesson.id === 6) tooltipClass += " tooltip-right";
