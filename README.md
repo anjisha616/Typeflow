@@ -10,6 +10,7 @@ Typeflow is a modern touch typing learning platform designed to help users impro
 - Practice typing famous quotes and code snippets
 - Custom text mode: paste your own text and practice it directly
 - Progressive lessons for learning all keyboard rows, numbers, and symbols
+- Timed lesson challenges: meet lesson accuracy/WPM goals and finish within 90 seconds
 - Weak key practice mode: automatically identifies your weakest keys and generates targeted practice
 - Punctuation-heavy practice mode: focus specifically on commas, apostrophes, semicolons, colons, and sentence punctuation
 - Finger placement training: visual keyboard, hand guides, and interactive drills for finger-key mapping
@@ -44,6 +45,7 @@ Typeflow is a modern touch typing learning platform designed to help users impro
 - **Code:** Practice typing code snippets.
 - **Custom:** Paste your own text and practice exactly what you choose.
 - **Lessons:** Complete progressive lessons to unlock new ones.
+- **Lessons:** Complete each lesson within 90 seconds while meeting required accuracy and WPM.
 - **Weak Keys:** Practice your most error-prone keys, automatically identified.
 - **Weak Keys:** Switch between weak-key drills, punctuation-heavy drills, or mixed mode.
 - **Finger Training:** Learn proper finger placement with visual guides and interactive drills.
