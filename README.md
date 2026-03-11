@@ -8,6 +8,7 @@ Typeflow is a modern touch typing learning platform designed to help users impro
 - Typing speed test with adjustable timer (15s, 30s, 60s)
 - Word count mode (25, 50, 100 words)
 - Practice typing famous quotes and code snippets
+- Custom text mode: paste your own text and practice it directly
 - Progressive lessons for learning all keyboard rows, numbers, and symbols
 - Weak key practice mode: automatically identifies your weakest keys and generates targeted practice
 - Finger placement training: visual keyboard, hand guides, and interactive drills for finger-key mapping
@@ -40,6 +41,7 @@ Typeflow is a modern touch typing learning platform designed to help users impro
 - **Test:** Choose a timer or word count, and start typing the displayed text.
 - **Quote:** Practice typing famous quotes.
 - **Code:** Practice typing code snippets.
+- **Custom:** Paste your own text and practice exactly what you choose.
 - **Lessons:** Complete progressive lessons to unlock new ones.
 - **Weak Keys:** Practice your most error-prone keys, automatically identified.
 - **Finger Training:** Learn proper finger placement with visual guides and interactive drills.
