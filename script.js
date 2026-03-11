@@ -441,6 +441,11 @@ const codeSnippets = [
 ];
 
 const symbols = ["!","@","#","$","%","&","*","+","-","?"];
+const punctuationChars = [",", ".", "'", ";", ":", "?", "!"];
+const contractionWords = [
+    "don't", "can't", "won't", "it's", "that's", "you're", "we're", "they're", "isn't", "wasn't",
+    "hasn't", "haven't", "didn't", "I'll", "we'll", "let's", "you've", "I've", "they've", "couldn't"
+];
 const homeRowWords   = ["as","sad","dad","lad","fad","ask","flask","sass","lass","fall","hall","salad","alaska","alas","adds"];
 const topRowWords    = ["we","were","where","quiet","quit","quote","rope","tire","wire","power","tower","your","pure","true","type"];
 const bottomRowWords = ["can","van","ban","man","cab","nab","venom","cabin","cannot","banana","zinc","mix"];
@@ -1415,18 +1420,78 @@ class PracticeEngine {
     }
 
     generatePracticeText() {
+        const focusMode = document.getElementById('practice-focus-mode')?.value || 'weak';
         const weakKeys = progressManager.getTopWeakKeys(5).filter(([c]) => c && c.trim() !== "");
-        if (weakKeys.length === 0) { this.highlightIndices = new Set(); return "Practice makes perfect. Keep typing to improve your skills."; }
-        const targetChars = weakKeys.map(([c]) => c.toLowerCase());
+
+        if (focusMode === 'punctuation') {
+            const { text, highlightIndices } = this.buildPunctuationPracticeText();
+            this.highlightIndices = highlightIndices;
+            return text;
+        }
+
+        let targetChars = weakKeys.map(([c]) => c.toLowerCase());
+        if (focusMode === 'mixed') {
+            targetChars = [...new Set([...targetChars, ...punctuationChars])];
+        }
+
+        if (targetChars.length === 0) {
+            if (focusMode === 'mixed') {
+                const { text, highlightIndices } = this.buildPunctuationPracticeText();
+                this.highlightIndices = highlightIndices;
+                return text;
+            }
+            this.highlightIndices = new Set();
+            return "Practice makes perfect. Keep typing to improve your skills.";
+        }
+
         const { text, highlightIndices } = this.buildPracticeTextData(targetChars, 40);
         this.highlightIndices = highlightIndices;
         return text;
     }
 
+    buildPunctuationPracticeText() {
+        const wordPool = [...baseWords, ...contractionWords];
+        const punctuationTargets = new Set(punctuationChars);
+        const chunks = [];
+        const highlightIndices = new Set();
+
+        for (let i = 0; i < 9; i++) {
+            const wordCount = 4 + Math.floor(Math.random() * 3);
+            const words = [];
+            for (let j = 0; j < wordCount; j++) {
+                const pick = wordPool[Math.floor(Math.random() * wordPool.length)];
+                words.push(j === 0 ? this.capitalizeToken(pick) : pick);
+            }
+
+            if (words.length > 3 && Math.random() < 0.9) {
+                const commaPos = 1 + Math.floor(Math.random() * (words.length - 2));
+                words[commaPos] += ",";
+            }
+            if (words.length > 4 && Math.random() < 0.65) {
+                const semicolonPos = 2 + Math.floor(Math.random() * (words.length - 2));
+                words[semicolonPos] += Math.random() < 0.5 ? ";" : ":";
+            }
+
+            const ending = [".", "?", "!"][Math.floor(Math.random() * 3)];
+            words[words.length - 1] += ending;
+            chunks.push(words.join(" "));
+        }
+
+        const text = chunks.join(" ");
+        for (let i = 0; i < text.length; i++) {
+            if (punctuationTargets.has(text[i])) highlightIndices.add(i);
+        }
+        return { text, highlightIndices };
+    }
+
+    capitalizeToken(token) {
+        return token.length > 0 ? token[0].toUpperCase() + token.slice(1) : token;
+    }
+
     buildPracticeTextData(targetChars, wordCount = 40) {
         const words = []; const highlightIndices = new Set(); let charIdx = 0;
         for (let i = 0; i < wordCount; i++) {
-            const word = Math.random() < 0.7 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
+            const word = Math.random() < 0.72 ? this.findWordWithChars(targetChars) : baseWords[Math.floor(Math.random() * baseWords.length)];
             for (let j = 0; j < word.length; j++) { if (targetChars.includes(word[j].toLowerCase())) highlightIndices.add(charIdx + j); }
             words.push(word); charIdx += word.length + 1;
         }
@@ -1434,7 +1499,20 @@ class PracticeEngine {
     }
 
     findWordWithChars(targetChars) {
-        const candidates = baseWords.filter(w => targetChars.some(c => w.includes(c)));
+        const punctuationTargets = targetChars.filter(c => punctuationChars.includes(c));
+        const letterTargets = targetChars.filter(c => !punctuationChars.includes(c));
+
+        if (punctuationTargets.length > 0 && (letterTargets.length === 0 || Math.random() < 0.45)) {
+            const source = Math.random() < 0.45 ? contractionWords : baseWords;
+            const base = source[Math.floor(Math.random() * source.length)];
+            const punct = punctuationTargets[Math.floor(Math.random() * punctuationTargets.length)];
+            if (punct === "'") {
+                return contractionWords[Math.floor(Math.random() * contractionWords.length)];
+            }
+            return `${base}${punct}`;
+        }
+
+        const candidates = baseWords.filter(w => letterTargets.some(c => w.includes(c)));
         return candidates.length > 0 ? candidates[Math.floor(Math.random() * candidates.length)] : baseWords[Math.floor(Math.random() * baseWords.length)];
     }
 
@@ -2237,6 +2315,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     document.getElementById("practice-restart").addEventListener("click",    () => practiceEngine.start());
+    const practiceFocusMode = document.getElementById('practice-focus-mode');
+    if (practiceFocusMode) {
+        practiceFocusMode.addEventListener('change', () => {
+            if (document.getElementById('practice-mode')?.classList.contains('active')) practiceEngine.start();
+        });
+    }
     document.getElementById("start-finger-drill").addEventListener("click",  () => fingerTrainingEngine.startDrill());
     document.getElementById("random-key-practice").addEventListener("click", () => fingerTrainingEngine.nextRandomKey());
 
