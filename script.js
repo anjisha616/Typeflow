@@ -309,6 +309,7 @@ class ProgressManager {
     }
 
     getCurrentLevel() { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level) || LEVEL_THRESHOLDS[0]; }
+    
     getNextLevel()    { return LEVEL_THRESHOLDS.find(l => l.level === this.data.level + 1); }
 
     getXPProgress() {
