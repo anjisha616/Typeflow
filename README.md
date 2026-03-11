@@ -22,6 +22,7 @@ Typeflow is a modern touch typing learning platform designed to help users impro
 - Reset progress: option to reset all progress and stats
 - Feedback system: submit feedback directly from the app
 - Responsive and visually appealing UI
+- Mobile-optimized typing UX: sticky input cards, larger touch targets, and better soft-keyboard viewport handling
 
 ## Getting Started
 
