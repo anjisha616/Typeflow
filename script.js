@@ -2511,13 +2511,56 @@ document.addEventListener("DOMContentLoaded", () => {
         const card  = document.querySelector(cardSelector);
         const input = document.querySelector(inputSelector);
         if (card && input) {
-            card.addEventListener('touchstart', () => { input.focus(); }, { passive: true });
-            card.addEventListener('click',      () => { input.focus(); });
+            const focusInput = () => {
+                if (!input.disabled) input.focus({ preventScroll: true });
+                setTimeout(() => {
+                    input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }, 90);
+            };
+            card.addEventListener('touchstart', focusInput, { passive: true });
+            card.addEventListener('click', focusInput);
         }
     }
-    enableTouchFocus('.text-card', '#typing-input');
-    enableTouchFocus('.text-card', '#practice-input');
-    enableTouchFocus('.text-card', '#lesson-input');
+
+    function setupMobileKeyboardSupport() {
+        const root = document.documentElement;
+        const trackedSelectors = '#typing-input, #practice-input, #lesson-input, #custom-text-input';
+
+        function setViewportHeightVar() {
+            const vv = window.visualViewport;
+            const h = vv ? vv.height : window.innerHeight;
+            root.style.setProperty('--vvh', `${h * 0.01}px`);
+        }
+
+        function markKeyboardState() {
+            const active = document.activeElement;
+            const isTypingField = active && active.matches && active.matches(trackedSelectors);
+            document.body.classList.toggle('keyboard-open', Boolean(isTypingField));
+        }
+
+        document.addEventListener('focusin', (e) => {
+            if (e.target && e.target.matches && e.target.matches(trackedSelectors)) {
+                markKeyboardState();
+                setTimeout(() => {
+                    e.target.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }, 120);
+            }
+        });
+
+        document.addEventListener('focusout', () => {
+            setTimeout(markKeyboardState, 60);
+        });
+
+        setViewportHeightVar();
+        const vv = window.visualViewport;
+        if (vv) vv.addEventListener('resize', setViewportHeightVar);
+        window.addEventListener('resize', setViewportHeightVar);
+    }
+
+    enableTouchFocus('#test-mode .text-card', '#typing-input');
+    enableTouchFocus('#practice-mode .text-card', '#practice-input');
+    enableTouchFocus('#lesson-practice .text-card', '#lesson-input');
+    setupMobileKeyboardSupport();
 
     updateGoalWidget();
 }); // end DOMContentLoaded
