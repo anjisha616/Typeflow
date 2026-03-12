@@ -566,6 +566,8 @@ body[data-theme="dark"] .word-count-btn:hover { background: rgba(255,255,255,0.0
     border-radius: var(--radius-md);
     padding: clamp(22px, 3.75vw, 35px);
     min-height: 225px;
+    overflow: auto;
+    overscroll-behavior: contain;
 }
 .text-display {
     font-family: inherit;
