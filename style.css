@@ -1488,6 +1488,16 @@ body[data-theme="dark"] .form-group textarea, body[data-theme="dark"] .form-grou
         body[data-theme="dark"] .actions {
             background: linear-gradient(to top, rgba(24,34,49,0.95), rgba(24,34,49,0));
         }
+
+        body.keyboard-open #test-mode .input-card,
+        body.keyboard-open #test-mode .actions {
+            position: static;
+            bottom: auto;
+        }
+        body.keyboard-open #test-mode .actions {
+            padding-top: 0;
+            background: transparent;
+        }
 }
 @media (max-width: 600px) {
     .logo-header { top: 10px; left: 12px; }
