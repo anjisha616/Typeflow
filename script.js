@@ -774,12 +774,30 @@ class TestEngine {
         }
 
         const currentChar = this.textDisplay.querySelector('.current');
-        if (currentChar) {
-            // Improved scroll: center horizontally, smooth
-            currentChar.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
-        }
+        if (currentChar) this.scrollCurrentCharIntoView(currentChar);
 
         this.updateTypingAssist();
+    }
+
+    scrollCurrentCharIntoView(currentChar) {
+        const card = this.textDisplay.closest('.text-card');
+        if (!card) return;
+
+        const cardRect = card.getBoundingClientRect();
+        const charRect = currentChar.getBoundingClientRect();
+        const padding = 28;
+
+        if (charRect.top < cardRect.top + padding) {
+            card.scrollTop -= (cardRect.top + padding) - charRect.top;
+        } else if (charRect.bottom > cardRect.bottom - padding) {
+            card.scrollTop += charRect.bottom - (cardRect.bottom - padding);
+        }
+
+        if (charRect.left < cardRect.left + padding) {
+            card.scrollLeft -= (cardRect.left + padding) - charRect.left;
+        } else if (charRect.right > cardRect.right - padding) {
+            card.scrollLeft += charRect.right - (cardRect.right - padding);
+        }
     }
 
     getHideUntilIndex(typedText) {
