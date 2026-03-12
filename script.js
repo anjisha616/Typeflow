@@ -576,6 +576,7 @@ class TestEngine {
         this.timeLimit            = 15;
         this.timeLeft             = 15;
         this.mistakesByChar       = {};
+        this.mistakePairs         = {};
         this.waitingForFirstInput = false;
         this.wordCountMode        = false;
         this.ghostCursorInterval  = null;
@@ -791,6 +792,7 @@ class TestEngine {
         this.correctChars    = 0;
         this.incorrectChars  = 0;
         this.mistakesByChar  = {};
+        this.mistakePairs    = {};
         this.startTime       = null;
         this.timeLeft        = this.timeLimit;
         this.stopGhostCursor();
@@ -904,14 +906,76 @@ class TestEngine {
         this.currentPosition = typedText.length;
         this.correctChars    = 0;
         this.incorrectChars  = 0;
+        this.mistakesByChar  = {};
+        this.mistakePairs    = {};
         for (let i = 0; i < typedText.length; i++) {
             if (typedText[i] === this.currentText[i]) this.correctChars++;
             else {
                 this.incorrectChars++;
                 const expected = this.currentText[i];
+                const typed = typedText[i];
                 this.mistakesByChar[expected] = (this.mistakesByChar[expected] || 0) + 1;
+
+                const pairKey = `${expected}\u0000${typed}`;
+                if (!this.mistakePairs[pairKey]) {
+                    this.mistakePairs[pairKey] = { expected, typed, count: 0, firstIndex: i };
+                }
+                this.mistakePairs[pairKey].count++;
             }
         }
+    }
+
+    getTopMistakePairs(limit = 3) {
+        return Object.values(this.mistakePairs)
+            .sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex)
+            .slice(0, limit);
+    }
+
+    formatMistakeToken(char) {
+        if (char === ' ') return '[Space]';
+        if (char === '\n') return '[Enter]';
+        if (char === '\t') return '[Tab]';
+        return `"${String(char).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+    }
+
+    renderMistakeReplay() {
+        const list = document.getElementById('mistake-replay-list');
+        if (!list) return;
+
+        const mistakes = this.getTopMistakePairs(3);
+        list.innerHTML = '';
+
+        if (!mistakes.length) {
+            const empty = document.createElement('div');
+            empty.className = 'mistake-replay-empty';
+            empty.textContent = 'Clean run. No mismatches to review.';
+            list.appendChild(empty);
+            return;
+        }
+
+        mistakes.forEach((mistake, index) => {
+            const item = document.createElement('div');
+            item.className = 'mistake-replay-item';
+
+            const rank = document.createElement('span');
+            rank.className = 'mistake-replay-rank';
+            rank.textContent = String(index + 1);
+
+            const copy = document.createElement('div');
+            copy.className = 'mistake-replay-copy';
+
+            const line = document.createElement('div');
+            line.className = 'mistake-replay-line';
+            line.textContent = `You typed ${this.formatMistakeToken(mistake.typed)}, expected ${this.formatMistakeToken(mistake.expected)}`;
+
+            const meta = document.createElement('div');
+            meta.className = 'mistake-replay-meta';
+            meta.textContent = mistake.count === 1 ? 'Happened once' : `Happened ${mistake.count} times`;
+
+            copy.append(line, meta);
+            item.append(rank, copy);
+            list.appendChild(item);
+        });
     }
 
     updateStats(reset = false) {
@@ -1202,6 +1266,7 @@ class TestEngine {
         document.getElementById("result-correct").textContent   = this.correctChars;
         document.getElementById("result-incorrect").textContent = this.incorrectChars;
         document.getElementById("xp-amount").textContent        = xpGained;
+        this.renderMistakeReplay();
         this.renderResultsConsistencyChart();
 
         // PB comparison
@@ -1252,6 +1317,7 @@ class TestEngine {
         this.correctChars    = 0;
         this.incorrectChars  = 0;
         this.mistakesByChar  = {};
+        this.mistakePairs    = {};
         this.timeLeft        = this.timeLimit;
         this.input.value     = "";
         this.input.disabled  = false;
