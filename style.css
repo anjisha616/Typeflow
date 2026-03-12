@@ -569,6 +569,11 @@ body[data-theme="dark"] .word-count-btn:hover { background: rgba(255,255,255,0.0
     overflow: auto;
     overscroll-behavior: contain;
 }
+/* In test mode, cap text card height so text + keyboard both fit in the viewport */
+#test-mode .text-card {
+    min-height: 0;
+    max-height: clamp(120px, 22vh, 210px);
+}
 .text-display {
     font-family: inherit;
     font-size: clamp(1.35rem, 2.75vw, 1.9rem);
