@@ -175,10 +175,78 @@
                 </div>
 
                 <div class="actions">
-                    <!-- Live WPM Graph -->
-                    <div class="mini-wpm-graph-container" style="margin: 1em 0 0.5em 0; text-align:center;">
-                        <canvas id="mini-wpm-graph" width="400" height="120" style="max-width:100%;"></canvas>
-                        <div style="font-size:0.85em;color:var(--muted);margin-top:0.2em;">Live WPM</div>
+                    <div class="typing-assist-panel" id="typing-assist-panel" aria-live="polite">
+                        <div class="typing-assist-header">
+                            <strong>Live Typing Guide</strong>
+                            <span id="typing-word-progress">Word 1 / 1</span>
+                        </div>
+                        <div class="typing-word-indicator">
+                            <div class="typing-word-chip is-context">
+                                <span class="typing-word-label">Previous</span>
+                                <strong id="typing-prev-word">-</strong>
+                            </div>
+                            <div class="typing-word-chip is-current">
+                                <span class="typing-word-label">Current</span>
+                                <strong id="typing-current-word">-</strong>
+                            </div>
+                            <div class="typing-word-chip is-context">
+                                <span class="typing-word-label">Next</span>
+                                <strong id="typing-next-word">-</strong>
+                            </div>
+                        </div>
+                        <div class="test-keyboard" id="test-keyboard-visual">
+                            <div class="test-keyboard-row">
+                                <div class="test-key" data-key="1" data-finger="left-pinky">1</div>
+                                <div class="test-key" data-key="2" data-finger="left-ring">2</div>
+                                <div class="test-key" data-key="3" data-finger="left-middle">3</div>
+                                <div class="test-key" data-key="4" data-finger="left-index">4</div>
+                                <div class="test-key" data-key="5" data-finger="left-index">5</div>
+                                <div class="test-key" data-key="6" data-finger="right-index">6</div>
+                                <div class="test-key" data-key="7" data-finger="right-index">7</div>
+                                <div class="test-key" data-key="8" data-finger="right-middle">8</div>
+                                <div class="test-key" data-key="9" data-finger="right-ring">9</div>
+                                <div class="test-key" data-key="0" data-finger="right-pinky">0</div>
+                            </div>
+                            <div class="test-keyboard-row">
+                                <div class="test-key" data-key="q" data-finger="left-pinky">Q</div>
+                                <div class="test-key" data-key="w" data-finger="left-ring">W</div>
+                                <div class="test-key" data-key="e" data-finger="left-middle">E</div>
+                                <div class="test-key" data-key="r" data-finger="left-index">R</div>
+                                <div class="test-key" data-key="t" data-finger="left-index">T</div>
+                                <div class="test-key" data-key="y" data-finger="right-index">Y</div>
+                                <div class="test-key" data-key="u" data-finger="right-index">U</div>
+                                <div class="test-key" data-key="i" data-finger="right-middle">I</div>
+                                <div class="test-key" data-key="o" data-finger="right-ring">O</div>
+                                <div class="test-key" data-key="p" data-finger="right-pinky">P</div>
+                            </div>
+                            <div class="test-keyboard-row">
+                                <div class="test-key home-key" data-key="a" data-finger="left-pinky">A</div>
+                                <div class="test-key home-key" data-key="s" data-finger="left-ring">S</div>
+                                <div class="test-key home-key" data-key="d" data-finger="left-middle">D</div>
+                                <div class="test-key home-key" data-key="f" data-finger="left-index">F</div>
+                                <div class="test-key" data-key="g" data-finger="left-index">G</div>
+                                <div class="test-key" data-key="h" data-finger="right-index">H</div>
+                                <div class="test-key home-key" data-key="j" data-finger="right-index">J</div>
+                                <div class="test-key home-key" data-key="k" data-finger="right-middle">K</div>
+                                <div class="test-key home-key" data-key="l" data-finger="right-ring">L</div>
+                                <div class="test-key" data-key=";" data-finger="right-pinky">;</div>
+                            </div>
+                            <div class="test-keyboard-row">
+                                <div class="test-key" data-key="z" data-finger="left-pinky">Z</div>
+                                <div class="test-key" data-key="x" data-finger="left-ring">X</div>
+                                <div class="test-key" data-key="c" data-finger="left-middle">C</div>
+                                <div class="test-key" data-key="v" data-finger="left-index">V</div>
+                                <div class="test-key" data-key="b" data-finger="left-index">B</div>
+                                <div class="test-key" data-key="n" data-finger="right-index">N</div>
+                                <div class="test-key" data-key="m" data-finger="right-index">M</div>
+                                <div class="test-key" data-key="," data-finger="right-middle">,</div>
+                                <div class="test-key" data-key="." data-finger="right-ring">.</div>
+                                <div class="test-key" data-key="/" data-finger="right-pinky">/</div>
+                            </div>
+                            <div class="test-keyboard-row">
+                                <div class="test-key test-spacebar" data-key=" " data-finger="thumb">Space</div>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn primary" id="start-btn">Restart</button>
                     <button class="btn ghost" id="new-text-btn">New Text</button>
