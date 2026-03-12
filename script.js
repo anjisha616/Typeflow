@@ -708,6 +708,7 @@ class TestEngine {
         this.currentText     = this.generateText();
         this.currentPosition = 0;
         this.displayText();
+        this.updateTypingAssist();
     }
 
     startGhostCursor() {
@@ -777,6 +778,8 @@ class TestEngine {
             // Improved scroll: center horizontally, smooth
             currentChar.scrollIntoView({ block: 'center', inline: 'center', behavior: 'smooth' });
         }
+
+        this.updateTypingAssist();
     }
 
     getHideUntilIndex(typedText) {
@@ -788,6 +791,59 @@ class TestEngine {
         if (char === " ") return " ";
         const map = { "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" };
         return map[char] || char;
+    }
+
+    getKeyboardKeyForChar(char) {
+        if (!char) return null;
+
+        const shiftedKeys = {
+            '!': '1', '@': '2', '#': '3', '$': '4', '%': '5', '^': '6', '&': '7', '*': '8', '(': '9', ')': '0',
+            '_': '-', '+': '=', '{': '[', '}': ']', '|': '\\', ':': ';', '"': "'", '<': ',', '>': '.', '?': '/', '~': '`'
+        };
+
+        if (shiftedKeys[char]) return shiftedKeys[char];
+        if (char === ' ') return ' ';
+        return char.toLowerCase();
+    }
+
+    getWordTrackerState() {
+        const words = this.currentText ? this.currentText.split(' ').filter(Boolean) : [];
+        if (!words.length) {
+            return { previous: '-', currentHTML: '-', next: '-', progress: 'Word 0 / 0' };
+        }
+
+        const beforeCurrent = this.currentText.slice(0, this.currentPosition);
+        const completedSpaces = (beforeCurrent.match(/ /g) || []).length;
+        const wordIndex = Math.min(completedSpaces, words.length - 1);
+        const previous = wordIndex > 0 ? words[wordIndex - 1] : '-';
+        const current = words[wordIndex] || words[words.length - 1];
+        const next = wordIndex < words.length - 1 ? words[wordIndex + 1] : 'Finish';
+        const wordStart = wordIndex === 0 ? 0 : this.currentText.split(' ').slice(0, wordIndex).join(' ').length + 1;
+        const typedCurrent = this.input.value.slice(wordStart, Math.min(this.currentPosition, wordStart + current.length));
+        const safeTyped = typedCurrent.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const safeRemaining = current.slice(typedCurrent.length).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+        return {
+            previous,
+            currentHTML: `<span class="typed-portion">${safeTyped}</span><span class="remaining-portion">${safeRemaining}</span>`,
+            next,
+            progress: `Word ${wordIndex + 1} / ${words.length}`
+        };
+    }
+
+    updateTypingAssist() {
+        const tracker = this.getWordTrackerState();
+
+        if (this.prevWordDisplay) this.prevWordDisplay.textContent = tracker.previous;
+        if (this.currentWordDisplay) this.currentWordDisplay.innerHTML = tracker.currentHTML;
+        if (this.nextWordDisplay) this.nextWordDisplay.textContent = tracker.next;
+        if (this.wordProgressDisplay) this.wordProgressDisplay.textContent = tracker.progress;
+
+        if (!this.testKeyboardKeys.length) return;
+
+        const expectedChar = this.currentText[this.currentPosition] || '';
+        const activeKey = this.getKeyboardKeyForChar(expectedChar);
+        this.testKeyboardKeys.forEach(key => key.classList.toggle('expected-key', key.dataset.key === activeKey));
     }
 
     start(preserveInput = false) {
@@ -1165,16 +1221,7 @@ class TestEngine {
 
     // ============ FIX 2: CHART DARK MODE — uses getChartThemeColors() ============
     updateMiniWPMChart() {
-        if (!this.miniWPMGraphCanvas) return;
-        const theme = getChartThemeColors();
-        chartManager.render('mini-wpm-chart', this.miniWPMGraphCanvas, {
-            type: 'line',
-            data: {
-                labels: this.liveWPMHistory.map(() => ''),
-                datasets: [{ label: 'Live WPM', data: this.liveWPMHistory, borderColor: theme.wpm, backgroundColor: theme.bg, tension: 0.3, pointRadius: 0, borderWidth: 2, fill: true }]
-            },
-            options: { responsive: false, plugins: { legend: { display: false }, tooltip: { enabled: false } }, animation: false, scales: { x: { display: false }, y: { display: true, beginAtZero: true, grid: { color: theme.grid }, ticks: { stepSize: 10, font: { size: 10 }, color: theme.ticks } } } }
-        });
+        this.updateTypingAssist();
     }
 
     renderResultsConsistencyChart() {
