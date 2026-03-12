@@ -1059,6 +1059,79 @@ body[data-theme="dark"] .xp-gained { background: rgba(244,162,97,0.1); border-co
 .xp-text { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
 .results-actions { display: flex; justify-content: center; gap: 10px; }
 .results-breakdown { margin: 1em 0; text-align: center; }
+.results-mistakes {
+    margin: 1em 0 1.25em;
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+body[data-theme="dark"] .results-mistakes {
+    background: rgba(255,255,255,0.04);
+    border-color: rgba(255,255,255,0.08);
+}
+.results-mistakes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+.results-mistakes-header strong { font-size: 0.98rem; }
+.results-mistakes-header span { font-size: 0.84rem; color: var(--muted); }
+.mistake-replay-list { display: grid; gap: 10px; }
+.mistake-replay-item {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 12px;
+    align-items: start;
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+body[data-theme="dark"] .mistake-replay-item {
+    background: rgba(17,24,39,0.72);
+    border-color: rgba(255,255,255,0.07);
+}
+.mistake-replay-rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: rgba(224,122,95,0.12);
+    color: var(--accent-strong);
+    font-weight: 700;
+}
+body[data-theme="dark"] .mistake-replay-rank {
+    background: rgba(244,162,97,0.18);
+    color: #ffd6a5;
+}
+.mistake-replay-copy { min-width: 0; }
+.mistake-replay-line {
+    font-size: 0.96rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+.mistake-replay-meta {
+    margin-top: 4px;
+    font-size: 0.84rem;
+    color: var(--muted);
+}
+.mistake-replay-empty {
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+    color: var(--muted);
+    background: rgba(255,255,255,0.72);
+    border: 1px dashed rgba(0,0,0,0.08);
+}
+body[data-theme="dark"] .mistake-replay-empty {
+    background: rgba(17,24,39,0.72);
+    border-color: rgba(255,255,255,0.1);
+}
 #results-consistency-breakdown {
     margin-top: 0.4em;
     padding: 12px;
