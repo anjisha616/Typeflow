@@ -80,6 +80,53 @@ const safeLocalStorage = {
     stringify: (val)      => { try { return JSON.stringify(val); }             catch { return '{}'; } }
 };
 
+class ChartManager {
+    constructor() {
+        this.charts = new Map();
+        this.canvasKeys = new Map();
+    }
+
+    destroy(key) {
+        const chart = this.charts.get(key);
+        if (!chart) return;
+
+        try { chart.destroy(); } catch {}
+        this.charts.delete(key);
+
+        for (const [canvas, canvasKey] of this.canvasKeys.entries()) {
+            if (canvasKey === key) {
+                this.canvasKeys.delete(canvas);
+                break;
+            }
+        }
+    }
+
+    releaseCanvas(canvas) {
+        const existingKey = this.canvasKeys.get(canvas);
+        if (existingKey) this.destroy(existingKey);
+        this.canvasKeys.delete(canvas);
+    }
+
+    render(key, canvas, config) {
+        if (!canvas) return null;
+
+        this.destroy(key);
+
+        const existingChart = Chart.getChart(canvas);
+        if (existingChart) {
+            existingChart.destroy();
+            this.releaseCanvas(canvas);
+        }
+
+        const chart = new Chart(canvas.getContext('2d'), config);
+        this.charts.set(key, chart);
+        this.canvasKeys.set(canvas, key);
+        return chart;
+    }
+}
+
+const chartManager = new ChartManager();
+
 // ============ DASHBOARD HISTORY TABLE ============
 function renderDashboardHistoryTable() {
     const filterSelect = document.getElementById('wpm-date-filter');
@@ -159,19 +206,7 @@ function renderWPMChartWithFilter() {
 
     if (!canvas) return;
 
-    // Avoid Chart.js "Canvas is already in use" when other renderers use the same canvas.
-    const existingChart = Chart.getChart(canvas);
-    if (existingChart) existingChart.destroy();
-    if (window.wpmLineChart) {
-        try { window.wpmLineChart.destroy(); } catch {}
-        window.wpmLineChart = null;
-    }
-    if (window._wpmChart) {
-        try { window._wpmChart.destroy(); } catch {}
-        window._wpmChart = null;
-    }
-
-    window.wpmLineChart = new Chart(canvas.getContext('2d'), {
+    chartManager.render('dashboard-wpm-chart', canvas, {
         type: 'line',
         data: {
             labels,
@@ -554,7 +589,6 @@ class TestEngine {
         this.timerDisplay    = document.getElementById("timer");
 
         this.miniWPMGraphCanvas = document.getElementById("mini-wpm-graph");
-        this.miniWPMChart       = null;
         this.resultsWPMChart    = null;
         this.liveWPMHistory     = [];
         this.liveWPMInterval    = null;
@@ -1062,10 +1096,8 @@ class TestEngine {
     // ============ FIX 2: CHART DARK MODE — uses getChartThemeColors() ============
     updateMiniWPMChart() {
         if (!this.miniWPMGraphCanvas) return;
-        const ctx = this.miniWPMGraphCanvas.getContext('2d');
-        if (this.miniWPMChart) this.miniWPMChart.destroy();
         const theme = getChartThemeColors();
-        this.miniWPMChart = new Chart(ctx, {
+        chartManager.render('mini-wpm-chart', this.miniWPMGraphCanvas, {
             type: 'line',
             data: {
                 labels: this.liveWPMHistory.map(() => ''),
@@ -1862,7 +1894,6 @@ function hideLessonPractice() {
 function renderWPMLineChart() {
     const canvas = document.getElementById('wpm-line-chart');
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
     let wpmHistory = {};
     try { wpmHistory = JSON.parse(safeLocalStorage.getItem('typeflow-wpm-history') || '{}'); } catch { wpmHistory = {}; }
     if (Array.isArray(wpmHistory)) {
@@ -1872,22 +1903,11 @@ function renderWPMLineChart() {
     }
     const allEntries = Object.entries(wpmHistory).map(([idx, e]) => ({ ...e, idx: parseInt(idx, 10) })).sort((a, b) => a.idx - b.idx);
     const visible = allEntries.slice(-20);
-    // Avoid conflicts with other chart renderers on the same canvas.
-    const existingChart = Chart.getChart(canvas);
-    if (existingChart) existingChart.destroy();
-    if (window._wpmChart) {
-        try { window._wpmChart.destroy(); } catch {}
-        window._wpmChart = null;
-    }
-    if (window.wpmLineChart) {
-        try { window.wpmLineChart.destroy(); } catch {}
-        window.wpmLineChart = null;
-    }
     const wpmData = visible.map(e => e.wpm);
     const pb = wpmData.length ? Math.max(...wpmData) : null;
     const pbLine = pb !== null ? Array(wpmData.length).fill(pb) : [];
     const theme = getChartThemeColors();
-    window._wpmChart = new Chart(ctx, {
+    chartManager.render('dashboard-wpm-chart', canvas, {
         type: 'line',
         data: {
             labels: visible.map((e) => `Test #${e.idx}`),
