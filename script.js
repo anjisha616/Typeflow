@@ -589,7 +589,12 @@ class TestEngine {
         this.accuracyDisplay = document.getElementById("accuracy");
         this.timerDisplay    = document.getElementById("timer");
 
-        this.miniWPMGraphCanvas = document.getElementById("mini-wpm-graph");
+        this.testKeyboardVisual  = document.getElementById("test-keyboard-visual");
+        this.testKeyboardKeys    = Array.from(this.testKeyboardVisual?.querySelectorAll('.test-key') || []);
+        this.prevWordDisplay     = document.getElementById('typing-prev-word');
+        this.currentWordDisplay  = document.getElementById('typing-current-word');
+        this.nextWordDisplay     = document.getElementById('typing-next-word');
+        this.wordProgressDisplay = document.getElementById('typing-word-progress');
         this.resultsWPMChart    = null;
         this.liveWPMHistory     = [];
         this.liveWPMInterval    = null;
