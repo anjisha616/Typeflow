@@ -300,6 +300,8 @@ class ProgressManager {
         this.save();
     }
 
+    
+
     updateStreak() {
         const today = new Date().toDateString();
         const lastDate = this.data.lastPracticeDate;
