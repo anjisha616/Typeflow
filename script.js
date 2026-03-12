@@ -1219,7 +1219,7 @@ class TestEngine {
         updateGoalWidget();
     }
 
-    // ============ FIX 2: CHART DARK MODE — uses getChartThemeColors() ============
+    // ============ LIVE TYPING GUIDE ============
     updateMiniWPMChart() {
         this.updateTypingAssist();
     }
