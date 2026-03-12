@@ -1072,6 +1072,7 @@ body[data-theme="dark"] .results-mistakes {
 }
 .results-mistakes-header {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: baseline;
     gap: 12px;
@@ -1114,6 +1115,7 @@ body[data-theme="dark"] .mistake-replay-rank {
     font-size: 0.96rem;
     font-weight: 600;
     line-height: 1.35;
+    word-break: break-word;
 }
 .mistake-replay-meta {
     margin-top: 4px;
