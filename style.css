@@ -1323,20 +1323,20 @@ body[data-theme="dark"] .key { background: rgba(40,50,70,0.9); border-color: rgb
 @keyframes keyPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15) translateY(-3px); } }
 
 /* Finger color coding */
-.key[data-finger="left-pinky"]  { background: linear-gradient(135deg, #fce7f3, #fbcfe8); border-color: #ec4899; }
-.key[data-finger="left-ring"]   { background: linear-gradient(135deg, #ede9fe, #ddd6fe); border-color: #8b5cf6; }
-.key[data-finger="left-middle"] { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-color: #3b82f6; }
-.key[data-finger="left-index"]  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #10b981; }
-.key[data-finger="right-index"] { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #10b981; }
-.key[data-finger="right-middle"]{ background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-color: #3b82f6; }
-.key[data-finger="right-ring"]  { background: linear-gradient(135deg, #ede9fe, #ddd6fe); border-color: #8b5cf6; }
-.key[data-finger="right-pinky"] { background: linear-gradient(135deg, #fce7f3, #fbcfe8); border-color: #ec4899; }
-.key[data-finger="thumb"]       { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b; }
-body[data-theme="dark"] .key[data-finger="left-pinky"],  body[data-theme="dark"] .key[data-finger="right-pinky"]  { background: linear-gradient(135deg, #831843, #9d174d); }
-body[data-theme="dark"] .key[data-finger="left-ring"],   body[data-theme="dark"] .key[data-finger="right-ring"]   { background: linear-gradient(135deg, #5b21b6, #6d28d9); }
-body[data-theme="dark"] .key[data-finger="left-middle"], body[data-theme="dark"] .key[data-finger="right-middle"] { background: linear-gradient(135deg, #1e40af, #2563eb); }
-body[data-theme="dark"] .key[data-finger="left-index"],  body[data-theme="dark"] .key[data-finger="right-index"]  { background: linear-gradient(135deg, #047857, #059669); }
-body[data-theme="dark"] .key[data-finger="thumb"]        { background: linear-gradient(135deg, #b45309, #d97706); }
+.key[data-finger="left-pinky"], .test-key[data-finger="left-pinky"]  { background: linear-gradient(135deg, #fce7f3, #fbcfe8); border-color: #ec4899; }
+.key[data-finger="left-ring"], .test-key[data-finger="left-ring"]   { background: linear-gradient(135deg, #ede9fe, #ddd6fe); border-color: #8b5cf6; }
+.key[data-finger="left-middle"], .test-key[data-finger="left-middle"] { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-color: #3b82f6; }
+.key[data-finger="left-index"], .test-key[data-finger="left-index"]  { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #10b981; }
+.key[data-finger="right-index"], .test-key[data-finger="right-index"] { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border-color: #10b981; }
+.key[data-finger="right-middle"], .test-key[data-finger="right-middle"]{ background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-color: #3b82f6; }
+.key[data-finger="right-ring"], .test-key[data-finger="right-ring"]  { background: linear-gradient(135deg, #ede9fe, #ddd6fe); border-color: #8b5cf6; }
+.key[data-finger="right-pinky"], .test-key[data-finger="right-pinky"] { background: linear-gradient(135deg, #fce7f3, #fbcfe8); border-color: #ec4899; }
+.key[data-finger="thumb"], .test-key[data-finger="thumb"]       { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b; }
+body[data-theme="dark"] .key[data-finger="left-pinky"], body[data-theme="dark"] .test-key[data-finger="left-pinky"], body[data-theme="dark"] .key[data-finger="right-pinky"], body[data-theme="dark"] .test-key[data-finger="right-pinky"]  { background: linear-gradient(135deg, #831843, #9d174d); }
+body[data-theme="dark"] .key[data-finger="left-ring"], body[data-theme="dark"] .test-key[data-finger="left-ring"], body[data-theme="dark"] .key[data-finger="right-ring"], body[data-theme="dark"] .test-key[data-finger="right-ring"]   { background: linear-gradient(135deg, #5b21b6, #6d28d9); }
+body[data-theme="dark"] .key[data-finger="left-middle"], body[data-theme="dark"] .test-key[data-finger="left-middle"], body[data-theme="dark"] .key[data-finger="right-middle"], body[data-theme="dark"] .test-key[data-finger="right-middle"] { background: linear-gradient(135deg, #1e40af, #2563eb); }
+body[data-theme="dark"] .key[data-finger="left-index"], body[data-theme="dark"] .test-key[data-finger="left-index"], body[data-theme="dark"] .key[data-finger="right-index"], body[data-theme="dark"] .test-key[data-finger="right-index"]  { background: linear-gradient(135deg, #047857, #059669); }
+body[data-theme="dark"] .key[data-finger="thumb"], body[data-theme="dark"] .test-key[data-finger="thumb"]        { background: linear-gradient(135deg, #b45309, #d97706); }
 
 .key.home-key { font-weight: 700; border-width: 3px; }
 .key.home-key::after { content: ""; position: absolute; bottom: 5px; width: 18px; height: 3px; background: currentColor; border-radius: 2px; opacity: 0.4; }
