@@ -911,6 +911,7 @@ body[data-theme="dark"] .lesson-keys { background: rgba(255,255,255,0.07); borde
     max-width: 260px; text-align: center;
     transition: opacity 0.22s cubic-bezier(0.4,0,0.2,1);
 }
+
 .lesson-tooltip::before {
     content: "";
     position: absolute; bottom: -10px; left: 50%;
