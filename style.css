@@ -724,32 +724,105 @@ body[data-theme="dark"] .btn.ghost:hover { background: rgba(255,255,255,0.07); b
 .btn.danger:hover { background: #d35c3a; }
 .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none !important; }
 
-/* ============ MINI WPM GRAPH ============ */
-.mini-wpm-graph-container {
+/* ============ LIVE TYPING GUIDE ============ */
+.typing-assist-panel {
+    width: 100%;
+    padding: 18px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(255,255,255,0.82);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.08);
+}
+body[data-theme="dark"] .typing-assist-panel {
+    background: rgba(24,34,49,0.72);
+    border-color: rgba(255,255,255,0.08);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+}
+.typing-assist-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: baseline;
+    margin-bottom: 14px;
+}
+.typing-assist-header strong { font-size: 1rem; }
+.typing-assist-header span { font-size: 0.88rem; color: var(--muted); }
+.typing-word-indicator {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+.typing-word-chip {
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: rgba(255,255,255,0.72);
+    min-width: 0;
+}
+body[data-theme="dark"] .typing-word-chip {
+    background: rgba(17,24,39,0.76);
+    border-color: rgba(255,255,255,0.07);
+}
+.typing-word-chip.is-current {
+    background: linear-gradient(135deg, rgba(224,122,95,0.16), rgba(244,162,97,0.12));
+    border-color: rgba(224,122,95,0.22);
+}
+.typing-word-label {
+    display: block;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+.typing-word-chip strong {
+    display: block;
+    min-width: 0;
+    font-size: 0.98rem;
+    line-height: 1.35;
+    word-break: break-word;
+}
+.typed-portion { color: var(--accent-strong); }
+.remaining-portion { color: var(--ink); opacity: 0.72; }
+body[data-theme="dark"] .remaining-portion { color: #e5edf5; opacity: 0.8; }
+.test-keyboard {
     display: flex;
     flex-direction: column;
+    gap: 6px;
+}
+.test-keyboard-row {
+    display: flex;
+    gap: 6px;
+    justify-content: center;
+}
+.test-key {
+    min-width: 34px;
+    height: 36px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    margin: 1em 0 0.5em 0;
-    width: 100%;
-    text-align: center;
-}
-#mini-wpm-graph {
-    background: rgba(255,255,255,0.7);
     border-radius: 10px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    border: 1.5px solid #e07a5f22;
-    max-width: 220px;
-    width: 100%;
-    height: 60px;
-    transition: background 0.2s;
+    border: 1px solid rgba(0,0,0,0.08);
+    background: rgba(255,255,255,0.92);
+    font-weight: 700;
+    font-size: 0.82rem;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+    transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
 }
-body[data-theme="dark"] #mini-wpm-graph {
-    background: rgba(24,34,49,0.85);
-    border: 1.5px solid #f4a26133;
-    box-shadow: 0 2px 12px rgba(224,122,95,0.10);
+body[data-theme="dark"] .test-key {
+    background: rgba(40,50,70,0.92);
+    border-color: rgba(255,255,255,0.12);
+    box-shadow: 0 3px 0 rgba(0,0,0,0.22);
 }
-.mini-wpm-graph-container > div { color: var(--muted); font-size: 0.85em; margin-top: 0.2em; }
+.test-key.expected-key {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(224,122,95,0.18);
+    border-color: rgba(224,122,95,0.8);
+    outline: 2px solid rgba(224,122,95,0.35);
+    outline-offset: 2px;
+}
+.test-spacebar { min-width: 220px; }
 
 /* ============ LESSONS ============ */
 .lessons-grid {
