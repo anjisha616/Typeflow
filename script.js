@@ -881,6 +881,14 @@ class TestEngine {
         this.input.disabled = false;
         this.input.focus();
 
+        // Scroll so the full test section (text + keyboard) is visible
+        setTimeout(() => {
+            const assistPanel = document.getElementById('typing-assist-panel');
+            if (assistPanel) {
+                assistPanel.scrollIntoView({ behavior: 'smooth', block: 'end' });
+            }
+        }, 80);
+
         if (preserveInput) { this.recalculateFromInput(); this.updateStats(); }
         else               { this.updateStats(true); }
 
