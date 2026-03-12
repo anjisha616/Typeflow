@@ -1064,6 +1064,7 @@ class TestEngine {
         this.stopGhostCursor();
         this._removePauseOverlay();
         this.input.disabled = true;
+        this.recalculateFromInput();
         this.updateStats();
 
         const wpm      = parseInt(this.wpmDisplay.textContent);
